@@ -13,4 +13,3 @@ FROM mcr.microsoft.com/dotnet/runtime:7.0
 WORKDIR /app
 COPY --from=build-env /build .
 ENTRYPOINT ["dotnet", "overdue-book-reporter.dll"]
-LABEL org.opencontainers.image.source https://github.com/tiesmaster/overdue-book-reporter
