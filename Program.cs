@@ -1,2 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Tiesmaster.OverdueBookReporter;
+
+var client = new LibraryRotterdamClient();
+
+await client.StartSessionAsync();
