@@ -1,6 +1,16 @@
-﻿using Tiesmaster.OverdueBookReporter;
+﻿using Microsoft.Extensions.Configuration;
+using Tiesmaster.OverdueBookReporter;
 
-var client = new LibraryRotterdamClient(new(args[0], args[1]));
+var config = new ConfigurationBuilder()
+    .AddUserSecrets<Program>()
+    .AddEnvironmentVariables()
+    .AddCommandLine(args)
+    .Build();
+
+var credentials = new LibraryLoginCredentials();
+config.Bind("LibraryLoginCredentials", credentials);
+
+var client = new LibraryRotterdamClient(credentials);
 
 Console.WriteLine("Starting session");
 await client.StartSessionAsync();

@@ -6,10 +6,16 @@
     <RootNamespace>Tiesmaster.OverdueBookReporter</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>87d632cb-089f-49b8-b9c4-f50504fbdddf</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
   </ItemGroup>
 
 </Project>
