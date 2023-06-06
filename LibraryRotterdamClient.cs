@@ -101,21 +101,22 @@ public class LibraryRotterdamClient
         Console.WriteLine(_bicatSid);
     }
 
-    public async Task GetBookListingAsync()
+    public async Task<IEnumerable<string>> GetBookListingAsync()
     {
         var client = CreateLibraryRotterdamClient();
         var response = await client.GetAsync($"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
 
         var content = await response.Content.ReadAsStringAsync();
+        return await ParseBookListingAsync(content);
 
-        if (content.Contains("Brul"))
-        {
-            Console.WriteLine("SUCCESS");
-        }
-        else
-        {
-            Console.WriteLine("FAIL");
-        }
+        // if (content.Contains("Brul"))
+        // {
+        //     Console.WriteLine("SUCCESS");
+        // }
+        // else
+        // {
+        //     Console.WriteLine("FAIL");
+        // }
 
         // Console.WriteLine(content);
     }
@@ -178,6 +179,17 @@ public class LibraryRotterdamClient
         _csrfToken = inputElements
             .Select(x => x.GetAttribute("name"))
             .Single(nameAttribute => !expectedInputs.Contains(nameAttribute));
+    }
+
+    private async Task<IEnumerable<string>> ParseBookListingAsync(string mainHtml)
+    {
+        var config = Configuration.Default;
+        var context = BrowsingContext.New(config);
+        var document = await context.OpenAsync(req => req.Content(mainHtml));
+
+        var allTitles = document.QuerySelectorAll("a.title");
+
+        return allTitles.Select(x => x.InnerHtml);
     }
 }
 

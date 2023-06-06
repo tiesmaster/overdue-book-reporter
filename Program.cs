@@ -9,4 +9,9 @@ Console.WriteLine("Logging in");
 await client.LoginAsync();
 
 Console.WriteLine("Retrieving book listing");
-await client.GetBookListingAsync();
+var bookListing = await client.GetBookListingAsync();
+
+foreach (var bookTitle in bookListing)
+{
+    Console.WriteLine(bookTitle);
+}
