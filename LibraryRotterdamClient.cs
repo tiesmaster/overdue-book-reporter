@@ -57,7 +57,7 @@ public class LibraryRotterdamClient
             { "option", "com_users" },
             { "task", "user.login" },
             { "return", "aW5kZXgucGhwP0l0ZW1pZD0xMDE=" },
-            { _csrfToken, "1" },
+            { _csrfToken!, "1" },
 
         };
         var body = new FormUrlEncodedContent(dict);
@@ -164,7 +164,7 @@ public class LibraryRotterdamClient
         var document = await context.OpenAsync(req => req.Content(mainHtml));
 
         var loginForm = document.QuerySelector("form.lp-form");
-        var inputElements = loginForm.QuerySelectorAll("input");
+        var inputElements = loginForm!.QuerySelectorAll("input");
 
         var expectedInputs = new HashSet<string>
         {
@@ -178,10 +178,10 @@ public class LibraryRotterdamClient
 
         _csrfToken = inputElements
             .Select(x => x.GetAttribute("name"))
-            .Single(nameAttribute => !expectedInputs.Contains(nameAttribute));
+            .Single(nameAttribute => !expectedInputs.Contains(nameAttribute!));
     }
 
-    private async Task<IEnumerable<string>> ParseBookListingAsync(string mainHtml)
+    private static async Task<IEnumerable<string>> ParseBookListingAsync(string mainHtml)
     {
         var config = Configuration.Default;
         var context = BrowsingContext.New(config);
