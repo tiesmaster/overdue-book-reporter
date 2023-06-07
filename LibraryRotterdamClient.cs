@@ -16,11 +16,12 @@ public class LibraryRotterdamClient
         _credentials = credentials;
     }
 
-    private HttpClient CreateLibraryRotterdamClient()
+    private static HttpClient CreateLibraryRotterdamClient()
     {
-        var handler = new HttpClientHandler();
-        handler.AllowAutoRedirect = false;
-        var client = new HttpClient(handler);
+        var client = new HttpClient(new HttpClientHandler
+        {
+            AllowAutoRedirect = false
+        });
 
         client.DefaultRequestHeaders.Add(
             "User-Agent",
