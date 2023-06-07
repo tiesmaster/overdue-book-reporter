@@ -102,12 +102,15 @@ public class LibraryRotterdamClient
         Console.WriteLine(_bicatSid);
     }
 
-    public async Task<IEnumerable<string>> GetBookListingAsync()
+    public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
     {
         var client = CreateLibraryRotterdamClient();
         var response = await client.GetAsync($"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
 
         var content = await response.Content.ReadAsStringAsync();
+
+        Console.WriteLine(content);
+
         return await ParseBookListingAsync(content);
 
         // if (content.Contains("Brul"))
@@ -118,8 +121,6 @@ public class LibraryRotterdamClient
         // {
         //     Console.WriteLine("FAIL");
         // }
-
-        // Console.WriteLine(content);
     }
 
     private void ReadCookieValues(IEnumerable<string> cookieValues)
@@ -182,7 +183,7 @@ public class LibraryRotterdamClient
             .Single(nameAttribute => !expectedInputs.Contains(nameAttribute!));
     }
 
-    private static async Task<IEnumerable<string>> ParseBookListingAsync(string mainHtml)
+    private static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
     {
         var config = Configuration.Default;
         var context = BrowsingContext.New(config);
@@ -190,7 +191,11 @@ public class LibraryRotterdamClient
 
         var allTitles = document.QuerySelectorAll("a.title");
 
-        return allTitles.Select(x => x.InnerHtml);
+        return allTitles.Select(x => new LoanedBook(
+            Name: x.InnerHtml,
+            Status: default,
+            DueDay: default
+        ));
     }
 }
 
@@ -198,4 +203,12 @@ public class LibraryLoginCredentials
 {
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
+}
+
+public record LoanedBook(string Name, BookLoanStatus Status, DateOnly DueDay);
+
+public enum BookLoanStatus
+{
+    Normal,
+    Overdue,
 }
