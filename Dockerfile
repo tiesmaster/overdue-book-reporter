@@ -6,7 +6,7 @@ COPY . ./
 # Restore as distinct layers
 RUN dotnet restore
 # Build and publish a release
-RUN dotnet publish -c Release -o /build
+RUN dotnet publish src/OverdueBookReporter -c Release -o /build 
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/runtime:7.0
