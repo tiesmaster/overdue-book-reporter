@@ -8,13 +8,33 @@ public static class LibraryHtmlParser
 {
     public static async Task<HomePageResult> ParseHomePageAsync(string mainHtml)
     {
-        var config = Configuration.Default;
-        var context = BrowsingContext.New(config);
-        var document = await context.OpenAsync(req => req.Content(mainHtml));
+        var document = await ReadHtmlAsync(mainHtml);
 
         var loginForm = document.QuerySelector("form.lp-form");
-        var inputElements = loginForm!.QuerySelectorAll("input");
+        var csrfToken = ParseCsrfToken(loginForm);
 
+        return new(csrfToken!);
+    }
+
+    public static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
+    {
+        var document = await ReadHtmlAsync(mainHtml);
+
+        var allTitles = document.QuerySelector(".list_titels");
+        if (allTitles is null)
+        {
+            return Enumerable.Empty<LoanedBook>();
+        }
+
+        return allTitles.Children.Select(x => ParseTitle(x));
+    }
+
+    private static string? ParseCsrfToken(IElement? formHtml)
+    {
+        // We cannot query for the CSRF token field, as the name of it is random generated. However,
+        // we do know all the other inputs, and exclude all of them to find the CSRF token field.
+
+        var inputElements = formHtml!.QuerySelectorAll("input");
         var expectedInputs = new HashSet<string>
         {
             "username",
@@ -29,22 +49,7 @@ public static class LibraryHtmlParser
             .Select(x => x.GetAttribute("name"))
             .Single(nameAttribute => !expectedInputs.Contains(nameAttribute!));
 
-        return new(csrfToken!);
-    }
-
-    public static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
-    {
-        var config = Configuration.Default;
-        var context = BrowsingContext.New(config);
-        var document = await context.OpenAsync(req => req.Content(mainHtml));
-
-        var allTitles = document.QuerySelector(".list_titels");
-        if (allTitles is null)
-        {
-            return Enumerable.Empty<LoanedBook>();
-        }
-
-        return allTitles.Children.Select(x => ParseTitle(x));
+        return csrfToken;
     }
 
     private static LoanedBook ParseTitle(IElement titleHtml)
@@ -59,6 +64,14 @@ public static class LibraryHtmlParser
             Status: default,
             DueDay: dueDate
         );
+    }
+
+    private static async Task<IDocument> ReadHtmlAsync(string mainHtml)
+    {
+        var config = Configuration.Default;
+        var context = BrowsingContext.New(config);
+
+        return await context.OpenAsync(req => req.Content(mainHtml));
     }
 }
 
