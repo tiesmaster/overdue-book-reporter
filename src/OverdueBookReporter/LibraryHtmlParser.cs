@@ -6,6 +6,32 @@ namespace Tiesmaster.OverdueBookReporter;
 
 public static class LibraryHtmlParser
 {
+    public static async Task<HomePageResult> ParseHomePageAsync(string mainHtml)
+    {
+        var config = Configuration.Default;
+        var context = BrowsingContext.New(config);
+        var document = await context.OpenAsync(req => req.Content(mainHtml));
+
+        var loginForm = document.QuerySelector("form.lp-form");
+        var inputElements = loginForm!.QuerySelectorAll("input");
+
+        var expectedInputs = new HashSet<string>
+        {
+            "username",
+            "password",
+            "remember",
+            "option",
+            "task",
+            "return"
+        };
+
+        var csrfToken = inputElements
+            .Select(x => x.GetAttribute("name"))
+            .Single(nameAttribute => !expectedInputs.Contains(nameAttribute!));
+
+        return new(csrfToken!);
+    }
+
     public static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
     {
         var config = Configuration.Default;
@@ -35,3 +61,5 @@ public static class LibraryHtmlParser
         );
     }
 }
+
+public record HomePageResult(string CsrfToken);

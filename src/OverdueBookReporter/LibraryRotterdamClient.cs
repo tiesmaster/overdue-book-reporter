@@ -42,7 +42,8 @@ public class LibraryRotterdamClient
 
         ReadCookieValues(response.Headers.GetValues("set-cookie"));
 
-        await ReadCsrfTokenAsync(await response.Content.ReadAsStringAsync());
+        var result = await LibraryHtmlParser.ParseHomePageAsync(await response.Content.ReadAsStringAsync());
+        _csrfToken = result.CsrfToken;
 
         Console.WriteLine(_ssoId);
         Console.WriteLine(_bicatSid);
@@ -157,30 +158,6 @@ public class LibraryRotterdamClient
         Console.WriteLine("Reading BICAT_ID cookie");
         var bicatCookie = cookieValues.First(x => x.StartsWith("BICAT_SID"));
         _bicatSid = bicatCookie[10..46];
-    }
-
-    private async Task ReadCsrfTokenAsync(string mainHtml)
-    {
-        var config = Configuration.Default;
-        var context = BrowsingContext.New(config);
-        var document = await context.OpenAsync(req => req.Content(mainHtml));
-
-        var loginForm = document.QuerySelector("form.lp-form");
-        var inputElements = loginForm!.QuerySelectorAll("input");
-
-        var expectedInputs = new HashSet<string>
-        {
-            "username",
-            "password",
-            "remember",
-            "option",
-            "task",
-            "return"
-        };
-
-        _csrfToken = inputElements
-            .Select(x => x.GetAttribute("name"))
-            .Single(nameAttribute => !expectedInputs.Contains(nameAttribute!));
     }
 }
 
