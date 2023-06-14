@@ -110,7 +110,7 @@ public class LibraryRotterdamClient
 
         var content = await response.Content.ReadAsStringAsync();
 
-        Console.WriteLine(content);
+        // Console.WriteLine(content);
 
         return await LibraryHtmlParser.ParseBookListingAsync(content);
 
