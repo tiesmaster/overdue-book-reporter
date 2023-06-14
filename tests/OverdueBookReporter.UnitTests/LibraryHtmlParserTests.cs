@@ -18,9 +18,11 @@ public class LibraryHtmlParserTests
 
         var firstBook = booksListing.First();
         firstBook.Name.Should().Be("Ik kan alleen wormen tekenen");
+        // firstBook.DueDay.Should().Be(DateOnly.Parse("2023-06-15"));
 
         var otherBook = booksListing.Last();
         otherBook.Name.Should().Be("Olivier en het Brulmonster");
+        // otherBook.DueDay.Should().Be(DateOnly.Parse("2023-06-15"));
     }
 
     [Fact]
