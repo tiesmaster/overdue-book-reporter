@@ -111,7 +111,7 @@ public class LibraryRotterdamClient
 
         Console.WriteLine(content);
 
-        return await ParseBookListingAsync(content);
+        return await LibraryHtmlParser.ParseBookListingAsync(content);
 
         // if (content.Contains("Brul"))
         // {
@@ -182,33 +182,10 @@ public class LibraryRotterdamClient
             .Select(x => x.GetAttribute("name"))
             .Single(nameAttribute => !expectedInputs.Contains(nameAttribute!));
     }
-
-    private static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
-    {
-        var config = Configuration.Default;
-        var context = BrowsingContext.New(config);
-        var document = await context.OpenAsync(req => req.Content(mainHtml));
-
-        var allTitles = document.QuerySelectorAll("a.title");
-
-        return allTitles.Select(x => new LoanedBook(
-            Name: x.InnerHtml,
-            Status: default,
-            DueDay: default
-        ));
-    }
 }
 
 public class LibraryLoginCredentials
 {
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
-}
-
-public record LoanedBook(string Name, BookLoanStatus Status, DateOnly DueDay);
-
-public enum BookLoanStatus
-{
-    Normal,
-    Overdue,
 }
