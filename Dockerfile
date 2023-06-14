@@ -12,4 +12,4 @@ RUN dotnet publish src/OverdueBookReporter -c Release -o /build
 FROM mcr.microsoft.com/dotnet/runtime:7.0
 WORKDIR /app
 COPY --from=build-env /build .
-ENTRYPOINT ["dotnet", "overdue-book-reporter.dll"]
+ENTRYPOINT ["dotnet", "OverdueBookReporter.dll"]
