@@ -5,20 +5,38 @@ namespace OverdueBookReporter.UnitTests;
 public class LibraryHtmlParserTests
 {
     [Fact]
-    public async Task Hoi()
+    public async Task ParseBookListingAsync_WithBooksLendOutAndTomorrowDue_ReturnsThoseBooks()
     {
+        // arrange
         var html = GetEmbeddedResourceHtml("2-books-lend-out_tomorrow-due.html");
 
+        // act
         var booksListing = await LibraryHtmlParser.ParseBookListingAsync(html);
-        booksListing.Should().NotBeEmpty();
+
+        // assert
         booksListing.Should().HaveCount(2);
 
-        var firstLendOutBook = booksListing.First();
-        firstLendOutBook.Name.Should().Be("Ik kan alleen wormen tekenen");
+        var firstBook = booksListing.First();
+        firstBook.Name.Should().Be("Ik kan alleen wormen tekenen");
 
-        booksListing.Last().Name.Should().Be("Olivier en het Brulmonster");
-
+        var otherBook = booksListing.Last();
+        otherBook.Name.Should().Be("Olivier en het Brulmonster");
     }
+
+    [Fact]
+    public async Task ParseBookListingAsync_WithoutBooksInPosession_ReturnsEmptyList()
+    {
+        // arrange
+        var html = GetEmbeddedResourceHtml("no-books-in-posession.html");
+
+        // act
+        var booksListing = await LibraryHtmlParser.ParseBookListingAsync(html);
+
+        // assert
+        booksListing.Should().BeEmpty();
+    }
+
+    // TODO: Validate that the message "Geen leningen bekend" is shown when no books in posession
 
     private static string GetEmbeddedResourceHtml(string testFileName)
     {
