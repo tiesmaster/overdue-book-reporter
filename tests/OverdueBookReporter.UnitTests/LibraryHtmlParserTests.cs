@@ -4,6 +4,21 @@ namespace OverdueBookReporter.UnitTests;
 
 public class LibraryHtmlParserTests
 {
+    [Theory]
+    [InlineData("homepage-1.html", "c8868c5ce2ff296ef698e9a47e1974fc")]
+    [InlineData("homepage-2.html", "5f2529acbab589eeeecd985d5fc588cf")]
+    public async Task ParseHomePageAsync_WithHomePages_ReturnsCsrfToken(string testFileName, string csrfToken)
+    {
+        // arrange
+        var html = GetEmbeddedResourceHtml(testFileName);
+
+        // act
+        var homePageResult = await LibraryHtmlParser.ParseHomePageAsync(html);
+
+        // assert
+        homePageResult.CsrfToken.Should().Be(csrfToken);
+    }
+
     [Fact]
     public async Task ParseBookListingAsync_WithBooksLendOutAndTomorrowDue_ReturnsThoseBooks()
     {
