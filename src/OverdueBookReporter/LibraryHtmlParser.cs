@@ -61,7 +61,6 @@ public static class LibraryHtmlParser
 
         return new(
             Name: titleName,
-            Status: default,
             DueDay: dueDate
         );
     }
