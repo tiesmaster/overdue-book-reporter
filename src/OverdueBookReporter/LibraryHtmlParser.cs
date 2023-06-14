@@ -1,3 +1,4 @@
+using System.Globalization;
 using AngleSharp;
 using AngleSharp.Dom;
 
@@ -24,10 +25,13 @@ public static class LibraryHtmlParser
     {
         var titleName = titleHtml.QuerySelector("a.title")!.InnerHtml;
 
+        var loanInfoHtml = titleHtml.QuerySelector("span.vet:nth-child(2)");
+        var dueDate = DateOnly.Parse(loanInfoHtml!.InnerHtml, CultureInfo.GetCultureInfo("nl-NL"));
+
         return new(
             Name: titleName,
             Status: default,
-            DueDay: default
+            DueDay: dueDate
         );
     }
 }
