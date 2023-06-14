@@ -11,13 +11,13 @@ Pass in the required parameters like this:
 Via CLI:
 
 ```bash
-dotnet run --librarylogincredentials:username AzureDiamond --librarylogincredentials:password hunter2
+dotnet run --project src/OverdueBookReporter --librarylogincredentials:username AzureDiamond --librarylogincredentials:password hunter2
 ```
 
 Via ENV:
 
 ```bash
-LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2 dotnet run
+LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2 dotnet run --project src/OverdueBookReporter
 ```
 
 Or set as user secret:
