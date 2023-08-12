@@ -16,7 +16,8 @@ var config = new ConfigurationBuilder()
     .AddCommandLine(args)
     .Build();
 
-Console.WriteLine($"overdue-book-reporter: version {Assembly.GetEntryAssembly()!.GetName().Version}");
+var versionInfo = Assembly.GetEntryAssembly()!.GetCustomAttributes<AssemblyInformationalVersionAttribute>().First();
+Console.WriteLine($"overdue-book-reporter: version {versionInfo.InformationalVersion}");
 
 var credentials = new LibraryLoginCredentials();
 config.Bind("LibraryLoginCredentials", credentials);
