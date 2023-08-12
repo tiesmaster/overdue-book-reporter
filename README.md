@@ -4,7 +4,20 @@ Simple tool to check any outstanding books at the library, and report if any are
 
 # Usage
 
+## Via `.env` file
+
+1. Use the [`.env.sample`](./.env.sample) as template to create a new `.env` file
+2. Set the appropriate environment variables
+
+## Docker
+
+```bash
+docker run --rm ghcr.io/tiesmaster/overdue-book-reporter:main -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2
+```
+
 ## CLI
+
+:exclamation: This is outdated, rather use the [`.env` file instead](#via-env-file)
 
 Pass in the required parameters like this:
 
@@ -28,10 +41,4 @@ dotnet user-secrets set 'LibraryLoginCredentials:Password' 'hunter2'
 
 # And then just do dotnet run
 dotnet run
-```
-
-## Docker
-
-```bash
-docker run --rm ghcr.io/tiesmaster/overdue-book-reporter:main -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2
 ```

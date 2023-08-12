@@ -1,5 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using dotenv.net;
+
+using Microsoft.Extensions.Configuration;
 using Tiesmaster.OverdueBookReporter;
+
+DotEnv
+    .Fluent()
+    .WithProbeForEnv(probeLevelsToSearch: 6) // go up all the way to the root of the project
+    .Load();
 
 var config = new ConfigurationBuilder()
     .AddUserSecrets<Program>()
