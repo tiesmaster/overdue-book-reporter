@@ -30,6 +30,9 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Nerdbank.GitVersioning
+        uses: dotnet/nbgv@v0.4.1
+        id: nbgv
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v4.6.0
@@ -37,7 +40,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=latest2,enable={{is_default_branch}}
+            type=raw,value=${{ steps.nbgv.outputs.NuGetPackageVersion }},enable={{is_default_branch}}
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v4.1.1
