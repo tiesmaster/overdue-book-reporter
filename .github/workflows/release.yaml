@@ -40,7 +40,9 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=${{ steps.nbgv.outputs.NuGetPackageVersion }},enable={{is_default_branch}}
+            type=raw,value=${{ steps.nbgv.outputs.Version }},enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.version=${{ steps.nbgv.outputs.Version }}
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v4.1.1
