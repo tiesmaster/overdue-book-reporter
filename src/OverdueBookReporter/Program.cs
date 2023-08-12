@@ -5,16 +5,10 @@ using System.Reflection;
 
 using Tiesmaster.OverdueBookReporter;
 
-var envVars = Environment.GetEnvironmentVariables();
-foreach (var key in envVars.Keys)
-{
-    Console.WriteLine($"{key}: {envVars[key]}");
-}
-
-//DotEnv
-//    .Fluent()
-//    .WithProbeForEnv(probeLevelsToSearch: 6) // go up all the way to the root of the project
-//    .Load();
+DotEnv
+    .Fluent()
+    .WithProbeForEnv(probeLevelsToSearch: 6) // go up all the way to the root of the project
+    .Load();
 
 var config = new ConfigurationBuilder()
     .AddUserSecrets<Program>()
