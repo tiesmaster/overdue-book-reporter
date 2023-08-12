@@ -18,7 +18,7 @@ docker pull ghcr.io/tiesmaster/overdue-book-reporter:main
 
 ### Run
 ```bash
-docker run --rm ghcr.io/tiesmaster/overdue-book-reporter:main -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2
+docker run --rm -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2 ghcr.io/tiesmaster/overdue-book-reporter:main
 ```
 
 ## CLI
