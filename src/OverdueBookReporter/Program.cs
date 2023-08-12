@@ -1,6 +1,8 @@
 ﻿using dotenv.net;
 
 using Microsoft.Extensions.Configuration;
+using System.Reflection;
+
 using Tiesmaster.OverdueBookReporter;
 
 DotEnv
@@ -13,6 +15,8 @@ var config = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .AddCommandLine(args)
     .Build();
+
+Console.WriteLine($"overdue-book-reporter: version {Assembly.GetEntryAssembly()!.GetName().Version}");
 
 var credentials = new LibraryLoginCredentials();
 config.Bind("LibraryLoginCredentials", credentials);
