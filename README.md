@@ -11,6 +11,12 @@ Simple tool to check any outstanding books at the library, and report if any are
 
 ## Docker
 
+### Pull
+```bash
+docker pull ghcr.io/tiesmaster/overdue-book-reporter:main
+```
+
+### Run
 ```bash
 docker run --rm ghcr.io/tiesmaster/overdue-book-reporter:main -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2
 ```
