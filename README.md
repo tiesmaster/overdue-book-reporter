@@ -48,5 +48,3 @@ dotnet user-secrets set 'LibraryLoginCredentials:Password' 'hunter2'
 # And then just do dotnet run
 dotnet run
 ```
-
-
