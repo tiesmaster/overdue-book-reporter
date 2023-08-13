@@ -18,7 +18,19 @@ docker pull ghcr.io/tiesmaster/overdue-book-reporter
 
 ### Run
 ```bash
-docker run --rm -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2 ghcr.io/tiesmaster/overdue-book-reporter
+docker run --rm \
+    -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond \
+    -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2 \
+    -e EMAILSETTINGS__FROM__NAME=OverdueBookReporter \
+    -e EMAILSETTINGS__FROM__ADDRESS=john@gmail.com \
+    -e EMAILSETTINGS__TO__NAME=John \
+    -e EMAILSETTINGS__TO__ADDRESS=john@gmail.com \
+    -e EMAILSETTINGS__MAILSERVER__HOST=smtp.gmail.com \
+    -e EMAILSETTINGS__MAILSERVER__PORT=465 \
+    -e EMAILSETTINGS__MAILSERVER__USESSL=true \
+    -e EMAILSETTINGS__MAILSERVER__USERNAME=john@gmail.com \
+    -e EMAILSETTINGS__MAILSERVER__PASSWORD=hunter2 \
+    ghcr.io/tiesmaster/overdue-book-reporter
 ```
 
 ## CLI
