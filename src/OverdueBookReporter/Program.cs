@@ -57,7 +57,7 @@ static async Task SendEmailAsync(bool anyOverdue, EmailSettings settings)
     var message = new MimeMessage();
     message.From.Add(new MailboxAddress(settings.From.Name, settings.From.Address));
     message.To.Add(new MailboxAddress(settings.To.Name, settings.To.Address));
-    message.Subject = anyOverdue ? "OVERDUE!!!" : "all good";
+    message.Subject = anyOverdue ? "OVERDUE!!!" : "all good!";
 
     // message.Body = new TextPart("plain")
     // {
