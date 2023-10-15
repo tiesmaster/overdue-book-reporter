@@ -42,7 +42,8 @@ public class LibraryRotterdamClient
 
         ReadCookieValues(response.Headers.GetValues("set-cookie"));
 
-        var result = await LibraryHtmlParser.ParseHomePageAsync(await response.Content.ReadAsStringAsync());
+        var homePageHtml = await response.Content.ReadAsStringAsync();
+        var result = await LibraryHtmlParser.ParseHomePageAsync(homePageHtml);
         _csrfToken = result.CsrfToken;
 
         Console.WriteLine(_ssoId);
@@ -67,8 +68,10 @@ public class LibraryRotterdamClient
         await body.CopyToAsync(ms);
 
         Console.WriteLine(Encoding.UTF8.GetString(ms.ToArray()));
-        // body.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
-        body.Headers.Add("Cookie", $"1f23ba878c08449ef3595a1f6bec6273={_ssoId}; BICAT_SID={_bicatSid};");
+
+        body.Headers.Add(
+            "Cookie",
+            $"1f23ba878c08449ef3595a1f6bec6273={_ssoId}; BICAT_SID={_bicatSid};");
 
         var client = CreateLibraryRotterdamClient();
         var response = await client.PostAsync("https://www.bibliotheek.rotterdam.nl", body);
@@ -94,7 +97,11 @@ public class LibraryRotterdamClient
         Console.WriteLine(_bicatSid);
 
         var client2 = CreateLibraryRotterdamClient();
-        client2.DefaultRequestHeaders.Add("Cookie", $"1f23ba878c08449ef3595a1f6bec6273={_ssoId}; BICAT_SID={_bicatSid}; joomla_user_state=logged_in");
+
+        client2.DefaultRequestHeaders.Add(
+            "Cookie",
+            $"1f23ba878c08449ef3595a1f6bec6273={_ssoId}; BICAT_SID={_bicatSid}; joomla_user_state=logged_in");
+
         var response2 = await client2.GetAsync("https://www.bibliotheek.rotterdam.nl");
 
         ReadCookieValues2(response2.Headers.GetValues("set-cookie"));
@@ -106,7 +113,10 @@ public class LibraryRotterdamClient
     public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
     {
         var client = CreateLibraryRotterdamClient();
-        var response = await client.GetAsync($"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
+
+        var response = await client.GetAsync(
+            $"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;" +
+            $"ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
 
         var content = await response.Content.ReadAsStringAsync();
 
