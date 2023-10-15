@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="nl-nl" dir="ltr">
+    <head><link href="https://wise-web.bibliotheek.rotterdam.nl//wise-modules/web_icons/1/css/wise-icons.css" rel="stylesheet" type="text/css"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="/images/favicon.png" sizes="any">
+                <link rel="apple-touch-icon" href="/images/favicon.png">
+        <meta charset="utf-8">
+	<base href="//bibliotheek.rotterdam.nl/login">
+	<title>Inloggen - De Bibliotheek Rotterdam</title>
+	<link href="//bibliotheek.rotterdam.nl/zoeken?format=opensearch" rel="search" title="OpenSearch De Bibliotheek Rotterdam" type="application/opensearchdescription+xml">
+	<link href="/media/system/css/joomla-fontawesome.min.css?ver=4.0.13" rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link href="/media/plg_system_webauthn/css/button.min.css?9c51e36ba364c325f701a6ec194ed151" rel="stylesheet" />
+	<link href="/plugins/system/screenreader/screenreader/libraries/controller/css/custom.css?9c51e36ba364c325f701a6ec194ed151" rel="stylesheet" />
+	<link href="/media/vendor/joomla-custom-elements/css/joomla-alert.min.css?0.2.0" rel="stylesheet" />
+	<link href="/plugins/system/gdpr/assets/css/cookieconsent.min.css?9c51e36ba364c325f701a6ec194ed151" rel="stylesheet" />
+	<link href="/media/com_jce/site/css/content.min.css?badb4208be409b1335b815dde676300e" rel="stylesheet" />
+	<link href="/templates/yootheme_rotterdam/css/theme.9.css?1696333142" rel="stylesheet" />
+	<link href="/templates/yootheme_rotterdam/css/custom.css?4.0.13" rel="stylesheet" />
+	<style>#accessibility-links #text_plugin{width:0px;}</style>
+	<style>:focus{outline: 4px solid #e3e3e3 !important;}</style>
+	<style>div.cc-window.cc-floating{max-width:24em}@media(max-width: 639px){div.cc-window.cc-floating:not(.cc-center){max-width: none}}div.cc-window, span.cc-cookie-settings-toggler{font-size:16px}div.cc-revoke{font-size:16px}div.cc-settings-label,span.cc-cookie-settings-toggle{font-size:14px}div.cc-window.cc-banner{padding:1em 1.8em}div.cc-window.cc-floating{padding:2em 1.8em}input.cc-cookie-checkbox+span:before, input.cc-cookie-checkbox+span:after{border-radius:1px}div.cc-center,div.cc-floating,div.cc-checkbox-container,div.gdpr-fancybox-container div.fancybox-content,ul.cc-cookie-category-list li,fieldset.cc-service-list-title legend{border-radius:0px}div.cc-window a.cc-btn,span.cc-cookie-settings-toggle{border-radius:0px}</style>
+<script type="application/json" class="joomla-script-options new">{"joomla.jtext":{"PLG_SYSTEM_WEBAUTHN_ERR_CANNOT_FIND_USERNAME":"Kan het gebruikersnaam veld niet vinden in de inlogmodule. Sorry, wachtwoordloze authenticatie zal niet werken op deze site tenzij er een andere inlogmodule wordt gebruikt.","PLG_SYSTEM_WEBAUTHN_ERR_EMPTY_USERNAME":"De gebruikersnaam moet worden ingevoerd (maar NIET het wachtwoord) voor op de Web authenticatie inlogknop te klikken.","PLG_SYSTEM_WEBAUTHN_ERR_INVALID_USERNAME":"De opgegeven gebruikersnaam komt niet overeen met een gebruikersaccount dat wachtwoordloos inloggen op deze website heeft ingeschakeld.","JFIELD_PASSWORD_INDICATE_INCOMPLETE":"Wachtwoord voldoet niet aan de vereisten van de website.","JFIELD_PASSWORD_INDICATE_COMPLETE":"Wachtwoord geaccepteerd","JSHOWPASSWORD":"Toon wachtwoord","JHIDEPASSWORD":"Wachtwoord verbergen","ERROR":"Waarschuwing","MESSAGE":"Bericht","NOTICE":"Attentie","WARNING":"Waarschuwing","JCLOSE":"Sluiten","JOK":"Ok","JOPEN":"Open","JLIB_FORM_CONTAINS_INVALID_FIELDS":"Het formulier kan niet worden verzonden omdat verplichte gegevens ontbreken. <br> Corrigeer de gemarkeerde velden en probeer het opnieuw.","JLIB_FORM_FIELD_REQUIRED_VALUE":"Vul dit veld in","JLIB_FORM_FIELD_REQUIRED_CHECK":"Een van de opties moet worden geselecteerd","JLIB_FORM_FIELD_INVALID_VALUE":"Deze waarde is niet geldig"},"system.paths":{"root":"","rootFull":"https:\/\/bibliotheek.rotterdam.nl\/","base":"","baseFull":"https:\/\/bibliotheek.rotterdam.nl\/"},"csrf.token":"f14501b9585db15e368c694fe66b079a","system.keepalive":{"interval":840000,"uri":"\/component\/ajax\/?format=json"}}</script>
+	<script src="/media/system/js/core.min.js?7bef41c395459962599787d9a48c20f7"></script>
+	<script src="/media/system/js/keepalive-es5.min.js?7bef41c395459962599787d9a48c20f7" defer nomodule></script>
+	<script src="/media/system/js/messages-es5.min.js?7bef41c395459962599787d9a48c20f7" nomodule defer></script>
+	<script src="/media/plg_system_webauthn/js/login.min.js?9c51e36ba364c325f701a6ec194ed151" defer></script>
+	<script src="/media/system/js/keepalive.min.js?7bef41c395459962599787d9a48c20f7" type="module"></script>
+	<script src="/media/system/js/fields/validate.min.js?7bef41c395459962599787d9a48c20f7" defer></script>
+	<script src="/media/system/js/fields/passwordview.min.js?7bef41c395459962599787d9a48c20f7" defer></script>
+	<script src="/media/vendor/jquery/js/jquery.min.js?3.6.3"></script>
+	<script src="/media/legacy/js/jquery-noconflict.min.js?7bef41c395459962599787d9a48c20f7"></script>
+	<script src="/plugins/system/screenreader/screenreader/languages/nl-NL.js?9c51e36ba364c325f701a6ec194ed151"></script>
+	<script src="/plugins/system/screenreader/screenreader/libraries/tts/soundmanager/soundmanager2.js?9c51e36ba364c325f701a6ec194ed151"></script>
+	<script src="/plugins/system/screenreader/screenreader/libraries/tts/tts.js?9c51e36ba364c325f701a6ec194ed151" defer></script>
+	<script src="/plugins/system/screenreader/screenreader/libraries/controller/controller.js?9c51e36ba364c325f701a6ec194ed151" defer></script>
+	<script src="/media/system/js/messages.min.js?7bef41c395459962599787d9a48c20f7" type="module"></script>
+	<script src="/plugins/system/gdpr/assets/js/cookieconsent.min.js?9c51e36ba364c325f701a6ec194ed151" defer></script>
+	<script src="/plugins/system/gdpr/assets/js/init.js?9c51e36ba364c325f701a6ec194ed151" defer></script>
+	<script src="//bibliotheek.rotterdam.nl/media/com_wise/site/js/wise.component.js"></script>
+	<script src="//bibliotheek.rotterdam.nl/media/com_wise/site/js/sha256.js"></script>
+	<script src="/templates/yootheme/vendor/yootheme/theme-analytics/app/analytics.min.js?4.0.13" defer></script>
+	<script src="/templates/yootheme/vendor/assets/uikit/dist/js/uikit.min.js?4.0.13"></script>
+	<script src="/templates/yootheme/vendor/assets/uikit/dist/js/uikit-icons.min.js?4.0.13"></script>
+	<script src="/templates/yootheme/js/theme.js?4.0.13"></script>
+	<script>window.soundManager.url = '//bibliotheek.rotterdam.nl/plugins/system/screenreader/screenreader/libraries/tts/soundmanager/swf/';
+										  window.soundManager.debugMode = false;  
+										  window.soundManager.defaultOptions.volume = 100;
+										  var screenReaderConfigOptions = {	baseURI: '//bibliotheek.rotterdam.nl/',
+																			token: 'ec037258665cd171c5a303ee8b054e70',
+																			langCode: 'nl',
+																			chunkLength: 100,
+																			screenReaderVolume: '100',
+																			screenReaderVoiceSpeed: 'slow',
+																			position: 'topright',
+																			scrolling: 'fixed',
+																			targetAppendto: 'html',
+																			targetAppendMode: 'top',
+																			preload: 1,
+																			preloadTimeout: 3000,
+																			autoBackgroundColor: 1,
+																			readPage: 1,
+																			readChildNodes: 1,
+																			ieHighContrast: 1,
+																			ieHighContrastAdvanced: 1,
+																			selectedStorage: 'session',
+																			gtranslateIntegration: 0,
+																			readElementsHovering: 0,
+																			elementsHoveringSelector: 'p',
+																			selectMainpageareaText: 0,
+																			excludeScripts: 1,
+																			readImages: 0,
+																			readImagesAttribute: 'alt',
+																			readImagesOrdering: 'before',
+																			readImagesHovering: 0,
+																			mainpageSelector: '*[name*=main], *[class*=main], *[id*=main], *[id*=container], *[class*=container]',
+																			showlabel: 0,
+																			labeltext: 'Pagina voorlezen',
+																			screenreaderIcon: 'audio',
+																			screenreader: 1,
+																			highcontrast: 1,
+																			highcontrastAlternate: 1,
+																			colorHue: 180,
+																			colorBrightness: 6,
+																			rootTarget: 0,
+																			dyslexicFont: 1,
+																			grayHues: 0,
+																			spacingSize: 0,
+																			spacingSizeMin: 0,
+																			spacingSizeMax: 10,
+																			bigCursor: 0,
+																			readingGuides: 0,
+																			readability: 0,
+																			readabilitySelector: 'div.item-page,#content,div[itemprop=articleBody],div.item-content',
+																			hideImages: 0,
+																			hideAlsoVideosIframes: 0,
+																			customColors: 0,
+																			customColorsCssSelectors: '',
+																			fontsizeMinimizedToolbar: 0,
+																			hoverMinimizedToolbar: 0,
+																			fontsize: 1,
+																			fontsizeDefault: 100,
+																			fontsizeMin: 50,
+																			fontsizeMax: 200,
+																			fontsizeSelector: '',
+																			fontSizeHeadersIncrement: 20,
+																			toolbarBgcolor: '#eeeeee',
+																			template: 'custom.css',
+																			templateOrientation: 'vertical',
+																			accesskey_play: 'P',
+																			accesskey_pause: 'E',
+																			accesskey_stop: 'S',
+																			accesskey_increase: 'O',
+																			accesskey_decrease: 'U',
+																			accesskey_reset: 'R',
+																			accesskey_highcontrast: 'H',
+																			accesskey_highcontrast2: 'J',
+																			accesskey_highcontrast3: 'K',
+																			accesskey_dyslexic: 'D',
+																			accesskey_grayhues: 'G',
+																			accesskey_spacingsize_increase: 'M',
+																			accesskey_spacingsize_decrease: 'N',
+																			accesskey_bigcursor: 'W',
+																			accesskey_reading_guides: 'V',
+																			accesskey_readability: 'Q',
+																			accesskey_hideimages: 'F',
+																			accesskey_skiptocontents: 'C',
+																			accesskey_minimized: 'L',
+																			volume_accesskeys: 1,
+																			accesskey_increase_volume: '+',
+																			accesskey_decrease_volume: '-',
+																			accesskey_change_text_color: 'I',
+																			accesskey_change_background_color: 'B',
+																			readerEngine: 'proxy',
+																			useMobileReaderEngine: 0,
+																			mobileReaderEngine: 'proxy',
+																			proxyResponsiveApikey: 'YkiNlVQr',
+																			proxyResponsiveLanguageGender: 'auto',
+																			hideOnMobile: 0,
+																			useMinimizedToolbar: 0,
+																			statusMinimizedToolbar: 'closed',
+																			minimizedToolbarOnlyMobile: 0,
+																			showSkipToContents: 1,
+																			skipToContentsSelector: '.tm-header',
+																			removeLinksTarget: 0,
+																			resetButtonBehavior: 'fontsize'
+																		};</script>
+	<script>var gdprConfigurationOptions = { complianceType: 'opt-in',
+																			  cookieConsentLifetime: 365,
+																			  cookieConsentSamesitePolicy: '',
+																			  cookieConsentSecure: 0,
+																			  disableFirstReload: 0,
+																	  		  blockJoomlaSessionCookie: 0,
+																			  blockExternalCookiesDomains: 1,
+																			  externalAdvancedBlockingModeCustomAttribute: '',
+																			  allowedCookies: 'BICAT_SID',
+																			  blockCookieDefine: 1,
+																			  autoAcceptOnNextPage: 0,
+																			  revokable: 1,
+																			  lawByCountry: 0,
+																			  checkboxLawByCountry: 0,
+																			  blockPrivacyPolicy: 0,
+																			  cacheGeolocationCountry: 1,
+																			  countryAcceptReloadTimeout: 1000,
+																			  usaCCPARegions: null,
+																			  countryEnableReload: 1,
+																			  customHasLawCountries: [""],
+																			  dismissOnScroll: 0,
+																			  dismissOnTimeout: 0,
+																			  containerSelector: 'body',
+																			  hideOnMobileDevices: 0,
+																			  autoFloatingOnMobile: 0,
+																			  autoFloatingOnMobileThreshold: 1024,
+																			  autoRedirectOnDecline: 0,
+																			  autoRedirectOnDeclineLink: '',
+																			  showReloadMsg: 0,
+																			  showReloadMsgText: 'Applying preferences and reloading the page...',
+																			  defaultClosedToolbar: 0,
+																			  toolbarLayout: 'basic',
+																			  toolbarTheme: 'block',
+																			  toolbarButtonsTheme: 'decline_first',
+																			  revocableToolbarTheme: 'basic',
+																			  toolbarPosition: 'top',
+																			  toolbarCenterTheme: 'compact',
+																			  revokePosition: 'revoke-top',
+																			  toolbarPositionmentType: 0,
+																			  positionCenterSimpleBackdrop: 0,
+																			  positionCenterBlurEffect: 1,
+																			  preventPageScrolling: 0,
+																			  popupEffect: 'fade',
+																			  popupBackground: '#008a4a',
+																			  popupText: '#ffffff',
+																			  popupLink: '#ffffff',
+																			  buttonBackground: '#ffffff',
+																			  buttonBorder: '#ffffff',
+																			  buttonText: '#505450',
+																			  highlightOpacity: '100',
+																			  highlightBackground: '#008a4a',
+																			  highlightBorder: '#ffffff',
+																			  highlightText: '#ffffff',
+																			  highlightDismissBackground: '#505450',
+																		  	  highlightDismissBorder: '#ffffff',
+																		 	  highlightDismissText: '#ffffff',
+																			  hideRevokableButton: 0,
+																			  hideRevokableButtonOnscroll: 0,
+																			  customRevokableButton: 0,
+																			  customRevokableButtonAction: 0,
+																			  headerText: 'Op deze site worden cookies gebruikt!',
+																			  messageText: 'Op deze website gebruiken wij cookies. Lees waarom u deze cookies kunt accepteren.',
+																			  denyMessageEnabled: 1, 
+																			  denyMessage: 'Je hebt de cookies geweigerd. Om een zo goed mogelijke site te ervaren, ga je akkoord met de cookies.',
+																			  placeholderBlockedResources: 0, 
+																			  placeholderBlockedResourcesAction: '',
+																	  		  placeholderBlockedResourcesText: 'You must accept cookies and reload the page to view this content',
+																			  placeholderIndividualBlockedResourcesText: 'You must accept cookies from {domain} and reload the page to view this content',
+																			  placeholderIndividualBlockedResourcesAction: 0,
+																			  placeholderOnpageUnlock: 0,
+																			  scriptsOnpageUnlock: 0,
+																			  dismissText: 'Ik snap het',
+																			  allowText: 'Cookies toestaan',
+																			  denyText: 'Weiger cookies',
+																			  cookiePolicyLinkText: 'Cookie policy',
+																			  cookiePolicyLink: 'privacystatement#cookies',
+																			  cookiePolicyRevocableTabText: 'Cookie policy',
+																			  privacyPolicyLinkText: 'Privacy policy',
+																			  privacyPolicyLink: 'privacystatement',
+																			  enableGdprBulkConsent: 0,
+																			  enableCustomScriptExecGeneric: 0,
+																			  customScriptExecGeneric: '',
+																			  categoriesCheckboxTemplate: 'cc-checkboxes-light',
+																			  toggleCookieSettings: 0,
+																			  toggleCookieSettingsLinkedView: 0,
+ 																			  toggleCookieSettingsLinkedViewSefLink: '/component/gdpr/',
+																	  		  toggleCookieSettingsText: '<span class="cc-cookie-settings-toggle">Settings <span class="cc-cookie-settings-toggler">&#x25EE;</span></span>',
+																			  toggleCookieSettingsButtonBackground: '#333333',
+																			  toggleCookieSettingsButtonBorder: '#ffffff',
+																			  toggleCookieSettingsButtonText: '#ffffff',
+																			  showLinks: 1,
+																			  blankLinks: '_blank',
+																			  autoOpenPrivacyPolicy: 0,
+																			  openAlwaysDeclined: 0,
+																			  cookieSettingsLabel: 'Cookie settings:',
+															  				  cookieSettingsDesc: 'Choose which kind of cookies you want to disable by clicking on the checkboxes. Click on a category name for more informations about used cookies.',
+																			  cookieCategory1Enable: 0,
+																			  cookieCategory1Name: 'Necessary',
+																			  cookieCategory1Locked: 0,
+																			  cookieCategory2Enable: 0,
+																			  cookieCategory2Name: 'Preferences',
+																			  cookieCategory2Locked: 0,
+																			  cookieCategory3Enable: 0,
+																			  cookieCategory3Name: 'Statistics',
+																			  cookieCategory3Locked: 0,
+																			  cookieCategory4Enable: 0,
+																			  cookieCategory4Name: 'Marketing',
+																			  cookieCategory4Locked: 0,
+																			  cookieCategoriesDescriptions: {},
+																			  alwaysReloadAfterCategoriesChange: 0,
+																			  preserveLockedCategories: 0,
+																			  declineButtonBehavior: 'hard',
+																			  reloadOnfirstDeclineall: 0,
+																			  trackExistingCheckboxSelectors: '',
+															  		  		  trackExistingCheckboxConsentLogsFormfields: 'name,email,subject,message',
+																			  allowallShowbutton: 0,
+																			  allowallText: 'Allow all cookies',
+																			  allowallButtonBackground: '#ffffff',
+																			  allowallButtonBorder: '#ffffff',
+																			  allowallButtonText: '#000000',
+																			  allowallButtonTimingAjax: 'fast',
+																			  includeAcceptButton: 0,
+																			  trackConsentDate: 0,
+																			  execCustomScriptsOnce: 1,
+																			  optoutIndividualResources: 0,
+																			  blockIndividualResourcesServerside: 0,
+																			  disableSwitchersOptoutCategory: 0,
+																			  allowallIndividualResources: 1,
+																			  blockLocalStorage: 0,
+																			  blockSessionStorage: 0,
+																			  externalAdvancedBlockingModeTags: 'iframe,script,img,source,link',
+																			  enableCustomScriptExecCategory1: 0,
+																			  customScriptExecCategory1: '',
+																			  enableCustomScriptExecCategory2: 0,
+																			  customScriptExecCategory2: '',
+																			  enableCustomScriptExecCategory3: 0,
+																			  customScriptExecCategory3: '',
+																			  enableCustomScriptExecCategory4: 0,
+																			  customScriptExecCategory4: '',
+																			  enableCustomDeclineScriptExecCategory1: 0,
+																			  customScriptDeclineExecCategory1: '',
+																			  enableCustomDeclineScriptExecCategory2: 0,
+																			  customScriptDeclineExecCategory2: '',
+																			  enableCustomDeclineScriptExecCategory3: 0,
+																			  customScriptDeclineExecCategory3: '',
+																			  enableCustomDeclineScriptExecCategory4: 0,
+																			  customScriptDeclineExecCategory4: '',
+																			  enableCMPStatistics: 0,
+																			  enableCMPAds: 0,
+																			  debugMode: 0
+																		};var gdpr_ajax_livesite='//bibliotheek.rotterdam.nl/';var gdpr_enable_log_cookie_consent=1;</script>
+	<script>var _JSBX_MYACCOUNT_INVENT_ = "/catalogus?event=invent";</script>
+	<script>
+                        document.addEventListener('DOMContentLoaded', function(event) {
+                            var setupWiseAuthIntervalId = setInterval( function() {
+                                if (typeof window.wiseAuthCore !== "undefined") {
+                                    window.wiseAuthCore.setWiseDomain("https://wise-web.bibliotheek.rotterdam.nl");
+    
+                                    var wisemodalparams = new Object();
+                                    wisemodalparams.url = "/catalogus?event=invent";
+                                    wisemodalparams.txt = "Mijn menu";
+                                    wisemodalparams.clear = "/index.php?option=com_users&view=login";
+                                    wisemodalparams.logout = "Uitloggen";
+                                    wisemodalparams.confirm = "Klik nogmaals op uitloggen op de volgende pagina s.v.p.";
+                                    
+                                    let apiKeyId = "c66e838f-6fa9-4838-99c7-211a7ff42c6e";
+                                    let apiKey = "48946a5e-da47-499a-926d-6c16fd5db0e9";
+                                    let applicationName = "Catalog";
+                                    window.wiseAuthCore.registerApiKey({
+                                        apiKeyId: apiKeyId,
+                                        apiKey: apiKey,
+                                        applicationName: applicationName
+                                    });
+                                    
+                                    window.wiseAuthCore.unRegisterLoginListener(wiseOnLogin);
+                                    window.wiseAuthCore.registerLoginListener(function() { wiseOnLogin("undefined", wisemodalparams) });
+                                    window.wiseAuthCore.registerLogoutListener(function() {
+                                            wiseOnLogout(false);
+                                    });
+                                    
+                                    if (""!="") {
+                                            if (!window.wiseAuthCore.isLoggedIn()) {
+                                                window.wiseAuthCore.initiateLogin("");
+                                            }
+                                    } else if (window.wiseAuthCore.isLoggedIn()) {
+                                            window.wiseAuthCore.initiateLogout();
+                                    }
+                                    clearInterval(setupWiseAuthIntervalId);
+                                }
+                            }, 100);
+                        })
+                    </script>
+	<script>"09d67ee3-c11e-408a-95cd-41526aaaf9e6" !="" ? window.sessionStorage.setItem("wise_integration_params", JSON.stringify( {id : "09d67ee3-c11e-408a-95cd-41526aaaf9e6"} )) : window.sessionStorage.removeItem("wise_integration_params");</script>
+	<script>document.addEventListener('DOMContentLoaded', function() {
+            Array.prototype.slice.call(document.querySelectorAll('a span[id^="cloak"]')).forEach(function(span) {
+                span.innerText = span.textContent;
+            });
+        });</script>
+	<script>function wiseOnLogin(tdetail, wisemodalparams) {
+		
+	var a = jQuery('.simple-login-link');
+
+	if ( a.length ) {
+		a.each(function () {
+			$(this).attr('href', '/uitloggen?task=user.menulogout');
+			$(this).html('Uitloggen');
+		});
+
+		var b = jQuery('.uk-navbar-container ul.uk-navbar-nav');
+
+		if ( b.length ) {
+			var listitem = jQuery('<li>'),
+				link = jQuery('<a>Mijn menu</a>');
+
+			link.attr('href', '/mijn-menu');
+
+			listitem.append(link);
+			b.append(listitem);
+		}
+
+	}
+}</script>
+	<script>window.yootheme = window.yootheme || {}; var $theme = yootheme.theme = {"i18n":{"close":{"label":"Close"},"totop":{"label":"Back to top"},"marker":{"label":"Open"},"navbarToggleIcon":{"label":"Open menu"},"paginationPrevious":{"label":"Previous page"},"paginationNext":{"label":"Next page"},"searchIcon":{"toggle":"Open Search","submit":"Submit Search"},"slider":{"next":"Next slide","previous":"Previous slide","slideX":"Slide %s","slideLabel":"%s of %s"},"slideshow":{"next":"Next slide","previous":"Previous slide","slideX":"Slide %s","slideLabel":"%s of %s"},"lightboxPanel":{"next":"Next slide","previous":"Previous slide","slideLabel":"%s of %s","close":"Close"}},"google_analytics":"UA-34078642-1","google_analytics_anonymize":"1"};</script>
+
+    </head>
+    <body class="">
+
+        <div class="uk-hidden-visually uk-notification uk-notification-top-left uk-width-auto">
+            <div class="uk-notification-message">
+                <a href="#tm-main">Skip to main content</a>
+            </div>
+        </div>
+    
+                <div class="tm-page-container uk-clearfix">
+
+            
+            
+        
+        
+        <div class="tm-page uk-margin-auto">
+
+                        
+
+
+<header class="tm-header-mobile uk-hidden@m" uk-header>
+
+
+    
+        <div class="uk-navbar-container">
+
+            <div class="uk-container uk-container-expand">
+                <nav class="uk-navbar" uk-navbar="{&quot;container&quot;:&quot;.tm-header-mobile&quot;}">
+
+                                        <div class="uk-navbar-left">
+
+                        
+                                                    <a uk-toggle href="#tm-dialog-mobile" class="uk-navbar-toggle">
+
+        
+        <div uk-navbar-toggle-icon></div>
+
+        
+    </a>
+                        
+                    </div>
+                    
+                                        <div class="uk-navbar-center">
+
+                                                    <a href="//bibliotheek.rotterdam.nl/" aria-label="TPL_YOOTHEME_BACK_TO_HOME" class="uk-logo uk-navbar-item">
+    <picture>
+<source type="image/webp" srcset="/templates/yootheme/cache/39/logo-web-bibliotheek-rotterdam-39f88575.webp 100w, /templates/yootheme/cache/2d/logo-web-bibliotheek-rotterdam-2d9295c1.webp 200w" sizes="(min-width: 100px) 100px">
+<img alt loading="eager" src="/templates/yootheme/cache/63/logo-web-bibliotheek-rotterdam-63fc53bc.png" width="100" height="36">
+</picture></a>
+                        
+                        
+                    </div>
+                    
+                    
+                </nav>
+            </div>
+
+        </div>
+
+    
+
+
+
+        <div id="tm-dialog-mobile" uk-offcanvas="container: true; overlay: true" mode="slide">
+        <div class="uk-offcanvas-bar uk-flex uk-flex-column">
+
+                        <button class="uk-offcanvas-close uk-close-large" type="button" uk-close uk-toggle="cls: uk-close-large; mode: media; media: @s"></button>
+            
+                        <div class="uk-margin-auto-bottom">
+                
+<div class="uk-grid uk-child-width-1-1" uk-grid>    <div>
+<div class="uk-panel" id="module-menu-dialog-mobile">
+
+    
+    
+<ul class="uk-nav uk-nav-default">
+    
+	<li class="item-258"><a href="/activiteiten"> Activiteiten </a></li>
+	<li class="item-152"><a href="/collectie"> Collectie</a></li>
+	<li class="item-153"><a href="/locaties"> Locaties</a></li>
+	<li class="item-154"><a href="/contact"> Contact</a></li>
+	<li class="item-257"><a href="/word-lid"> Word lid</a></li></ul>
+
+</div>
+</div>    <div>
+<div class="uk-panel" id="module-94">
+
+    
+    
+<ul class="uk-nav uk-nav-default">
+    
+	<li class="item-106 uk-active"><a href="/login" class="inloggen simple-login-link"> Inloggen</a></li></ul>
+
+</div>
+</div>    <div>
+<div class="uk-panel" id="module-169">
+
+    
+    
+
+    <form id="search-169" action="/zoeken" method="get" role="search" class="uk-search js-finder-searchform uk-search-default uk-width-1-1"><span uk-search-icon></span><input name="q" class="uk-search-input" placeholder="Zoeken" required aria-label="Zoeken" type="search"></form>
+
+
+
+
+
+
+</div>
+</div></div>
+            </div>
+            
+            
+        </div>
+    </div>
+    
+    
+    
+
+</header>
+
+
+
+<div class="tm-toolbar tm-toolbar-default uk-visible@m">
+    <div class="uk-container uk-flex uk-flex-middle">
+
+        
+                <div class="uk-margin-auto-left">
+            <div class="uk-grid-medium uk-child-width-auto uk-flex-middle" uk-grid="margin: uk-margin-small-top">
+                
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<header class="tm-header uk-visible@m" uk-header>
+
+
+
+
+
+
+        <div class="tm-headerbar-default tm-headerbar tm-headerbar-top">
+        <div class="uk-container uk-flex uk-flex-middle">
+
+                        <a href="//bibliotheek.rotterdam.nl/" aria-label="TPL_YOOTHEME_BACK_TO_HOME" class="uk-logo">
+    <picture>
+<source type="image/webp" srcset="/templates/yootheme/cache/7c/Bib-Rdam_Logo-tag_left-aligned2x-7cc366d1.webp 251w, /templates/yootheme/cache/a7/Bib-Rdam_Logo-tag_left-aligned2x-a7535709.webp 501w, /templates/yootheme/cache/b6/Bib-Rdam_Logo-tag_left-aligned2x-b62e3d70.webp 502w" sizes="(min-width: 251px) 251px">
+<img alt loading="eager" src="/templates/yootheme/cache/37/Bib-Rdam_Logo-tag_left-aligned2x-37ea9a67.png" width="251" height="107">
+</picture></a>
+            
+                        <div class="uk-margin-auto-left">
+                <div class="uk-grid-medium uk-child-width-auto uk-flex-middle" uk-grid><div>
+<div class="uk-panel zoekendesktop" id="module-92">
+
+    
+    
+
+    <form id="search-92" action="/zoeken" method="get" role="search" class="uk-search js-finder-searchform uk-search-default"><span uk-search-icon></span><input name="q" class="uk-search-input" placeholder="Zoeken" required aria-label="Zoeken" type="search"></form>
+
+
+
+
+
+
+</div>
+</div><div>
+<div class="uk-panel" id="module-93">
+
+    
+    
+<ul class="uk-button uk-button-primary uk-subnav" uk-dropnav="{&quot;boundary&quot;:&quot;false&quot;,&quot;container&quot;:&quot;body&quot;}">
+    
+	<li class="item-106 uk-active"><a href="/login" class="inloggen simple-login-link"> Inloggen</a></li></ul>
+
+</div>
+</div></div>
+            </div>
+            
+        </div>
+    </div>
+    
+    
+        
+            <div class="uk-navbar-container">
+
+                <div class="uk-container uk-flex uk-flex-middle">
+                    <nav class="uk-navbar uk-flex-auto" uk-navbar="{&quot;align&quot;:&quot;left&quot;,&quot;container&quot;:&quot;.tm-header&quot;,&quot;boundary&quot;:&quot;.tm-header .uk-navbar-container&quot;}">
+
+                                                <div class="uk-navbar-left">
+                            
+<ul class="uk-navbar-nav">
+    
+	<li class="item-258"><a href="/activiteiten"> Activiteiten </a></li>
+	<li class="item-152"><a href="/collectie"> Collectie</a></li>
+	<li class="item-153"><a href="/locaties"> Locaties</a></li>
+	<li class="item-154"><a href="/contact"> Contact</a></li>
+	<li class="item-257"><a href="/word-lid"> Word lid</a></li></ul>
+
+                        </div>
+                        
+                        
+                    </nav>
+                </div>
+
+            </div>
+
+        
+    
+
+
+
+
+</header>
+
+            
+            
+<div class="tm-top uk-section-default uk-section uk-section-xsmall">
+
+    
+        
+        
+        
+                        <div class="uk-container uk-container-expand">
+            
+                
+                
+<div class="uk-grid uk-child-width-expand@m">    <div>
+<div class="uk-panel" id="module-97">
+
+    
+    
+<div class="uk-margin-remove-last-child custom" ><div id="wise-searchbar">
+<wise-search-searchbar search-url="'/wise-apps/catalog/1099/search/{searchIn}/{qs}'" do-config="{'branchId': '1099','catalog': 'default','isPubcat': false}"></wise-search-searchbar>
+</div></div>
+
+</div>
+</div></div>
+                        </div>
+            
+        
+    
+</div>
+
+
+            <main id="tm-main"  class="tm-main uk-section uk-section-default" uk-height-viewport="expand: true">
+
+                                <div class="uk-container">
+
+                    
+                            
+                
+                <div id="system-message-container" aria-live="polite"></div>
+
+                <div class="com-users-login login">
+    
+    
+                            
+        
+    
+    <form action="/login?task=user.login" method="post" class="com-users-login__form form-validate form-horizontal well" id="com-users-login__form">
+
+        <fieldset>
+            <div class="control-group com-users-login__input">
+            <div class="control-label"><label id="username-lbl" for="username" class="required">
+    Gebruikersnaam<span class="star" aria-hidden="true">&#160;*</span></label>
+</div>
+        <div class="controls">
+        
+
+    
+    <input
+        type="text"
+        name="username"
+        id="username"
+        value=""
+                class="form-control validate-username required" size="25"         required autocomplete="username"  autofocus     >
+
+    
+
+            </div>
+</div>
+<div class="control-group com-users-login__input">
+            <div class="control-label"><label id="password-lbl" for="password" class="required">
+    Wachtwoord<span class="star" aria-hidden="true">&#160;*</span></label>
+</div>
+        <div class="controls">
+        
+<div class="password-group">
+    <div class="input-group">
+        <input
+            type="password"
+            name="password"
+            id="password"
+            value=""
+             autocomplete="current-password" class="form-control required"    size="25" maxlength="99" required  data-min-length="4"      >
+                <button type="button" class="btn btn-secondary input-password-toggle">
+            <span class="icon-eye icon-fw" aria-hidden="true"></span>
+            <span class="visually-hidden">Toon wachtwoord</span>
+        </button>
+            </div>
+</div>            </div>
+</div>
+
+                            <div class="com-users-login__remember">
+                    <div class="form-check">
+                        <input class="form-check-input" id="remember" type="checkbox" name="remember" value="yes">
+                        <label class="form-check-label" for="remember">
+                            Onthoud mij                        </label>
+                    </div>
+                </div>
+            
+                            
+            
+            <div class="com-users-login__submit control-group">
+                <div class="controls">
+                    <button type="submit" class="btn btn-primary">
+                        Inloggen                    </button>
+                </div>
+            </div>
+
+                        <input type="hidden" name="return" value="MjQ2">
+            <input type="hidden" name="f14501b9585db15e368c694fe66b079a" value="1">        </fieldset>
+    </form>
+
+</div>
+
+                
+                        
+                </div>
+                
+            </main>
+
+            
+<div id="module-168" class="builder"><!-- Builder #module-168 -->
+<div class="uk-section-default uk-section uk-padding-remove-top">
+    
+        
+        
+        
+            
+                                <div class="uk-container">                
+                    
+                    <div class="uk-grid tm-grid-expand uk-child-width-1-1 uk-grid-margin">
+<div class="uk-width-1-1">
+    
+        
+            
+            
+            
+                
+                    <div class="uk-panel uk-margin"><p><a href="/catalog?event=wwmailform">Wachtwoord vergeten?</a></p></div>
+<div class="uk-alert">
+    
+        
+                <div class="el-content uk-panel uk-margin-top"><p><span>Om te verlengen en/of uw gegevens te raadplegen/wijzigen logt u hier in.</span><br /><span>Typ uw gebruikersnaam en wachtwoord in. Klik dan op Inloggen.</span><br /><br /><span>Geen wachtwoord? Klik op 'Wachtwoord vergeten'.</span><br /><span>Dit standaard wachtwoord dient u na inloggen te wijzigen in een eigen wachtwoord.</span><br /><br /><span>Let op: uit veiligheidsoverwegingen is na te veel foute pogingen de toegang voor een dag geblokkeerd.</span></p></div>        
+    
+</div>
+                
+            
+        
+    
+</div></div>
+                                </div>
+                
+            
+        
+    
+</div></div>
+
+                        <footer>
+                <!-- Builder #footer -->
+<div class="uk-section-secondary uk-section uk-section-large" uk-scrollspy="target: [uk-scrollspy-class]; cls: uk-animation-fade; delay: false;">
+    
+        
+        
+        
+            
+                                <div class="uk-container">                
+                    
+                    <div class="uk-grid tm-grid-expand uk-grid-large uk-grid-margin-large" uk-grid>
+<div class="uk-width-1-2@s uk-width-1-4@m">
+    
+        
+            
+            
+            
+                
+                    
+<h1 class="uk-h3" uk-scrollspy-class>        Bibliotheek Rotterdam    </h1>
+<ul class="uk-list" uk-scrollspy-class>
+    <li class="el-item">        
+    <div class="el-content uk-panel uk-text-muted"><p><a href="/overons">Over ons</a></p></div>            </li>
+
+    <li class="el-item">        
+    <div class="el-content uk-panel uk-text-muted"><p><a href="/werkenbij">Werken bij</a></p></div>            </li>
+
+    <li class="el-item">        
+    <div class="el-content uk-panel uk-text-muted"><p><a href="/zaalverhuur">Zaalverhuur</a></p></div>            </li>
+
+    <li class="el-item">        
+    <div class="el-content uk-panel uk-text-muted"><p><a href="/erasmus-online-database">Erasmus Online Database</a></p></div>            </li>
+</ul>
+                
+            
+        
+    
+</div>
+<div class="uk-width-1-2@s uk-width-1-4@m">
+    
+        
+            
+            
+            
+                
+                    
+<h1 class="uk-h3 uk-visible@m" uk-scrollspy-class>        &nbsp;    </h1>
+<ul class="uk-list" uk-scrollspy-class>
+    <li class="el-item">        
+    <div class="el-content uk-panel"><p><a href="/onderwijs">Onderwijs</a></p></div>            </li>
+
+    <li class="el-item">        
+    <div class="el-content uk-panel"><p><a href="/?view=article&amp;id=65:stadsdichter&amp;catid=11">Stadsdichter</a></p></div>            </li>
+
+    <li class="el-item">        
+    <div class="el-content uk-panel"><p><a href="/english">English</a></p></div>            </li>
+</ul>
+                
+            
+        
+    
+</div>
+<div class="uk-width-1-2@s uk-width-1-4@m uk-visible@l">
+    
+        
+            
+            
+            
+                
+                    
+<h1 class="uk-visible@l" uk-scrollspy-class>        &nbsp;    </h1>
+                
+            
+        
+    
+</div>
+<div class="uk-width-1-2@s uk-width-1-4@m">
+    
+        
+            
+            
+            
+                
+                    
+<h1 class="uk-h3" uk-scrollspy-class>        Contact    </h1>
+<ul class="uk-list" uk-scrollspy-class>
+    <li class="el-item">        
+    <div class="el-content uk-panel uk-text-muted"><p><a href="/contact/contactgegevens/contactformulier">Contactformulier</a></p></div>            </li>
+
+    <li class="el-item">        
+    <div class="el-content uk-panel uk-text-muted"><a href="/contact/contactgegevens" class="el-link uk-margin-remove-last-child"><p>Contactgegevens</p></a></div>            </li>
+</ul>
+<div class="uk-margin" uk-scrollspy-class>    <div class="uk-child-width-auto uk-grid-small uk-flex-inline" uk-grid>
+            <div>
+<a class="el-link uk-icon-button" href="https://www.2343ec78a04c6ea9d80806345d31fd78-gdprlock/bibliotheekrotterdam/" rel="noreferrer"><span uk-icon="icon: facebook;"></span></a></div>
+            <div>
+<a class="el-link uk-icon-button" href="https://www.8dc6460bbbb088757ed67ed8fb316b1b-gdprlock/bibliotheekrotterdam/" rel="noreferrer"><span uk-icon="icon: instagram;"></span></a></div>
+            <div>
+<a class="el-link uk-icon-button" href="https://7905d1c4e12c54933a44d19fcd5f9356-gdprlock/bieb010" rel="noreferrer"><span uk-icon="icon: twitter;"></span></a></div>
+    
+    </div></div>
+                
+            
+        
+    
+</div></div>
+                                </div>
+                
+            
+        
+    
+</div>
+<div class="uk-section-muted uk-section uk-section-xsmall">
+    
+        
+        
+        
+            
+                                <div class="uk-container">                
+                    
+                    <div class="uk-grid tm-grid-expand uk-child-width-1-1 uk-grid-margin">
+<div class="uk-width-1-1@m">
+    
+        
+            
+            
+            
+                
+                    
+<div class="uk-text-center">
+    <ul class="uk-margin-remove-bottom uk-subnav  uk-subnav-divider uk-flex-center" uk-margin>        <li class="el-item ">
+    <a class="el-link" href="/algemene-voorwaarden">Algemene voorwaarden </a></li>
+        <li class="el-item ">
+    <a class="el-link" href="/huisregels">Huisregels</a></li>
+        <li class="el-item ">
+    <a class="el-link" href="/privacystatement">Privacy Statement</a></li>
+        </ul>
+
+</div><div class="uk-panel uk-margin uk-text-center"><p>© <span class="uk-visible@m"><script> document.currentScript.insertAdjacentHTML('afterend', '<time datetime="' + new Date().toJSON() + '">' + new Intl.DateTimeFormat(document.documentElement.lang, {year: 'numeric'}).format() + '</time>'); </script></span><span class="uk-hidden@m">2023</span> - Bibliotheek Rotterdam</p></div><div><script id="obi-bots-launcher" src="https://cloudstatic.obi4wan.com/ngbots/obi-launcher.bundle.js"></script>
+<script>OBI.bots("40f48d7d-5d3d-405b-bbd8-c43e9598657b");</script></div>
+                
+            
+        
+    
+</div></div>
+                                </div>
+                
+            
+        
+    
+</div>            </footer>
+            
+        </div>
+
+                </div>
+        
+        
+
+    <script>
+                            <!-- synchronize language between single-page-applications (angular) and joomla -->
+                            (function(){
+                                    var locale = "nl_NL".split('_').join('-').toLowerCase();
+                                    locale = JSON.stringify(locale);
+                                    localStorage.setItem("wiseTranslation_activeLanguage", locale);
+                            }());
+                        </script><script type="text/javascript" src="https://wise-web.bibliotheek.rotterdam.nl/wise-vendor/angular-17x-combined/angular-17x.combined.min.js"></script>
+                               <script type="text/javascript" src="https://wise-web.bibliotheek.rotterdam.nl/wise-vendor/angular-ui-bootstrap-25x/ui-bootstrap.min.js"></script><script  type="text/javascript" src="https://wise-web.bibliotheek.rotterdam.nl/wise-apps/catalog/js/app.js"></script><script type="text/javascript">
+                                                                    window.angularLocalePath = "https://wise-web.bibliotheek.rotterdam.nl/wise-vendor";
+                                                                    angular.module("catalog").run(["wisePageBootstrapService","wiseApiHelperService","wiseTranslationLabelService","wisePageUserService",
+                                                                        function(wisePageBootstrapService, WiseApiHelperService, wiseTranslationLabelService, wisePageUserService) {
+                                                                            wisePageBootstrapService.bootstrapLoaded();
+                                                                            WiseApiHelperService.setWiseDomain("https://wise-web.bibliotheek.rotterdam.nl");wiseTranslationLabelService.setTranslationContext("1099", true);
+                                                                        }
+                                                                        ]).config(["$wiseTranslationProvider", "$locationProvider", function ($wiseTranslationProvider, $locationProvider) {
+                                                                                $wiseTranslationProvider.setTranslationPath("https://wise-web.bibliotheek.rotterdam.nl/wise-translations");
+                                                                                $wiseTranslationProvider.setApplicationRoot("https://wise-web.bibliotheek.rotterdam.nl/wise-apps/catalog/");
+                                                                                $wiseTranslationProvider.setWiseDomain("https://wise-web.bibliotheek.rotterdam.nl");
+                                                                        }]);
+
+                                                                        // When a anchor was found in the current location and we have an iframe called blockrandom -> add the anchor to the iframe uri and reload the iframe
+                                                                        document.addEventListener("DOMContentLoaded", function(event) {
+                                                                            var iFrameBlockRandom = document.getElementById("blockrandom");
+                                                                            if (location.hash && iFrameBlockRandom && iFrameBlockRandom.src && !/#/.test(iFrameBlockRandom.src)) {
+                                                                                var currentUriHash = location.hash;
+                                                                                iFrameBlockRandom.src = iFrameBlockRandom.src+currentUriHash;
+                                                                                iFrameBlockRandom.parentNode.replaceChild(iFrameBlockRandom.cloneNode(), iFrameBlockRandom);
+                                                                            }
+                                                                        });
+                                                            </script><script type="text/javascript">angular.element(document).ready(function(){angular.bootstrap("#wise-searchbar",["catalog"],{strictDi:!0})})</script></body>
+</html>
