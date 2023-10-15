@@ -1,10 +1,16 @@
+using AngleSharp.Io;
+
 using System.Text;
 
 namespace Tiesmaster.OverdueBookReporter;
 
 public class LibraryRotterdamClient
 {
-    private const string SsoIdCookieName = "d22f17c4875e337ab168c60059511674";
+    private static class CookieNames
+    {
+        public const string SsoId = "d22f17c4875e337ab168c60059511674";
+        public const string BicatSid = "BICAT_SID";
+    }
 
     private readonly HttpClient _client;
     private string? _ssoId;
@@ -30,7 +36,7 @@ public class LibraryRotterdamClient
     {
         var response = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
 
-        ReadCookieValues(response.Headers.GetValues("set-cookie"));
+        ReadCookieValues(response.Headers.GetValues(HeaderNames.SetCookie));
 
         var html = await response.Content.ReadAsStringAsync();
         var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
@@ -57,8 +63,8 @@ public class LibraryRotterdamClient
         Console.WriteLine(Encoding.UTF8.GetString(ms.ToArray()));
 
         body.Headers.Add(
-            "Cookie",
-            $"{SsoIdCookieName}={_ssoId}; BICAT_SID={_bicatSid};");
+            HeaderNames.Cookie,
+            $"{CookieNames.SsoId}={_ssoId}; {CookieNames.BicatSid}={_bicatSid};");
 
         var response = await _client.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
 
@@ -77,19 +83,19 @@ public class LibraryRotterdamClient
         //     Console.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
         // }
 
-        ReadCookieValues(response.Headers.GetValues("set-cookie"), shouldReadBicatCookie: false);
+        ReadCookieValues(response.Headers.GetValues(HeaderNames.SetCookie), shouldReadBicatCookie: false);
 
         Console.WriteLine($"SSOID: {_ssoId}");
         Console.WriteLine($"BICAT_ID: {_bicatSid}");
 
         _client.DefaultRequestHeaders.Add(
-            "Cookie",
-            $"{SsoIdCookieName}={_ssoId}; BICAT_SID={_bicatSid}; joomla_user_state=logged_in");
+            HeaderNames.Cookie,
+            $"{CookieNames.SsoId}={_ssoId}; {CookieNames.BicatSid}={_bicatSid}; joomla_user_state=logged_in");
 
         // TODO: Should read this from Location: redirect header
         var response2 = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/mijn-menu");
 
-        ReadCookieValues2(response2.Headers.GetValues("set-cookie"));
+        ReadCookieValues2(response2.Headers.GetValues(HeaderNames.SetCookie));
 
         Console.WriteLine($"SSOID: {_ssoId}");
         Console.WriteLine($"BICAT_ID: {_bicatSid}");
@@ -126,14 +132,14 @@ public class LibraryRotterdamClient
         // }
 
         Console.WriteLine("Reading SSOID cookie");
-        var ssoIdCookie = cookieValues.First(x => x.StartsWith(SsoIdCookieName));
+        var ssoIdCookie = cookieValues.First(x => x.StartsWith(CookieNames.SsoId));
         var part1 = ssoIdCookie.Split("; ")[0];
         _ssoId = part1.Split("=")[1];
 
         if (shouldReadBicatCookie)
         {
             Console.WriteLine("Reading BICAT_ID cookie");
-            var bicatCookie = cookieValues.First(x => x.StartsWith("BICAT_SID"));
+            var bicatCookie = cookieValues.First(x => x.StartsWith(CookieNames.BicatSid));
             _bicatSid = bicatCookie[10..46];
         }
     }
@@ -147,12 +153,12 @@ public class LibraryRotterdamClient
         // }
 
         // Console.WriteLine("Reading SSOID cookie");
-        // var ssoIdCookie = cookieValues.First(x => x.StartsWith(SsoIdCookieName));
+        // var ssoIdCookie = cookieValues.First(x => x.StartsWith(CookieNames.SsoId));
         // var part1 = ssoIdCookie.Split("; ")[0];
         // _ssoId = part1.Split("=")[1];
 
         Console.WriteLine("Reading BICAT_ID cookie");
-        var bicatCookie = cookieValues.First(x => x.StartsWith("BICAT_SID"));
+        var bicatCookie = cookieValues.First(x => x.StartsWith(CookieNames.BicatSid));
         _bicatSid = bicatCookie[10..46];
     }
 }
