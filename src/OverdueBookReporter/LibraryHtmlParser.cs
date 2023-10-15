@@ -6,14 +6,17 @@ namespace Tiesmaster.OverdueBookReporter;
 
 public static class LibraryHtmlParser
 {
-    public static async Task<HomePageResult> ParseLoginPageAsync(string mainHtml)
+    public static async Task<LoginPageResult> ParseLoginPageAsync(string mainHtml)
     {
         var document = await ReadHtmlAsync(mainHtml);
 
         var loginForm = document.QuerySelector("form#com-users-login__form");
         var csrfToken = ParseCsrfToken(loginForm);
 
-        return new(csrfToken!);
+        // a[href="https://example.org"]
+        var returnToken = loginForm.QuerySelector("""input[name="return"]""").GetAttribute("value");
+
+        return new(csrfToken!, returnToken!);
     }
 
     public static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
@@ -74,4 +77,4 @@ public static class LibraryHtmlParser
     }
 }
 
-public record HomePageResult(string CsrfToken);
+public record LoginPageResult(string CsrfToken, string ReturnToken);

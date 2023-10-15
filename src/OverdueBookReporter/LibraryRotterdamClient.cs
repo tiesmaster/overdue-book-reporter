@@ -9,7 +9,7 @@ public class LibraryRotterdamClient
     private readonly HttpClient _client;
     private string? _ssoId;
     private string? _bicatSid;
-    private string? _csrfToken;
+    private LoginPageResult? _loginFormSecurityValues;
     private readonly LibraryLoginCredentials _credentials;
 
     public LibraryRotterdamClient(LibraryLoginCredentials credentials)
@@ -45,11 +45,11 @@ public class LibraryRotterdamClient
 
         var html = await response.Content.ReadAsStringAsync();
         var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
-        _csrfToken = result.CsrfToken;
+        _loginFormSecurityValues = result;
 
         Console.WriteLine($"SSOID: {_ssoId}");
         Console.WriteLine($"BICAT_ID: {_bicatSid}");
-        Console.WriteLine($"CSRF token: {_csrfToken}");
+        Console.WriteLine($"Login page security values: {_loginFormSecurityValues}");
     }
 
     public async Task LoginAsync()
@@ -58,8 +58,8 @@ public class LibraryRotterdamClient
         {
             { "username", _credentials.Username },
             { "password", _credentials.Password },
-            { "return", "MjQ2" }, // TODO: read from the form
-            { _csrfToken!, "1" },
+            { "return", _loginFormSecurityValues!.ReturnToken },
+            { _loginFormSecurityValues!.CsrfToken, "1" },
         };
         var body = new FormUrlEncodedContent(dict);
         var ms = new MemoryStream();

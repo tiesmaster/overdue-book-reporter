@@ -9,6 +9,7 @@ public class LibraryHtmlParserTests
     {
         // arrange
         var expectedCsrfToken = "f14501b9585db15e368c694fe66b079a";
+        var expectedReturnToken = "MjQ2";
 
         var testFileName = "loginpage.html";
         var html = GetEmbeddedResourceHtml(testFileName);
@@ -18,6 +19,7 @@ public class LibraryHtmlParserTests
 
         // assert
         homePageResult.CsrfToken.Should().Be(expectedCsrfToken);
+        homePageResult.ReturnToken.Should().Be(expectedReturnToken);
     }
 
     [Fact]
