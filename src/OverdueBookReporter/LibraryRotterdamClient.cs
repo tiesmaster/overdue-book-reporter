@@ -6,7 +6,7 @@ public class LibraryRotterdamClient
 {
     private const string SsoIdCookieName = "d22f17c4875e337ab168c60059511674";
 
-    // private readonly HttpClient _client;
+    private readonly HttpClient _client;
     private string? _ssoId;
     private string? _bicatSid;
     private string? _csrfToken;
@@ -15,6 +15,7 @@ public class LibraryRotterdamClient
     public LibraryRotterdamClient(LibraryLoginCredentials credentials)
     {
         _credentials = credentials;
+        _client = CreateLibraryRotterdamClient();
     }
 
     private static HttpClient CreateLibraryRotterdamClient()
@@ -38,8 +39,7 @@ public class LibraryRotterdamClient
 
     public async Task StartSessionAsync()
     {
-        var client = CreateLibraryRotterdamClient();
-        var response = await client.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
+        var response = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
 
         ReadCookieValues(response.Headers.GetValues("set-cookie"));
 
@@ -71,8 +71,7 @@ public class LibraryRotterdamClient
             "Cookie",
             $"{SsoIdCookieName}={_ssoId}; BICAT_SID={_bicatSid};");
 
-        var client = CreateLibraryRotterdamClient();
-        var response = await client.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
+        var response = await _client.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
 
         Console.WriteLine(response.StatusCode);
         // Console.WriteLine(await response.Content.ReadAsStringAsync());
@@ -94,14 +93,12 @@ public class LibraryRotterdamClient
         Console.WriteLine($"SSOID: {_ssoId}");
         Console.WriteLine($"BICAT_ID: {_bicatSid}");
 
-        var client2 = CreateLibraryRotterdamClient();
-
-        client2.DefaultRequestHeaders.Add(
+        _client.DefaultRequestHeaders.Add(
             "Cookie",
             $"{SsoIdCookieName}={_ssoId}; BICAT_SID={_bicatSid}; joomla_user_state=logged_in");
 
         // TODO: Should read this from Location: redirect header
-        var response2 = await client2.GetAsync("https://www.bibliotheek.rotterdam.nl/mijn-menu");
+        var response2 = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/mijn-menu");
 
         ReadCookieValues2(response2.Headers.GetValues("set-cookie"));
 
@@ -111,9 +108,7 @@ public class LibraryRotterdamClient
 
     public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
     {
-        var client = CreateLibraryRotterdamClient();
-
-        var response = await client.GetAsync(
+        var response = await _client.GetAsync(
             $"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;" +
             $"ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
 
