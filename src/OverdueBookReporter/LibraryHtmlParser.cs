@@ -6,7 +6,7 @@ namespace Tiesmaster.OverdueBookReporter;
 
 public static class LibraryHtmlParser
 {
-    public static async Task<HomePageResult> ParseHomePageAsync(string mainHtml)
+    public static async Task<HomePageResult> ParseLoginPageAsync(string mainHtml)
     {
         var document = await ReadHtmlAsync(mainHtml);
 

@@ -14,7 +14,7 @@ public class LibraryHtmlParserTests
         var html = GetEmbeddedResourceHtml(testFileName);
 
         // act
-        var homePageResult = await LibraryHtmlParser.ParseHomePageAsync(html);
+        var homePageResult = await LibraryHtmlParser.ParseLoginPageAsync(html);
 
         // assert
         homePageResult.CsrfToken.Should().Be(expectedCsrfToken);

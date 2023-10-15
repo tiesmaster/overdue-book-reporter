@@ -43,8 +43,8 @@ public class LibraryRotterdamClient
 
         ReadCookieValues(response.Headers.GetValues("set-cookie"));
 
-        var homePageHtml = await response.Content.ReadAsStringAsync();
-        var result = await LibraryHtmlParser.ParseHomePageAsync(homePageHtml);
+        var html = await response.Content.ReadAsStringAsync();
+        var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
         _csrfToken = result.CsrfToken;
 
         Console.WriteLine($"SSOID: {_ssoId}");
