@@ -10,7 +10,7 @@ public static class LibraryHtmlParser
     {
         var document = await ReadHtmlAsync(mainHtml);
 
-        var loginForm = document.QuerySelector("form.lp-form");
+        var loginForm = document.QuerySelector("form#com-users-login__form");
         var csrfToken = ParseCsrfToken(loginForm);
 
         return new(csrfToken!);
