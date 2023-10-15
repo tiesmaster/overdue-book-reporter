@@ -4,6 +4,8 @@ namespace Tiesmaster.OverdueBookReporter;
 
 public class LibraryRotterdamClient
 {
+    private const string SsoIdCookieName = "d22f17c4875e337ab168c60059511674";
+
     // private readonly HttpClient _client;
     private string? _ssoId;
     private string? _bicatSid;
@@ -67,7 +69,7 @@ public class LibraryRotterdamClient
 
         body.Headers.Add(
             "Cookie",
-            $"d22f17c4875e337ab168c60059511674={_ssoId}; BICAT_SID={_bicatSid};");
+            $"{SsoIdCookieName}={_ssoId}; BICAT_SID={_bicatSid};");
 
         var client = CreateLibraryRotterdamClient();
         var response = await client.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
@@ -96,7 +98,7 @@ public class LibraryRotterdamClient
 
         client2.DefaultRequestHeaders.Add(
             "Cookie",
-            $"d22f17c4875e337ab168c60059511674={_ssoId}; BICAT_SID={_bicatSid}; joomla_user_state=logged_in");
+            $"{SsoIdCookieName}={_ssoId}; BICAT_SID={_bicatSid}; joomla_user_state=logged_in");
 
         // TODO: Should read this from Location: redirect header
         var response2 = await client2.GetAsync("https://www.bibliotheek.rotterdam.nl/mijn-menu");
@@ -140,7 +142,7 @@ public class LibraryRotterdamClient
         // }
 
         Console.WriteLine("Reading SSOID cookie");
-        var ssoIdCookie = cookieValues.First(x => x.StartsWith("d22f17c4875e337ab168c60059511674"));
+        var ssoIdCookie = cookieValues.First(x => x.StartsWith(SsoIdCookieName));
         var part1 = ssoIdCookie.Split("; ")[0];
         _ssoId = part1.Split("=")[1];
 
@@ -161,7 +163,7 @@ public class LibraryRotterdamClient
         // }
 
         // Console.WriteLine("Reading SSOID cookie");
-        // var ssoIdCookie = cookieValues.First(x => x.StartsWith("d22f17c4875e337ab168c60059511674"));
+        // var ssoIdCookie = cookieValues.First(x => x.StartsWith(SsoIdCookieName));
         // var part1 = ssoIdCookie.Split("; ")[0];
         // _ssoId = part1.Split("=")[1];
 
