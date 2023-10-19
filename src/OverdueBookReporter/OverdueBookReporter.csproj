@@ -1,12 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>Tiesmaster.OverdueBookReporter</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <UserSecretsId>87d632cb-089f-49b8-b9c4-f50504fbdddf</UserSecretsId>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-OverdueBookReporter-682da9c7-3642-4b2b-9b0a-2a0688ed6f54</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
   </ItemGroup>
 
 </Project>

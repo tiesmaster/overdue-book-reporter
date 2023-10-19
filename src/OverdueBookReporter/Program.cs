@@ -1,98 +1,109 @@
-﻿using dotenv.net;
+﻿using OverdueBookReporter;
 
-using MailKit.Net.Smtp;
-
-using Microsoft.Extensions.Configuration;
-
-using MimeKit;
-
-using System.Reflection;
-
-using Tiesmaster.OverdueBookReporter;
-
-DotEnv
-    .Fluent()
-    .WithProbeForEnv(probeLevelsToSearch: 6) // go up all the way to the root of the project
-    .Load();
-
-var config = new ConfigurationBuilder()
-    .AddUserSecrets<Program>()
-    .AddEnvironmentVariables()
-    .AddCommandLine(args)
+IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(services =>
+    {
+        services.AddHostedService<Worker>();
+    })
     .Build();
 
-var versionInfo = Assembly.GetEntryAssembly()!.GetCustomAttributes<AssemblyInformationalVersionAttribute>().First();
-Console.WriteLine($"overdue-book-reporter: version {versionInfo.InformationalVersion}");
+host.Run();
 
-var credentials = new LibraryLoginCredentials();
-config.Bind("LibraryLoginCredentials", credentials);
+// using dotenv.net;
 
-var emailSettings = new EmailSettings();
-config.Bind("EmailSettings", emailSettings);
+// using MailKit.Net.Smtp;
 
-var client = new LibraryRotterdamClient(credentials);
+// using Microsoft.Extensions.Configuration;
 
-Console.WriteLine("Starting session");
-await client.StartSessionAsync();
+// using MimeKit;
 
-Console.WriteLine("Logging in");
-await client.LoginAsync();
+// using System.Reflection;
 
-Console.WriteLine("Retrieving book listing");
-var bookListing = await client.GetBookListingAsync();
+// using Tiesmaster.OverdueBookReporter;
 
-foreach (var bookTitle in bookListing)
-{
-    Console.WriteLine(bookTitle);
-}
+// DotEnv
+//     .Fluent()
+//     .WithProbeForEnv(probeLevelsToSearch: 6) // go up all the way to the root of the project
+//     .Load();
 
-var today = DateOnly.FromDateTime(DateTime.Today);
+// var config = new ConfigurationBuilder()
+//     .AddUserSecrets<Program>()
+//     .AddEnvironmentVariables()
+//     .AddCommandLine(args)
+//     .Build();
 
-var anyOverdue = bookListing.Any(x => x.GetStatus(today) == BookLoanStatus.Overdue);
+// var versionInfo = Assembly.GetEntryAssembly()!.GetCustomAttributes<AssemblyInformationalVersionAttribute>().First();
+// Console.WriteLine($"overdue-book-reporter: version {versionInfo.InformationalVersion}");
 
-await SendEmailAsync(anyOverdue, emailSettings);
+// var credentials = new LibraryLoginCredentials();
+// config.Bind("LibraryLoginCredentials", credentials);
 
-static async Task SendEmailAsync(bool anyOverdue, EmailSettings settings)
-{
-    var message = new MimeMessage();
-    message.From.Add(new MailboxAddress(settings.From.Name, settings.From.Address));
-    message.To.Add(new MailboxAddress(settings.To.Name, settings.To.Address));
-    message.Subject = anyOverdue ? "OVERDUE!!!" : "all good!";
+// var emailSettings = new EmailSettings();
+// config.Bind("EmailSettings", emailSettings);
 
-    // message.Body = new TextPart("plain")
-    // {
-    //     Text = @""
-    // };
+// var client = new LibraryRotterdamClient(credentials);
 
-    using var smtpClient = new SmtpClient();
+// Console.WriteLine("Starting session");
+// await client.StartSessionAsync();
 
-    var mailServerSettings = settings.MailServer;
-    smtpClient.Connect(host: mailServerSettings.Host, port: mailServerSettings.Port, useSsl: mailServerSettings.UseSsl);
-    await smtpClient.AuthenticateAsync(mailServerSettings.Username, mailServerSettings.Password);
+// Console.WriteLine("Logging in");
+// await client.LoginAsync();
 
-    await smtpClient.SendAsync(message);
+// Console.WriteLine("Retrieving book listing");
+// var bookListing = await client.GetBookListingAsync();
 
-    await smtpClient.DisconnectAsync(quit: true);
-}
+// foreach (var bookTitle in bookListing)
+// {
+//     Console.WriteLine(bookTitle);
+// }
 
-public class EmailSettings
-{
-    public EmailAddress From { get; set; } = null!;
-    public EmailAddress To { get; set; } = null!;
-    public MailServerSettings MailServer { get; set; } = null!;
-}
+// var today = DateOnly.FromDateTime(DateTime.Today);
 
-public class EmailAddress
-{
-    public string Name { get; set; } = null!;
-    public string Address { get; set; } = null!;
-}
+// var anyOverdue = bookListing.Any(x => x.GetStatus(today) == BookLoanStatus.Overdue);
 
-public class MailServerSettings
-{
-    public string Host { get; set; } = null!;
-    public int Port { get; set; }
-    public bool UseSsl { get; set; }
-    public string Username { get; set; } = null!;
-    public string Password { get; set; } = null!;
-}
+// await SendEmailAsync(anyOverdue, emailSettings);
+
+// static async Task SendEmailAsync(bool anyOverdue, EmailSettings settings)
+// {
+//     var message = new MimeMessage();
+//     message.From.Add(new MailboxAddress(settings.From.Name, settings.From.Address));
+//     message.To.Add(new MailboxAddress(settings.To.Name, settings.To.Address));
+//     message.Subject = anyOverdue ? "OVERDUE!!!" : "all good!";
+
+//     // message.Body = new TextPart("plain")
+//     // {
+//     //     Text = @""
+//     // };
+
+//     using var smtpClient = new SmtpClient();
+
+//     var mailServerSettings = settings.MailServer;
+//     smtpClient.Connect(host: mailServerSettings.Host, port: mailServerSettings.Port, useSsl: mailServerSettings.UseSsl);
+//     await smtpClient.AuthenticateAsync(mailServerSettings.Username, mailServerSettings.Password);
+
+//     await smtpClient.SendAsync(message);
+
+//     await smtpClient.DisconnectAsync(quit: true);
+// }
+
+// public class EmailSettings
+// {
+//     public EmailAddress From { get; set; } = null!;
+//     public EmailAddress To { get; set; } = null!;
+//     public MailServerSettings MailServer { get; set; } = null!;
+// }
+
+// public class EmailAddress
+// {
+//     public string Name { get; set; } = null!;
+//     public string Address { get; set; } = null!;
+// }
+
+// public class MailServerSettings
+// {
+//     public string Host { get; set; } = null!;
+//     public int Port { get; set; }
+//     public bool UseSsl { get; set; }
+//     public string Username { get; set; } = null!;
+//     public string Password { get; set; } = null!;
+// }
