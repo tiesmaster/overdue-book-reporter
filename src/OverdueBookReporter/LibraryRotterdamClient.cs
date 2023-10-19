@@ -165,6 +165,8 @@ public class LibraryRotterdamClient
 
 public class LibraryLoginCredentials
 {
+    public const string SectionName = "LibraryLoginCredentials";
+
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
 }

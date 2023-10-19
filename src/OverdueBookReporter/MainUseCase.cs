@@ -1,5 +1,7 @@
 using MailKit.Net.Smtp;
 
+using Microsoft.Extensions.Options;
+
 using MimeKit;
 
 using Tiesmaster.OverdueBookReporter;
@@ -8,26 +10,26 @@ namespace OverdueBookReporter;
 
 public class MainUseCase : BackgroundService
 {
-    private readonly ILogger<MainUseCase> _logger;
+    private readonly LibraryLoginCredentials _credentials;
+    private readonly EmailSettings _emailSettings;
     private readonly IHostApplicationLifetime _lifetime;
-    private readonly IConfiguration _configuration;
+    private readonly ILogger<MainUseCase> _logger;
 
-    public MainUseCase(IHostApplicationLifetime lifetime, IConfiguration configuration, ILogger<MainUseCase> logger)
+    public MainUseCase(
+        IOptions<LibraryLoginCredentials> credentialOptions,
+        IOptions<EmailSettings> emailOptions,
+        IHostApplicationLifetime lifetime,
+        ILogger<MainUseCase> logger)
     {
-        _logger = logger;
+        _credentials = credentialOptions.Value;
+        _emailSettings = emailOptions.Value;
         _lifetime = lifetime;
-        _configuration = configuration;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var credentials = new LibraryLoginCredentials();
-        _configuration.Bind("LibraryLoginCredentials", credentials);
-
-        var emailSettings = new EmailSettings();
-        _configuration.Bind("EmailSettings", emailSettings);
-
-        var client = new LibraryRotterdamClient(credentials);
+        var client = new LibraryRotterdamClient(_credentials);
 
         Console.WriteLine("Starting session");
         await client.StartSessionAsync();
@@ -47,7 +49,7 @@ public class MainUseCase : BackgroundService
 
         var anyOverdue = bookListing.Any(x => x.GetStatus(today) == BookLoanStatus.Overdue);
 
-        await SendEmailAsync(anyOverdue, emailSettings);
+        await SendEmailAsync(anyOverdue, _emailSettings);
 
         _lifetime.StopApplication();
     }
@@ -74,11 +76,12 @@ public class MainUseCase : BackgroundService
 
         await smtpClient.DisconnectAsync(quit: true);
     }
-
 }
 
 public class EmailSettings
 {
+    public const string SectionName = "EmailSettings";
+
     public EmailAddress From { get; set; } = null!;
     public EmailAddress To { get; set; } = null!;
     public MailServerSettings MailServer { get; set; } = null!;
