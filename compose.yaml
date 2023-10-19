@@ -1,0 +1,6 @@
+services:
+  minio:
+    image: rnwood/smtp4dev
+    ports:
+      - "2525:80"
+      - "25:25"
