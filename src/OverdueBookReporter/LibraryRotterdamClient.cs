@@ -15,6 +15,8 @@ public class LibraryRotterdamClient
     }
 
     private readonly HttpClient _client;
+
+    private bool _isLoggedIn;
     private string? _ssoId;
     private string? _bicatSid;
     private LoginPageResult? _loginFormSecurityValues;
@@ -52,6 +54,8 @@ public class LibraryRotterdamClient
 
     public async Task LoginAsync()
     {
+        await StartSessionAsync();
+
         Console.WriteLine("Logging in");
         var dict = new Dictionary<string, string>
         {
@@ -107,6 +111,12 @@ public class LibraryRotterdamClient
 
     public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
     {
+        if (_isLoggedIn is false)
+        {
+            Console.WriteLine("Not logged in yet; starting log in process");
+            await LoginAsync();
+        }
+
         Console.WriteLine("Retrieving book listing");
         var response = await _client.GetAsync(
             $"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;" +

@@ -30,14 +30,9 @@ public class MainUseCase : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Retrieving book listing");
-
-        await _libraryRotterdamClient.StartSessionAsync();
-        await _libraryRotterdamClient.LoginAsync();
-
         var bookListing = await _libraryRotterdamClient.GetBookListingAsync();
 
         _logger.LogInformation("Received book listing of {CountBooks} books", bookListing.Count());
-
         foreach (var bookTitle in bookListing)
         {
             _logger.LogDebug("Book in posession: {Book}", bookTitle);
