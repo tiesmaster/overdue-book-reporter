@@ -1,0 +1,218 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+insert_final_newline = false
+charset = utf-8
+
+# Code files
+[*.{cs,csx,vb,vbx}]
+indent_style = space
+indent_size = 4
+
+# .NET formatting settings:
+[*.{cs,vb}]
+# Organize usings
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
+# CSharp code style settings:
+[*.cs]
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Naming Rules
+
+# Private fields with underscore
+
+# From issue #22884 on Roslyn repo: https://github.com/dotnet/roslyn/issues/22884#issuecomment-358776444
+dotnet_naming_rule.private_members_with_underscore.symbols  = private_fields
+dotnet_naming_rule.private_members_with_underscore.style    = prefix_underscore
+dotnet_naming_rule.private_members_with_underscore.severity = suggestion
+
+dotnet_naming_symbols.private_fields.applicable_kinds           = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.prefix_underscore.capitalization = camel_case
+dotnet_naming_style.prefix_underscore.required_prefix = _
+
+# Constants Pascalcase
+
+dotnet_naming_rule.constants_pascalcase.symbols  = constants
+dotnet_naming_rule.constants_pascalcase.style    = pascalcase
+dotnet_naming_rule.constants_pascalcase.severity = suggestion
+
+dotnet_naming_symbols.constants.applicable_kinds           = field
+dotnet_naming_symbols.constants.required_modifiers         = const
+
+dotnet_naming_style.pascalcase.capitalization = pascal_case
+
+# CSharp compiler diagnostics
+
+# CS1591: Missing XML comment for publicly visible type or member
+# Justification: Not everything needs to have XML comments
+dotnet_diagnostic.CS1591.severity = none
+
+# .NET SDK diagnostics (roslyn-analyzers)
+
+# CA1014: Mark assemblies with CLSCompliant
+# Justification: Unneeded in this day and age
+dotnet_diagnostic.CA1014.severity = none
+
+# CA2007: Consider calling ConfigureAwait on the awaited task
+# Justification: Don't use CA(false) in applications, only in NuGet class libraries.
+dotnet_diagnostic.CA2007.severity = none
+
+# CA1062: Validate arguments of public methods
+# Justification: Use C# 8 nullable reference types instead
+dotnet_diagnostic.CA1062.severity = none
+
+# CA1303: Do not pass literals as localized parameters
+# Justification: Not using localization
+dotnet_diagnostic.CA1303.severity = none
+
+# CA1820: Test for empty strings using string length
+# Justification: Comparing strings using String.Length is a premature optimization
+dotnet_diagnostic.CA1820.severity = none
+
+# CA1848: Use the LoggerMessage delegates
+# Justification: Using the LoggerMessage delegates is premature optimization for us
+dotnet_diagnostic.CA1848.severity = none
+
+# StyleCop diagnostics
+
+# SA1101: XML comment analysis disabled
+# Justification: We're not using xmldoc
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1101: Prefix local calls with this
+# Justification: Superfluous, so let's not do this.
+dotnet_diagnostic.SA1101.severity = none
+
+# SA1200: Using directives should be placed correctly
+# Justification: Defacto standard these days is to put them on top.
+dotnet_diagnostic.SA1200.severity = none
+
+# SA1201: Elements should appear in the correct order
+# Justification: Same as SA1204
+dotnet_diagnostic.SA1201.severity = none
+
+# SA1204: Static elements should appear before instance elements
+# Justification: Private static methods can be helpers in the given class, and following the rule of
+# "be able to read like a book", static methods shouldn't be placed higher then when they're referenced.
+dotnet_diagnostic.SA1204.severity = none
+
+# SA1206: Declaration keywords should follow order
+# Justification: "public required" is incorrectly classified as violation of this rule, which it
+# isn't. This should be disabled until this is updated.
+dotnet_diagnostic.SA1206.severity = none
+
+# SA1309: Field names should not begin with underscore
+# Justification: The naming convention of this project is to start a field with an underscore.
+dotnet_diagnostic.SA1309.severity = none
+
+# SA1402: File may only contain a single type
+# Justification: Can be useful to have multiple types in the same file, for cohesiveness.
+dotnet_diagnostic.SA1402.severity = none
+
+# SA1512: Single-line comments should not be followed by blank line
+# Justification: Blank line after "multiple" single-line comments is more neat.
+dotnet_diagnostic.SA1512.severity = none
+
+# SA1516: Elements should be separated by blank line
+# Justification: Single line properties should be allowed to be grouped together without blank lines.
+dotnet_diagnostic.SA1516.severity = none
+
+# SA1600: Elements should be documented
+# Justification: Not every single public member requires documentation.
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1601: Partial elements should be documented
+# Justification: See SA1600
+dotnet_diagnostic.SA1601.severity = none
+
+# SA1602: Enumeration items should be documented
+# Justification: Documenting enumerations is overkill.
+dotnet_diagnostic.SA1602.severity = none
+
+# SA1633: File should have header
+# Justification: Not needed for this project.
+dotnet_diagnostic.SA1633.severity = none
+
+# AsyncFixer diagnostics
+
+# AsyncFixer01: Unnecessary async/await usage
+# Justification: These days, the advise is to only "elide" async/await on overload chains. This rule
+# doesn't take that into account, and therefore does more harm.
+dotnet_diagnostic.AsyncFixer01.severity = none
+
+# Roslynator diagnostics
+# RCS1090: Call 'ConfigureAwait(false)'.
+# Justification: Same as CA2007
+dotnet_diagnostic.RCS1090.severity = none
+
+# RCS1102: Make class static.
+# Justification: Same as CA1052
+dotnet_diagnostic.RCS1102.severity = none
+
+# RCS1021: Simplify lambda expression.
+# Justification: Keeping a block body, when a lambda expression is allowed can actually improve readability
+#                in certain situations. So we allow this.
+dotnet_diagnostic.RCS1021.severity = none
+
+# RCS1080: Use 'Count/Length' property instead of 'Any' method.
+# Justification: Any conveys more intent.
+dotnet_diagnostic.RCS1080.severity = none
+
+# RCS1118: Mark local variable as const.
+# Justification: Prefer var over constants for local variables.
+dotnet_diagnostic.RCS1118.severity = none
+
+# RCS1156: Use string.Length instead of comparison with empty string.
+# Justification: Premature optimization
+dotnet_diagnostic.RCS1156.severity = none
+
+# RCS1246: Use element access.
+# Justification: First conveys more intent.
+dotnet_diagnostic.RCS1246.severity = none
+
+[{auth_serviceClient,budgetting_apiClient,notification_serviceClient,user_interaction_serviceClient,user_interaction_service_event_publishingClient,swaggerClient}.cs]
+# Justification: This is generated code from NSwag
+
+# EPS01: Struct 'ObjectResponseResult' can be made readonly
+dotnet_diagnostic.EPS01.severity = none
+
+[ApiException.cs]
+# Justification: This is generated code from NSwag
+
+# CS8601: Possible null reference assignment.
+dotnet_diagnostic.CS8601.severity = none
+
+# CS8618: Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+dotnet_diagnostic.CS8618.severity = none
+
+# Xml project files
+[*.{csproj,vcxproj,vcxproj.filters,proj,nativeproj,locproj}]
+indent_size = 2
+
+# Xml build files
+[*.builds]
+indent_size = 2
+
+# Xml files
+[*.{xml,stylecop,resx,ruleset}]
+indent_size = 2
+
+# Xml config files
+[*.{props,targets,config,nuspec}]
+indent_size = 2
+# Shell scripts
+[*.sh]
+end_of_line = lf
+[*.{cmd, bat}]
+end_of_line = crlf
