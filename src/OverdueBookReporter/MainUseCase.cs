@@ -29,18 +29,18 @@ public class MainUseCase : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Console.WriteLine("Starting session");
-        await _libraryRotterdamClient.StartSessionAsync();
+        _logger.LogInformation("Retrieving book listing");
 
-        Console.WriteLine("Logging in");
+        await _libraryRotterdamClient.StartSessionAsync();
         await _libraryRotterdamClient.LoginAsync();
 
-        Console.WriteLine("Retrieving book listing");
         var bookListing = await _libraryRotterdamClient.GetBookListingAsync();
+
+        _logger.LogInformation("Received book listing of {CountBooks} books", bookListing.Count());
 
         foreach (var bookTitle in bookListing)
         {
-            Console.WriteLine(bookTitle);
+            _logger.LogDebug("Book in posession: {Book}", bookTitle);
         }
 
         var today = DateOnly.FromDateTime(DateTime.Today);

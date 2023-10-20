@@ -36,6 +36,7 @@ public class LibraryRotterdamClient
 
     public async Task StartSessionAsync()
     {
+        Console.WriteLine("Starting session");
         var response = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
 
         ReadCookieValues(response.Headers.GetValues(HeaderNames.SetCookie));
@@ -51,6 +52,7 @@ public class LibraryRotterdamClient
 
     public async Task LoginAsync()
     {
+        Console.WriteLine("Logging in");
         var dict = new Dictionary<string, string>
         {
             { "username", _credentials.Username },
@@ -105,6 +107,7 @@ public class LibraryRotterdamClient
 
     public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
     {
+        Console.WriteLine("Retrieving book listing");
         var response = await _client.GetAsync(
             $"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;" +
             $"ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
