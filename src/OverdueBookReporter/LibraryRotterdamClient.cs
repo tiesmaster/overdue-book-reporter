@@ -1,5 +1,7 @@
 using AngleSharp.Io;
 
+using Microsoft.Extensions.Options;
+
 using System.Text;
 
 namespace Tiesmaster.OverdueBookReporter;
@@ -18,9 +20,9 @@ public class LibraryRotterdamClient
     private LoginPageResult? _loginFormSecurityValues;
     private readonly LibraryLoginCredentials _credentials;
 
-    public LibraryRotterdamClient(LibraryLoginCredentials credentials)
+    public LibraryRotterdamClient(IOptions<LibraryLoginCredentials> credentials)
     {
-        _credentials = credentials;
+        _credentials = credentials.Value;
         _client = CreateLibraryRotterdamClient();
     }
 

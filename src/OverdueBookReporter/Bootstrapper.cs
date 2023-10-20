@@ -10,5 +10,7 @@ public static class Bootstrapper
         services.Configure<EmailSettings>(configuration.GetRequiredSection(EmailSettings.SectionName));
 
         services.AddHostedService<MainUseCase>();
+
+        services.AddTransient<LibraryRotterdamClient>();
     }
 }

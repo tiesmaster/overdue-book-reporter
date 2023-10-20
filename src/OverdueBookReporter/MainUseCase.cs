@@ -10,18 +10,18 @@ namespace OverdueBookReporter;
 
 public class MainUseCase : BackgroundService
 {
-    private readonly LibraryLoginCredentials _credentials;
+    private readonly LibraryRotterdamClient _libraryRotterdamClient;
     private readonly EmailSettings _emailSettings;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly ILogger<MainUseCase> _logger;
 
     public MainUseCase(
-        IOptions<LibraryLoginCredentials> credentialOptions,
+        LibraryRotterdamClient libraryRotterdamClient,
         IOptions<EmailSettings> emailOptions,
         IHostApplicationLifetime lifetime,
         ILogger<MainUseCase> logger)
     {
-        _credentials = credentialOptions.Value;
+        _libraryRotterdamClient = libraryRotterdamClient;
         _emailSettings = emailOptions.Value;
         _lifetime = lifetime;
         _logger = logger;
@@ -29,16 +29,14 @@ public class MainUseCase : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var client = new LibraryRotterdamClient(_credentials);
-
         Console.WriteLine("Starting session");
-        await client.StartSessionAsync();
+        await _libraryRotterdamClient.StartSessionAsync();
 
         Console.WriteLine("Logging in");
-        await client.LoginAsync();
+        await _libraryRotterdamClient.LoginAsync();
 
         Console.WriteLine("Retrieving book listing");
-        var bookListing = await client.GetBookListingAsync();
+        var bookListing = await _libraryRotterdamClient.GetBookListingAsync();
 
         foreach (var bookTitle in bookListing)
         {
