@@ -60,7 +60,7 @@ public class LibraryHtmlParserTests
 
     private static string GetEmbeddedResourceHtml(string testFileName)
     {
-        const string prefix = "OverdueBookReporter.UnitTests.test_files";
+        const string prefix = "Tiesmaster.OverdueBookReporter.UnitTests.test_files";
 
         var assembly = Assembly.GetExecutingAssembly();
         var resourceName = $"{prefix}.{testFileName}";
