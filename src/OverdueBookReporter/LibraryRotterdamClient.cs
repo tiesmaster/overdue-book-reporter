@@ -1,8 +1,8 @@
+using System.Text;
+
 using AngleSharp.Io;
 
 using Microsoft.Extensions.Options;
-
-using System.Text;
 
 namespace Tiesmaster.OverdueBookReporter;
 
@@ -14,17 +14,23 @@ public class LibraryRotterdamClient
         public const string BicatSid = "BICAT_SID";
     }
 
+    private readonly LibraryLoginCredentials _credentials;
+    private readonly ILogger<LibraryRotterdamClient> _logger;
+
     private readonly HttpClient _client;
 
     private bool _isLoggedIn;
     private string? _ssoId;
     private string? _bicatSid;
     private LoginPageResult? _loginFormSecurityValues;
-    private readonly LibraryLoginCredentials _credentials;
 
-    public LibraryRotterdamClient(IOptions<LibraryLoginCredentials> credentials)
+    public LibraryRotterdamClient(
+        IOptions<LibraryLoginCredentials> credentials,
+        ILogger<LibraryRotterdamClient> logger)
     {
         _credentials = credentials.Value;
+        _logger = logger;
+
         _client = CreateLibraryRotterdamClient();
     }
 
@@ -38,7 +44,7 @@ public class LibraryRotterdamClient
 
     public async Task StartSessionAsync()
     {
-        Console.WriteLine("Starting session");
+        _logger.LogDebug("Starting session");
         var response = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
 
         ReadCookieValues(response.Headers.GetValues(HeaderNames.SetCookie));
@@ -47,16 +53,16 @@ public class LibraryRotterdamClient
         var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
         _loginFormSecurityValues = result;
 
-        Console.WriteLine($"SSOID: {_ssoId}");
-        Console.WriteLine($"BICAT_ID: {_bicatSid}");
-        Console.WriteLine($"Login page security values: {_loginFormSecurityValues}");
+        _logger.LogTrace("SSOID: {SsoId}", _ssoId);
+        _logger.LogTrace("BICAT_ID: {BicatSid}", _bicatSid);
+        _logger.LogTrace("Login page security values: {LoginFormSecurityValues}", _loginFormSecurityValues);
     }
 
     public async Task LoginAsync()
     {
         await StartSessionAsync();
 
-        Console.WriteLine("Logging in");
+        _logger.LogDebug("Logging in");
         var dict = new Dictionary<string, string>
         {
             { "username", _credentials.Username },
@@ -68,7 +74,7 @@ public class LibraryRotterdamClient
         var ms = new MemoryStream();
         await body.CopyToAsync(ms);
 
-        Console.WriteLine(Encoding.UTF8.GetString(ms.ToArray()));
+        _logger.LogTrace("Form content: {FormContent}", Encoding.UTF8.GetString(ms.ToArray()));
 
         body.Headers.Add(
             HeaderNames.Cookie,
@@ -76,25 +82,16 @@ public class LibraryRotterdamClient
 
         var response = await _client.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
 
-        Console.WriteLine(response.StatusCode);
-        // Console.WriteLine(await response.Content.ReadAsStringAsync());
+        _logger.LogTrace("Received status code: {StatusCode}", response.StatusCode);
+        _logger.LogTrace("Received HTML: {Html}", await response.Content.ReadAsStringAsync());
 
-        // Console.WriteLine("Response headers:");
-        // foreach (var header in response.Headers)
-        // {
-        //     Console.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
-        // }
-
-        // Console.WriteLine("Content headers:");
-        // foreach (var header in response.Content.Headers)
-        // {
-        //     Console.WriteLine($"{header.Key}: {string.Join(", ", header.Value)}");
-        // }
+        _logger.LogTrace("Response headers: {ResponseHeaders}", FlattenHeaderValues(response.Headers));
+        _logger.LogTrace("Content headers: {ContentHeaders}", FlattenHeaderValues(response.Content.Headers));
 
         ReadCookieValues(response.Headers.GetValues(HeaderNames.SetCookie), shouldReadBicatCookie: false);
 
-        Console.WriteLine($"SSOID: {_ssoId}");
-        Console.WriteLine($"BICAT_ID: {_bicatSid}");
+        _logger.LogTrace("SSOID: {SsoId}", _ssoId);
+        _logger.LogTrace("BICAT_ID: {BicatSid}", _bicatSid);
 
         _client.DefaultRequestHeaders.Add(
             HeaderNames.Cookie,
@@ -105,55 +102,44 @@ public class LibraryRotterdamClient
 
         ReadCookieValues2(response2.Headers.GetValues(HeaderNames.SetCookie));
 
-        Console.WriteLine($"SSOID: {_ssoId}");
-        Console.WriteLine($"BICAT_ID: {_bicatSid}");
+        _logger.LogTrace("SSOID: {SsoId}", _ssoId);
+        _logger.LogTrace("BICAT_ID: {BicatSid}", _bicatSid);
     }
 
     public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
     {
         if (_isLoggedIn is false)
         {
-            Console.WriteLine("Not logged in yet; starting log in process");
+            _logger.LogDebug("Not logged in yet; starting log in process");
             await LoginAsync();
+
+            _isLoggedIn = true;
         }
 
-        Console.WriteLine("Retrieving book listing");
+        _logger.LogDebug("Retrieving book listing");
         var response = await _client.GetAsync(
             $"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;" +
             $"ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
 
         var content = await response.Content.ReadAsStringAsync();
 
-        // Console.WriteLine(content);
+        _logger.LogTrace("Received HTML: {Html}", content);
 
         return await LibraryHtmlParser.ParseBookListingAsync(content);
-
-        // if (content.Contains("Brul"))
-        // {
-        //     Console.WriteLine("SUCCESS");
-        // }
-        // else
-        // {
-        //     Console.WriteLine("FAIL");
-        // }
     }
 
     private void ReadCookieValues(IEnumerable<string> cookieValues, bool shouldReadBicatCookie = true)
     {
-        // Console.WriteLine("ALL received set-cookie values");
-        // foreach (var cookieValue in cookieValues)
-        // {
-        //     Console.WriteLine(cookieValue);
-        // }
+        _logger.LogTrace("ALL received set-cookie values: {SetCookieValues}", cookieValues);
+        _logger.LogTrace("Reading SSOID cookie");
 
-        Console.WriteLine("Reading SSOID cookie");
         var ssoIdCookie = cookieValues.First(x => x.StartsWith(CookieNames.SsoId));
         var part1 = ssoIdCookie.Split("; ")[0];
         _ssoId = part1.Split("=")[1];
 
         if (shouldReadBicatCookie)
         {
-            Console.WriteLine("Reading BICAT_ID cookie");
+            _logger.LogTrace("Reading BICAT_ID cookie");
             var bicatCookie = cookieValues.First(x => x.StartsWith(CookieNames.BicatSid));
             _bicatSid = bicatCookie[10..46];
         }
@@ -161,20 +147,19 @@ public class LibraryRotterdamClient
 
     private void ReadCookieValues2(IEnumerable<string> cookieValues)
     {
-        // Console.WriteLine("ALL received set-cookie values");
-        // foreach (var cookieValue in cookieValues)
-        // {
-        //     Console.WriteLine(cookieValue);
-        // }
+        _logger.LogTrace("ALL received set-cookie values: {SetCookieValues}", cookieValues);
+        _logger.LogTrace("Reading BICAT_ID cookie");
 
-        // Console.WriteLine("Reading SSOID cookie");
-        // var ssoIdCookie = cookieValues.First(x => x.StartsWith(CookieNames.SsoId));
-        // var part1 = ssoIdCookie.Split("; ")[0];
-        // _ssoId = part1.Split("=")[1];
-
-        Console.WriteLine("Reading BICAT_ID cookie");
         var bicatCookie = cookieValues.First(x => x.StartsWith(CookieNames.BicatSid));
         _bicatSid = bicatCookie[10..46];
+    }
+
+    private static Dictionary<string, string> FlattenHeaderValues(
+        IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers)
+    {
+        return new(headers.Select(kvp => new KeyValuePair<string, string>(
+            kvp.Key,
+            string.Join(" ", kvp.Value))));
     }
 }
 
