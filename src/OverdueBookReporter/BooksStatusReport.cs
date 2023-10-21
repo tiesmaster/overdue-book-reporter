@@ -12,7 +12,7 @@ public enum BooksStatusReportStatus
 public class BooksStatusReport
 {
     private readonly DateOnly _today;
-    private readonly IEnumerable<LoanedBook> _books;
+    private readonly List<LoanedBook> _books;
 
     private readonly bool _isError;
     private readonly Exception _exception;
@@ -22,7 +22,7 @@ public class BooksStatusReport
     public BooksStatusReport(DateOnly today, IEnumerable<LoanedBook> books)
     {
         _today = today;
-        _books = books;
+        _books = books.ToList();
 
         _exception = null!;
     }
@@ -35,9 +35,26 @@ public class BooksStatusReport
         _books = null!;
     }
 
-    public BooksStatusReportStatus GetStatus(DateOnly day)
+    public BooksStatusReportStatus Status => this switch
     {
-        // var anyOverdue = bookListing.Any(x => x.GetStatus(today) == BookLoanStatus.Overdue);
-        throw new NotImplementedException();
+        { _isError: true } => BooksStatusReportStatus.Error,
+        { _books.Count: 0 } => BooksStatusReportStatus.NotActive,
+        _ => AggregateBooksStatus(_books),
+    };
+
+    private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
+    {
+        var allStatusses = books.Select(x => x.GetStatus(_today)).Distinct();
+        if (allStatusses.Contains(BookLoanStatus.Overdue))
+        {
+            return BooksStatusReportStatus.Overdue;
+        }
+
+        if (allStatusses.Contains(BookLoanStatus.DueToday))
+        {
+            return BooksStatusReportStatus.DueToday;
+        }
+
+        return BooksStatusReportStatus.Ok;
     }
 }
