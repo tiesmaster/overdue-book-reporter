@@ -4,15 +4,29 @@ public record LoanedBook(string Name, DateOnly DueDay)
 {
     public BookLoanStatus GetStatus(DateOnly currentDay)
     {
-        return currentDay == DueDay
-            ? BookLoanStatus.DueToday
-            : currentDay > DueDay ? BookLoanStatus.Overdue : BookLoanStatus.Ok;
+        if (currentDay > DueDay)
+        {
+            return BookLoanStatus.Overdue;
+        }
+
+        if (currentDay == DueDay)
+        {
+            return BookLoanStatus.DueToday;
+        }
+
+        if (currentDay.AddDays(5) >= DueDay)
+        {
+            return BookLoanStatus.AlmostDue;
+        }
+
+        return BookLoanStatus.Ok;
     }
 }
 
 public enum BookLoanStatus
 {
     Ok,
+    AlmostDue,
     DueToday,
     Overdue,
 }
