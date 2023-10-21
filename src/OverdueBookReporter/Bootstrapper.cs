@@ -11,6 +11,16 @@ public static class Bootstrapper
 
         services.AddTransient<LibraryRotterdamClient>();
         services.AddTransient<EmailSender>();
+
+        services
+            .AddHttpClient<LibraryRotterdamClient>()
+            .ConfigurePrimaryHttpMessageHandler(_ =>
+            {
+                return new HttpClientHandler
+                {
+                    AllowAutoRedirect = false,
+                };
+            });
     }
 }
 

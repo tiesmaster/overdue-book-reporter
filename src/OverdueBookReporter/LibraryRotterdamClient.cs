@@ -14,10 +14,11 @@ public class LibraryRotterdamClient
         public const string BicatSid = "BICAT_SID";
     }
 
-    private readonly LibraryLoginCredentials _credentials;
-    private readonly ILogger<LibraryRotterdamClient> _logger;
+    public const string HttpClientName = nameof(LibraryRotterdamClient);
 
-    private readonly HttpClient _client;
+    private readonly LibraryLoginCredentials _credentials;
+    private readonly HttpClient _httpClient;
+    private readonly ILogger<LibraryRotterdamClient> _logger;
 
     private bool _isLoggedIn;
     private string? _ssoId;
@@ -25,27 +26,19 @@ public class LibraryRotterdamClient
     private LoginPageResult? _loginFormSecurityValues;
 
     public LibraryRotterdamClient(
+        HttpClient httpClient,
         IOptions<LibraryLoginCredentials> credentials,
         ILogger<LibraryRotterdamClient> logger)
     {
         _credentials = credentials.Value;
+        _httpClient = httpClient;
         _logger = logger;
-
-        _client = CreateLibraryRotterdamClient();
-    }
-
-    private static HttpClient CreateLibraryRotterdamClient()
-    {
-        return new HttpClient(new HttpClientHandler
-        {
-            AllowAutoRedirect = false
-        });
     }
 
     public async Task StartSessionAsync()
     {
         _logger.LogDebug("Starting session");
-        var response = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
+        var response = await _httpClient.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
 
         ReadCookieValues(response.Headers.GetValues(HeaderNames.SetCookie));
 
@@ -80,7 +73,7 @@ public class LibraryRotterdamClient
             HeaderNames.Cookie,
             $"{CookieNames.SsoId}={_ssoId}; {CookieNames.BicatSid}={_bicatSid};");
 
-        var response = await _client.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
+        var response = await _httpClient.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
 
         _logger.LogTrace("Received status code: {StatusCode}", response.StatusCode);
         _logger.LogTrace("Received HTML: {Html}", await response.Content.ReadAsStringAsync());
@@ -93,12 +86,12 @@ public class LibraryRotterdamClient
         _logger.LogTrace("SSOID: {SsoId}", _ssoId);
         _logger.LogTrace("BICAT_ID: {BicatSid}", _bicatSid);
 
-        _client.DefaultRequestHeaders.Add(
+        _httpClient.DefaultRequestHeaders.Add(
             HeaderNames.Cookie,
             $"{CookieNames.SsoId}={_ssoId}; {CookieNames.BicatSid}={_bicatSid}; joomla_user_state=logged_in");
 
         // TODO: Should read this from Location: redirect header
-        var response2 = await _client.GetAsync("https://www.bibliotheek.rotterdam.nl/mijn-menu");
+        var response2 = await _httpClient.GetAsync("https://www.bibliotheek.rotterdam.nl/mijn-menu");
 
         ReadCookieValues2(response2.Headers.GetValues(HeaderNames.SetCookie));
 
@@ -117,7 +110,7 @@ public class LibraryRotterdamClient
         }
 
         _logger.LogDebug("Retrieving book listing");
-        var response = await _client.GetAsync(
+        var response = await _httpClient.GetAsync(
             $"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;" +
             $"ssoid={_ssoId}&ssokey=joomla&sid={_bicatSid}");
 
