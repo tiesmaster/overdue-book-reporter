@@ -1,5 +1,7 @@
 using System.Text;
 
+using Humanizer;
+
 using MailKit.Net.Smtp;
 
 using Microsoft.Extensions.Options;
@@ -72,9 +74,9 @@ public static class BooksStatusReportEmailExtensions
         {
             BooksStatusReportStatus.NotActive => $"{status}: no books in possession",
             BooksStatusReportStatus.Ok => $"{status}: all good",
-            BooksStatusReportStatus.AlmostDue => $"{status}: {statusReport.CountDaysLeft} days left",
-            BooksStatusReportStatus.DueToday => $"{status}: {statusReport.CountDueToday} books due today!!",
-            BooksStatusReportStatus.Overdue => $"{status}: {statusReport.CountOverdue} books are overdue!!!",
+            BooksStatusReportStatus.AlmostDue => $"{status}: {"day".ToQuantity(statusReport.CountDaysLeft)} left",
+            BooksStatusReportStatus.DueToday => $"{status}: {"books".ToQuantity(statusReport.CountDueToday)} due today!!",
+            BooksStatusReportStatus.Overdue => $"{status}: {"books".ToQuantity(statusReport.CountOverdue)} are overdue!!!",
             BooksStatusReportStatus.Error => $"{status}: {statusReport.Exception.Message}",
             _ => throw new NotImplementedException(),
         };
