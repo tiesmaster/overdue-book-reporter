@@ -4,6 +4,7 @@ public enum BooksStatusReportStatus
 {
     NotActive,
     Ok,
+    AlmostDue,
     DueToday,
     Overdue,
     Error,
@@ -47,6 +48,8 @@ public class BooksStatusReport
     public int CountDueToday => _books.Count(x => x.GetStatus(_today) == BookLoanStatus.DueToday);
     public int CountOverdue => _books.Count(x => x.GetStatus(_today) == BookLoanStatus.Overdue);
 
+    public int CountDaysLeft => (int)(_books.Min(x => x.DueDay).ToDateTime(default) - _today.ToDateTime(default)).TotalDays;
+
     private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
     {
         var allStatusses = books.Select(x => x.GetStatus(_today)).Distinct();
@@ -58,6 +61,11 @@ public class BooksStatusReport
         if (allStatusses.Contains(BookLoanStatus.DueToday))
         {
             return BooksStatusReportStatus.DueToday;
+        }
+
+        if (allStatusses.Contains(BookLoanStatus.AlmostDue))
+        {
+            return BooksStatusReportStatus.AlmostDue;
         }
 
         return BooksStatusReportStatus.Ok;

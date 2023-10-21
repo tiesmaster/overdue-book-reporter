@@ -31,7 +31,23 @@ public class BooksStatusReportTests
     }
 
     [Fact]
-    public void GivenBookDueTomorrow_WhenGettingStatus_ThenOk()
+    public void GivenBookDueInFarFuture_WhenGettingStatus_ThenOk()
+    {
+        // arrange
+        var today = DateOnly.Parse("2023-10-21");
+        var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today.AddDays(10));
+
+        var report = new BooksStatusReport(today, new[] { dueTomorrow });
+
+        // act
+        var status = report.Status;
+
+        // assert
+        status.Should().Be(BooksStatusReportStatus.Ok);
+    }
+
+    [Fact]
+    public void GivenBookDueTomorrow_WhenGettingStatus_ThenAlmostDue()
     {
         // arrange
         var today = DateOnly.Parse("2023-10-21");
@@ -43,7 +59,8 @@ public class BooksStatusReportTests
         var status = report.Status;
 
         // assert
-        status.Should().Be(BooksStatusReportStatus.Ok);
+        status.Should().Be(BooksStatusReportStatus.AlmostDue);
+        report.CountDaysLeft.Should().Be(1);
     }
 
     [Fact]

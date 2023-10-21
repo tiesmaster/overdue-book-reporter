@@ -72,6 +72,7 @@ public static class BooksStatusReportEmailExtensions
         {
             BooksStatusReportStatus.NotActive => $"{status}: no books in possession",
             BooksStatusReportStatus.Ok => $"{status}: all good",
+            BooksStatusReportStatus.AlmostDue => $"{status}: {statusReport.CountDaysLeft} days left",
             BooksStatusReportStatus.DueToday => $"{status}: {statusReport.CountDueToday} books due today!!",
             BooksStatusReportStatus.Overdue => $"{status}: {statusReport.CountOverdue} books are overdue!!!",
             BooksStatusReportStatus.Error => $"{status}: {statusReport.Exception.Message}",
@@ -84,7 +85,8 @@ public static class BooksStatusReportEmailExtensions
         {
             BooksStatusReportStatus.NotActive => "",
             BooksStatusReportStatus.Error => statusReport.Exception.ToString(),
-            BooksStatusReportStatus.Ok or BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue => GetBookListingTable(statusReport.BookListing),
+            BooksStatusReportStatus.Ok or BooksStatusReportStatus.AlmostDue or BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue
+                => GetBookListingTable(statusReport.BookListing),
             _ => throw new NotImplementedException(),
         };
     }
