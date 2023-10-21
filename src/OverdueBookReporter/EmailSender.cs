@@ -1,3 +1,5 @@
+using System.Text;
+
 using MailKit.Net.Smtp;
 
 using Microsoft.Extensions.Options;
@@ -24,7 +26,13 @@ public class EmailSender
     private MimeMessage ComposeEmail(BooksStatusReport statusReport)
     {
         var message = EmailWithAddressing;
+
         message.Subject = statusReport.GetSubjectLine();
+        message.Body = new TextPart("plain")
+        {
+            Text = statusReport.GetBody(),
+        };
+
         return message;
     }
 
@@ -69,5 +77,28 @@ public static class BooksStatusReportEmailExtensions
             BooksStatusReportStatus.Error => $"{status}: {statusReport.Exception.Message}",
             _ => throw new NotImplementedException(),
         };
+    }
+    public static string GetBody(this BooksStatusReport statusReport)
+    {
+        return statusReport.Status switch
+        {
+            BooksStatusReportStatus.NotActive => "",
+            BooksStatusReportStatus.Error => statusReport.Exception.ToString(),
+            BooksStatusReportStatus.Ok or BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue => GetBookListingTable(statusReport.BookListing),
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    private static string GetBookListingTable(IEnumerable<LoanedBook> bookListing)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("Books in posession:");
+        foreach (var book in bookListing)
+        {
+            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay})");
+        }
+
+        return sb.ToString();
     }
 }
