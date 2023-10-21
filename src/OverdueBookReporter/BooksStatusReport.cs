@@ -42,6 +42,11 @@ public class BooksStatusReport
         _ => AggregateBooksStatus(_books),
     };
 
+    public Exception Exception => _exception;
+
+    public int CountDueToday => _books.Count(x => x.GetStatus(_today) == BookLoanStatus.DueToday);
+    public int CountOverdue => _books.Count(x => x.GetStatus(_today) == BookLoanStatus.Overdue);
+
     private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
     {
         var allStatusses = books.Select(x => x.GetStatus(_today)).Distinct();

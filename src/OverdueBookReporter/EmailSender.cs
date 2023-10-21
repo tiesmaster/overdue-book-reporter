@@ -24,7 +24,7 @@ public class EmailSender
     private MimeMessage ComposeEmail(BooksStatusReport statusReport)
     {
         var message = EmailWithAddressing;
-        //message.Subject = anyOverdue ? "OVERDUE!!!" : "all good!";
+        message.Subject = statusReport.GetSubjectLine();
         return message;
     }
 
@@ -52,5 +52,22 @@ public class EmailSender
         await smtpClient.SendAsync(message);
 
         await smtpClient.DisconnectAsync(quit: true);
+    }
+}
+
+public static class BooksStatusReportEmailExtensions
+{
+    public static string GetSubjectLine(this BooksStatusReport statusReport)
+    {
+        var status = statusReport.Status;
+        return status switch
+        {
+            BooksStatusReportStatus.NotActive => $"{status}: no books in possession",
+            BooksStatusReportStatus.Ok => $"{status}: all good",
+            BooksStatusReportStatus.DueToday => $"{status}: {statusReport.CountDueToday} books due today!!",
+            BooksStatusReportStatus.Overdue => $"{status}: {statusReport.CountOverdue} books are overdue!!!",
+            BooksStatusReportStatus.Error => $"{status}: {statusReport.Exception.Message}",
+            _ => throw new NotImplementedException(),
+        };
     }
 }
