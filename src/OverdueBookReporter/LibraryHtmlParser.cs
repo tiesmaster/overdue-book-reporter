@@ -14,7 +14,7 @@ public static class LibraryHtmlParser
         var csrfToken = ParseCsrfToken(loginForm);
 
         // a[href="https://example.org"]
-        var returnToken = loginForm.QuerySelector("""input[name="return"]""").GetAttribute("value");
+        var returnToken = loginForm!.QuerySelector("""input[name="return"]""")!.GetAttribute("value");
 
         return new(csrfToken!, returnToken!);
     }

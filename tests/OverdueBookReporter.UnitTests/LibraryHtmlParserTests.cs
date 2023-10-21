@@ -67,7 +67,7 @@ public class LibraryHtmlParserTests
 
         using var stream = assembly.GetManifestResourceStream(resourceName)!;
         using var reader = new StreamReader(stream);
-        string result = reader.ReadToEnd();
+        var result = reader.ReadToEnd();
 
         return result;
     }
