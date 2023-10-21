@@ -1,5 +1,3 @@
-﻿using OverdueBookReporter;
-
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class Bootstrapper

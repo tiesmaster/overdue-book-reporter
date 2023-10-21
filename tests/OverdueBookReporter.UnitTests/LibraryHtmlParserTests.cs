@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace OverdueBookReporter.UnitTests;
+namespace Tiesmaster.OverdueBookReporter.UnitTests;
 
 public class LibraryHtmlParserTests
 {

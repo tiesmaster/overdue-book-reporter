@@ -1,4 +1,4 @@
-namespace OverdueBookReporter.UnitTests;
+namespace Tiesmaster.OverdueBookReporter.UnitTests;
 
 public class LoanedBookTests
 {

@@ -1,6 +1,4 @@
-using Tiesmaster.OverdueBookReporter;
-
-namespace OverdueBookReporter;
+namespace Tiesmaster.OverdueBookReporter;
 
 public class MainUseCase : BackgroundService
 {
