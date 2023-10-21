@@ -2,20 +2,34 @@ namespace Tiesmaster.OverdueBookReporter.UnitTests;
 
 public class LoanedBookTests
 {
-    [Theory]
-    [InlineData("2023-06-14")]
-    [InlineData("2023-06-15")]
-    public void GetStatus_WithDueDateInFuture_ReturnsNormalStatus(string currentDay)
+    [Fact]
+    public void GetStatus_WithDueDatToday_ReturnsDueToday()
     {
         // arrange
-        var sut = new LoanedBook(Name: "1984", DueDay: DateOnly.Parse("2023-06-15"));
+        var today = DateOnly.Parse("2023-06-14");
+        var sut = new LoanedBook(Name: "1984", DueDay: today);
 
         // act
-        var status = sut.GetStatus(DateOnly.Parse(currentDay));
+        var status = sut.GetStatus(today);
 
         // assert
-        status.Should().Be(BookLoanStatus.Normal);
+        status.Should().Be(BookLoanStatus.DueToday);
     }
+
+    [Fact]
+    public void GetStatus_WithDueDateInFuture_ReturnsOkStatus()
+    {
+        // arrange
+        var today = DateOnly.Parse("2023-06-14");
+        var sut = new LoanedBook(Name: "1984", DueDay: today.AddDays(1));
+
+        // act
+        var status = sut.GetStatus(today);
+
+        // assert
+        status.Should().Be(BookLoanStatus.Ok);
+    }
+
     [Fact]
     public void GetStatus_WithDueDateInThePast_ReturnsOverdueStatus()
     {
