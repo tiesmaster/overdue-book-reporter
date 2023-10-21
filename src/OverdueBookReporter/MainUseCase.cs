@@ -22,18 +22,23 @@ public class MainUseCase : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Retrieving book listing");
-        var bookListing = await _libraryRotterdamClient.GetBookListingAsync();
 
-        _logger.LogInformation("Received book listing of {CountBooks} books", bookListing.Count());
-        foreach (var bookTitle in bookListing)
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var statusReport = await _libraryRotterdamClient.GetBooksStatusReportAsync(today);
+
+        LogStatus(statusReport);
+
+        await _emailSender.SendEmailAsync(statusReport);
+
+        _lifetime.StopApplication();
+    }
+
+    private void LogStatus(BooksStatusReport statusReport)
+    {
+        _logger.LogInformation("Received book listing of {CountBooks} books", statusReport.BookListing.Count());
+        foreach (var bookTitle in statusReport.BookListing)
         {
             _logger.LogDebug("Book in posession: {Book}", bookTitle);
         }
-
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var anyOverdue = bookListing.Any(x => x.GetStatus(today) == BookLoanStatus.Overdue);
-        await _emailSender.SendEmailAsync(anyOverdue);
-
-        _lifetime.StopApplication();
     }
 }

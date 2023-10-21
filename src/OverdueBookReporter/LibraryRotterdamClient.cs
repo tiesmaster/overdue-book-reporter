@@ -25,6 +25,19 @@ public class LibraryRotterdamClient
         _logger = logger;
     }
 
+    public async Task<BooksStatusReport> GetBooksStatusReportAsync(DateOnly today)
+    {
+        try
+        {
+            var loanedBooks = await GetBookListingAsync();
+            return new(today, loanedBooks);
+        }
+        catch (Exception ex)
+        {
+            return new(ex);
+        }
+    }
+
     public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
     {
         if (_isLoggedIn is false)

@@ -15,16 +15,16 @@ public class EmailSender
         _settings = emailOptions.Value;
     }
 
-    public async Task SendEmailAsync(bool anyOverdue)
+    public async Task SendEmailAsync(BooksStatusReport statusReport)
     {
-        var email = ComposeEmail(anyOverdue);
+        var email = ComposeEmail(statusReport);
         await SendAsync(email);
     }
 
-    private MimeMessage ComposeEmail(bool anyOverdue)
+    private MimeMessage ComposeEmail(BooksStatusReport statusReport)
     {
         var message = EmailWithAddressing;
-        message.Subject = anyOverdue ? "OVERDUE!!!" : "all good!";
+        //message.Subject = anyOverdue ? "OVERDUE!!!" : "all good!";
         return message;
     }
 
