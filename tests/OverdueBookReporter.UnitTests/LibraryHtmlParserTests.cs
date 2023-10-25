@@ -56,8 +56,6 @@ public class LibraryHtmlParserTests
         booksListing.Should().BeEmpty();
     }
 
-    // TODO: Validate that the message "Geen leningen bekend" is shown when no books in posession
-
     private static string GetEmbeddedResourceHtml(string testFileName)
     {
         const string prefix = "Tiesmaster.OverdueBookReporter.UnitTests.test_files";
