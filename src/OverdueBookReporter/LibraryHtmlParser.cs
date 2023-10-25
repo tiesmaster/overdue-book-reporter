@@ -1,4 +1,5 @@
 using System.Globalization;
+
 using AngleSharp;
 using AngleSharp.Dom;
 
@@ -10,13 +11,13 @@ public static class LibraryHtmlParser
     {
         var document = await ReadHtmlAsync(mainHtml);
 
-        var loginForm = document.QuerySelector("form#com-users-login__form");
+        var loginForm = document.QuerySelectorOrThrow("form#com-users-login__form");
         var csrfToken = ParseCsrfToken(loginForm);
 
         // a[href="https://example.org"]
-        var returnToken = loginForm!.QuerySelector("""input[name="return"]""")!.GetAttribute("value");
+        var returnToken = loginForm.QuerySelectorOrThrow("""input[name="return"]""").GetAttributeOrThrow("value");
 
-        return new(csrfToken!, returnToken!);
+        return new(csrfToken, returnToken);
     }
 
     public static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
@@ -32,12 +33,12 @@ public static class LibraryHtmlParser
         return allTitles.Children.Select(x => ParseTitle(x));
     }
 
-    private static string? ParseCsrfToken(IElement? formHtml)
+    private static string ParseCsrfToken(IElement loginForm)
     {
         // We cannot query for the CSRF token field, as the name of it is random generated. However,
         // we do know all the other inputs, and exclude all of them to find the CSRF token field.
 
-        var inputElements = formHtml!.QuerySelectorAll("input");
+        var inputElements = loginForm.QuerySelectorAll("input");
         var expectedInputs = new HashSet<string>
         {
             "username",
@@ -48,19 +49,26 @@ public static class LibraryHtmlParser
             "return"
         };
 
-        var csrfToken = inputElements
-            .Select(x => x.GetAttribute("name"))
-            .Single(nameAttribute => !expectedInputs.Contains(nameAttribute!));
+        var csrfTokenQuery =
+            from ie in inputElements
+            let nameAttribute = ie.GetAttributeOrThrow("name")
+            where !expectedInputs.Contains(nameAttribute)
+            select nameAttribute;
 
-        return csrfToken;
+        if (csrfTokenQuery.Count() != 1)
+        {
+            throw new InvalidOperationException($"Unable to locate CSRF token in the login form, excpected 1 element. Got {csrfTokenQuery.Count()} elements");
+        }
+
+        return csrfTokenQuery.Single();
     }
 
     private static LoanedBook ParseTitle(IElement titleHtml)
     {
-        var titleName = titleHtml.QuerySelector("a.title")!.InnerHtml;
+        var titleName = titleHtml.QuerySelectorOrThrow("a.title").InnerHtml;
 
-        var loanInfoHtml = titleHtml.QuerySelector("span.vet:nth-child(2)");
-        var dueDate = DateOnly.Parse(loanInfoHtml!.InnerHtml, CultureInfo.GetCultureInfo("nl-NL"));
+        var loanInfoHtml = titleHtml.QuerySelectorOrThrow("span.vet:nth-child(2)");
+        var dueDate = DateOnly.Parse(loanInfoHtml.InnerHtml, CultureInfo.GetCultureInfo("nl-NL"));
 
         return new(
             Name: titleName,
