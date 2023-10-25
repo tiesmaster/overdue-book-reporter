@@ -1,3 +1,5 @@
+using System.Text;
+
 using AngleSharp.Dom;
 
 namespace Tiesmaster.OverdueBookReporter;
@@ -26,10 +28,23 @@ public static class AngleSharpExtensions
     {
         var attr = input.GetAttribute(name);
 
-        // TODO: Check if we can get something like a "breadcrumbs" for input
-
         return attr is string s
             ? s
-            : throw new ArgumentException($"Attribute '{name}' doesn't exist on element {input}");
+            : throw new ArgumentException($"Attribute '{name}' doesn't exist on element {input.GetPath()}");
+    }
+
+    public static string GetPath(this IElement input)
+    {
+        var ancestorsInReverse = input.GetInclusiveAncestors().Reverse();
+        var sb = new StringBuilder();
+        sb.Append(ancestorsInReverse.First().NodeName);
+
+        foreach (var el in ancestorsInReverse.Skip(1))
+        {
+            sb.Append(" > ");
+            sb.Append(el.NodeName);
+        }
+
+        return sb.ToString();
     }
 }
