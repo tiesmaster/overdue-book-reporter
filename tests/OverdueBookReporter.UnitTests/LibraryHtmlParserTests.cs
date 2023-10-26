@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using FluentResults.Extensions.FluentAssertions;
+
 namespace Tiesmaster.OverdueBookReporter.UnitTests;
 
 public class LibraryHtmlParserTests
@@ -15,11 +17,27 @@ public class LibraryHtmlParserTests
         var html = GetEmbeddedResourceHtml(testFileName);
 
         // act
-        var homePageResult = await LibraryHtmlParser.ParseLoginPageAsync(html);
+        var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
 
         // assert
-        homePageResult.CsrfToken.Should().Be(expectedCsrfToken);
-        homePageResult.ReturnToken.Should().Be(expectedReturnToken);
+        result.IsSuccess.Should().BeTrue();
+        result.Value.CsrfToken.Should().Be(expectedCsrfToken);
+        result.Value.ReturnToken.Should().Be(expectedReturnToken);
+    }
+
+    [Fact]
+    public async Task ParseLoginPageAsync_WithInvalidHtml_ReturnsError()
+    {
+        // arrange
+        var html = string.Empty;
+
+        // act
+        var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
+
+        // assert
+        result.Should().BeFailure();
+        result.Should().HaveReason("Unable to locate login page security tokens (the 'CSRF' token, or 'return' token)");
+        result.Should().HaveReason("selectors", (actualMessage, expectedMessage) => actualMessage.Contains(expectedMessage));
     }
 
     [Fact]

@@ -1,5 +1,7 @@
 using System.Text;
 
+using FluentResults;
+
 using Microsoft.Extensions.Options;
 
 namespace Tiesmaster.OverdueBookReporter;
@@ -60,17 +62,23 @@ public class LibraryRotterdamClient
         return await LibraryHtmlParser.ParseBookListingAsync(content);
     }
 
-    private async Task LoginAsync()
+    private async Task<Result> LoginAsync()
     {
-        var loginFormSecurityValues = await StartSessionAsync();
+        var result = await StartSessionAsync();
+        if (result.IsFailed)
+        {
+            return result.ToResult();
+        }
+
+        var loginFormSecurityTokens = result.Value;
 
         _logger.LogDebug("Logging in");
         var dict = new Dictionary<string, string>
         {
             { "username", _credentials.Username },
             { "password", _credentials.Password },
-            { "return", loginFormSecurityValues!.ReturnToken },
-            { loginFormSecurityValues!.CsrfToken, "1" },
+            { "return", loginFormSecurityTokens!.ReturnToken },
+            { loginFormSecurityTokens!.CsrfToken, "1" },
         };
 
         var body = new FormUrlEncodedContent(dict);
@@ -93,9 +101,11 @@ public class LibraryRotterdamClient
 
         var redirectResponse = await _httpClient.GetAsync(loginResponse.Headers.Location);
         _cookieJar.ReadCookieValues(redirectResponse);
+
+        return Result.Ok();
     }
 
-    private async Task<LoginPageResult> StartSessionAsync()
+    private async Task<Result<LoginPageSecurityTokens>> StartSessionAsync()
     {
         _logger.LogDebug("Starting session");
         var response = await _httpClient.GetAsync("https://www.bibliotheek.rotterdam.nl/login");
@@ -105,7 +115,10 @@ public class LibraryRotterdamClient
         var html = await response.Content.ReadAsStringAsync();
         var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
 
-        _logger.LogTrace("Login page security values: {LoginFormSecurityValues}", result);
+        if (result.IsSuccess)
+        {
+            _logger.LogTrace("Login page security values: {LoginFormSecurityValues}", result);
+        }
 
         return result;
     }

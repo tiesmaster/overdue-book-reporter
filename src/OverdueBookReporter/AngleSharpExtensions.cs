@@ -2,10 +2,21 @@ using System.Text;
 
 using AngleSharp.Dom;
 
+using FluentResults;
+
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class AngleSharpExtensions
 {
+    public static Result<IElement> QuerySelectorWithResult(this IDocument input, string selectors)
+    {
+        var element = input.QuerySelector(selectors);
+
+        return element is IElement el
+            ? Result.Ok(el)
+            : Result.Fail($"Unable to locate the given element based on the given selectors '{selectors}'");
+    }
+
     public static IElement QuerySelectorOrThrow(this IDocument input, string selectors)
     {
         var element = input.QuerySelector(selectors);
