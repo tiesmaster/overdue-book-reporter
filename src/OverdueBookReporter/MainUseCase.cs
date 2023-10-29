@@ -29,23 +29,26 @@ public class MainUseCase : BackgroundService
 
         // TODO: Maybe lift up the exception handling from the client to here in the main use case
         var statusReportResult = await _libraryRotterdamClient.GetBooksStatusReportAsync(today);
-
-        //LogStatus(statusReportResult);
+        if (statusReportResult.IsSuccess)
+        {
+            LogSuccessStatus(statusReportResult.Value);
+        }
+        else
+        {
+            _logger.LogError("Failure retrieving book status report: {Errors}", statusReportResult.Errors.Reverse<IError>());
+        }
 
         await _emailSender.SendEmailAsync(statusReportResult.Value);
 
         _lifetime.StopApplication();
     }
 
-    private void LogStatus(BooksStatusReport statusReport)
+    private void LogSuccessStatus(BooksStatusReport statusReport)
     {
         _logger.LogInformation("Received status report with status '{Status}', and {CountBooks} books", statusReport.Status, statusReport.BookListing?.Count());
-        if (statusReport.Status != default) // BooksStatusReportStatus.Error)
+        foreach (var bookTitle in statusReport.BookListing!)
         {
-            foreach (var bookTitle in statusReport.BookListing!)
-            {
-                _logger.LogDebug("Book in posession: {Book}", bookTitle);
-            }
+            _logger.LogDebug("Book in posession: {Book}", bookTitle);
         }
     }
 }
