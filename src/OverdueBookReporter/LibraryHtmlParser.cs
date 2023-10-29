@@ -3,8 +3,6 @@ using System.Globalization;
 using AngleSharp;
 using AngleSharp.Dom;
 
-using FluentResults;
-
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class LibraryHtmlParser

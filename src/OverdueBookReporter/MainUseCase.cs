@@ -1,5 +1,3 @@
-using FluentResults;
-
 namespace Tiesmaster.OverdueBookReporter;
 
 public class MainUseCase : BackgroundService

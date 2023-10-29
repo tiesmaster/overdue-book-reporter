@@ -2,8 +2,6 @@ using System.Text;
 
 using AngleSharp.Dom;
 
-using FluentResults;
-
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class AngleSharpExtensions
@@ -28,13 +26,12 @@ public static class AngleSharpExtensions
 
     public static Result<string> GetAttribute(this Result<IElement> resultOfInput, string name)
     {
-        if (resultOfInput.IsFailed)
+        var (isSuccess, isFailed, input) = resultOfInput;
+        if (isFailed)
         {
             return resultOfInput
                 .ToResult<string>();
         }
-
-        var input = resultOfInput.Value;
 
         var attr = input.GetAttribute(name);
 
