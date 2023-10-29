@@ -27,8 +27,7 @@ public class MainUseCase : BackgroundService
 
         var today = DateOnly.FromDateTime(DateTime.Today);
 
-        // TODO: Maybe lift up the exception handling from the client to here in the main use case
-        var statusReportResult = await _libraryRotterdamClient.GetBooksStatusReportAsync(today);
+        var statusReportResult = await GetBooksStatusReportSafeAsync(today);
         if (statusReportResult.IsSuccess)
         {
             LogSuccessStatus(statusReportResult.Value);
@@ -41,6 +40,18 @@ public class MainUseCase : BackgroundService
         await _emailSender.SendEmailAsync(statusReportResult.Value);
 
         _lifetime.StopApplication();
+    }
+
+    private async Task<Result<BooksStatusReport>> GetBooksStatusReportSafeAsync(DateOnly today)
+    {
+        try
+        {
+            return await _libraryRotterdamClient.GetBooksStatusReportAsync(today);
+        }
+        catch (Exception ex)
+        {
+            return Result.Fail(new Error("Unable to retrieve book status report").CausedBy(ex));
+        }
     }
 
     private void LogSuccessStatus(BooksStatusReport statusReport)

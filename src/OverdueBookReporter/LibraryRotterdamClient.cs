@@ -29,21 +29,14 @@ public class LibraryRotterdamClient
 
     public async Task<Result<BooksStatusReport>> GetBooksStatusReportAsync(DateOnly today)
     {
-        try
+        var loanedBooksResult = await GetBookListingAsync();
+        if (loanedBooksResult.IsSuccess)
         {
-            var loanedBooksResult = await GetBookListingAsync();
-            if (loanedBooksResult.IsSuccess)
-            {
-                return new BooksStatusReport(today, loanedBooksResult.Value);
-            }
-            else
-            {
-                return loanedBooksResult.ToResult();
-            }
+            return new BooksStatusReport(today, loanedBooksResult.Value);
         }
-        catch (Exception ex)
+        else
         {
-            return Result.Fail(new Error("Unable to retrieve book listing").CausedBy(ex));
+            return loanedBooksResult.ToResult();
         }
     }
 
