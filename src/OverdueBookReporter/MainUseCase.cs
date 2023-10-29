@@ -1,3 +1,5 @@
+using ConsoleTableExt;
+
 namespace Tiesmaster.OverdueBookReporter;
 
 public class MainUseCase : BackgroundService
@@ -29,6 +31,7 @@ public class MainUseCase : BackgroundService
         if (statusReportResult.IsSuccess)
         {
             LogSuccessStatus(statusReportResult.Value);
+            WriteBooksToConsoleAsTable(statusReportResult.Value.BookListing);
         }
         else
         {
@@ -59,5 +62,12 @@ public class MainUseCase : BackgroundService
         {
             _logger.LogDebug("Book in posession: {Book}", bookTitle);
         }
+    }
+
+    private static void WriteBooksToConsoleAsTable(IEnumerable<LoanedBook> bookListing)
+    {
+        ConsoleTableBuilder
+            .From(bookListing.ToList())
+            .ExportAndWriteLine();
     }
 }
