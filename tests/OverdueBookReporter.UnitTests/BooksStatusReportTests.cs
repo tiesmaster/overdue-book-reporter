@@ -7,7 +7,7 @@ public class BooksStatusReportTests
     {
         // arrange
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var report = new BooksStatusReport(today, Enumerable.Empty<LoanedBook>());
+        var report = CreateReport(today, Enumerable.Empty<LoanedBook>());
 
         // act
         var status = report.Status;
@@ -23,7 +23,7 @@ public class BooksStatusReportTests
         var today = DateOnly.Parse("2023-10-21");
         var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today.AddDays(10));
 
-        var report = new BooksStatusReport(today, new[] { dueTomorrow });
+        var report = CreateReport(today, new[] { dueTomorrow });
 
         // act
         var status = report.Status;
@@ -39,7 +39,7 @@ public class BooksStatusReportTests
         var today = DateOnly.Parse("2023-10-21");
         var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today.AddDays(1));
 
-        var report = new BooksStatusReport(today, new[] { dueTomorrow });
+        var report = CreateReport(today, new[] { dueTomorrow });
 
         // act
         var status = report.Status;
@@ -56,7 +56,7 @@ public class BooksStatusReportTests
         var today = DateOnly.Parse("2023-10-21");
         var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today);
 
-        var report = new BooksStatusReport(today, new[] { dueTomorrow });
+        var report = CreateReport(today, new[] { dueTomorrow });
 
         // act
         var status = report.Status;
@@ -72,12 +72,17 @@ public class BooksStatusReportTests
         var today = DateOnly.Parse("2023-10-21");
         var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today.AddDays(-1));
 
-        var report = new BooksStatusReport(today, new[] { dueTomorrow });
+        var report = CreateReport(today, new[] { dueTomorrow });
 
         // act
         var status = report.Status;
 
         // assert
         status.Should().Be(BooksStatusReportStatus.Overdue);
+    }
+
+    private static BooksStatusReport CreateReport(DateOnly today, IEnumerable<LoanedBook> loanedBooks)
+    {
+        return new BooksStatusReport(today, username: string.Empty, loanedBooks);
     }
 }

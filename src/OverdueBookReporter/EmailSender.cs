@@ -85,6 +85,9 @@ public class EmailSender
 public static class BooksStatusReportEmailExtensions
 {
     public static string GetSubjectLine(this BooksStatusReport statusReport)
+        => $"{statusReport.DescribeStatus()} [{statusReport.Username}]";
+
+    public static string DescribeStatus(this BooksStatusReport statusReport)
     {
         var status = statusReport.Status;
         return status switch

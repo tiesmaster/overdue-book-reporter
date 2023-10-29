@@ -30,7 +30,7 @@ public class LibraryRotterdamClient
         var loanedBooksResult = await GetBookListingAsync();
         if (loanedBooksResult.IsSuccess)
         {
-            return new BooksStatusReport(today, loanedBooksResult.Value);
+            return new BooksStatusReport(today, _credentials.Username, loanedBooksResult.Value);
         }
         else
         {

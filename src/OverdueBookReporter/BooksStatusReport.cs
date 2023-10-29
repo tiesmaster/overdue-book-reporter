@@ -16,9 +16,10 @@ public class BooksStatusReport
 
     public IEnumerable<LoanedBook> BookListing => _books;
 
-    public BooksStatusReport(DateOnly today, IEnumerable<LoanedBook> books)
+    public BooksStatusReport(DateOnly today, string username, IEnumerable<LoanedBook> books)
     {
         _today = today;
+        Username = username;
         _books = books.ToList();
     }
 
@@ -32,6 +33,8 @@ public class BooksStatusReport
     public int CountOverdue => _books.Count(x => x.GetStatus(_today) == BookLoanStatus.Overdue);
 
     public int CountDaysLeft => (int)(_books.Min(x => x.DueDay).ToDateTime(default) - _today.ToDateTime(default)).TotalDays;
+
+    public string Username { get; }
 
     private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
     {
