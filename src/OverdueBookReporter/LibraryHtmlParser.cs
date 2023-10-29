@@ -109,10 +109,22 @@ public static class LibraryHtmlParser
 
     private static Result<LoanedBook> ParseTitle(IElement titleHtml)
     {
-        var titleName = titleHtml.QuerySelectorOrThrow("a.title").InnerHtml;
+        var titleNameResult = titleHtml.QuerySelectorWithResult("a.title");
+        if (titleNameResult.IsFailed)
+        {
+            return titleNameResult.ToResult().WithError("Unable to locate the title of the book");
+        }
 
-        var loanInfoHtml = titleHtml.QuerySelectorOrThrow("span.vet:nth-child(2)");
+        var loanInfoHtmlResult = titleHtml.QuerySelectorWithResult("span.vet:nth-child(2)");
+        if (loanInfoHtmlResult.IsFailed)
+        {
+            return loanInfoHtmlResult.ToResult().WithError("Unable to locate the 'loan info' element of the book");
+        }
+
+        var loanInfoHtml = loanInfoHtmlResult.Value;
         var dueDate = DateOnly.Parse(loanInfoHtml.InnerHtml, CultureInfo.GetCultureInfo("nl-NL"));
+
+        var titleName = titleNameResult.Value.InnerHtml;
 
         return new LoanedBook(
             Name: titleName,
