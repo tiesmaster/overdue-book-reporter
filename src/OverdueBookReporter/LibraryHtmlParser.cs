@@ -11,23 +11,30 @@ public static class LibraryHtmlParser
 {
     public static async Task<Result<LoginPageSecurityTokens>> ParseLoginPageAsync(string mainHtml)
     {
+        static Result<LoginPageSecurityTokens> ToFailureResult<T>(Result<T> result) =>
+            result
+                .ToResult<LoginPageSecurityTokens>()
+                .WithError("Unable to locate login page security tokens (the 'CSRF' token, or 'return' token)");
+
         var document = await ReadHtmlAsync(mainHtml);
 
         var securityTokensResult = document.QuerySelectorWithResult("form#com-users-login__form");
         if (securityTokensResult.IsFailed)
         {
-            return securityTokensResult
-                .ToResult<LoginPageSecurityTokens>()
-                .WithError("Unable to locate login page security tokens (the 'CSRF' token, or 'return' token)");
+            return ToFailureResult(securityTokensResult);
         }
 
         var securityTokens = securityTokensResult.Value;
         var csrfToken = ParseCsrfToken(securityTokens);
 
         // a[href="https://example.org"]
-        var returnToken = securityTokens.QuerySelectorOrThrow("""input[name="return"]""").GetAttributeOrThrow("value");
+        var returnTokenResult = securityTokens.QuerySelectorWithResult("""input[name="return"]""").GetAttribute("value");
+        if (returnTokenResult.IsFailed)
+        {
+            return ToFailureResult(returnTokenResult);
+        }
 
-        return Result.Ok(new LoginPageSecurityTokens(csrfToken, returnToken));
+        return Result.Ok(new LoginPageSecurityTokens(csrfToken, returnTokenResult.Value));
     }
 
     public static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)

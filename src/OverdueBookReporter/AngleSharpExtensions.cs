@@ -17,13 +17,13 @@ public static class AngleSharpExtensions
             : Result.Fail($"Unable to locate the given element based on the given selectors '{selectors}'");
     }
 
-    public static IElement QuerySelectorOrThrow(this IDocument input, string selectors)
+    public static Result<IElement> QuerySelectorWithResult(this IElement input, string selectors)
     {
         var element = input.QuerySelector(selectors);
 
         return element is IElement el
-            ? el
-            : throw new InvalidOperationException($"Unable to locate the given element based on the given selectors '{selectors}'");
+            ? Result.Ok(el)
+            : Result.Fail($"Unable to locate the given element based on the given selectors '{selectors}'");
     }
 
     public static IElement QuerySelectorOrThrow(this IElement input, string selectors)
@@ -33,6 +33,23 @@ public static class AngleSharpExtensions
         return element is IElement el
             ? el
             : throw new InvalidOperationException($"Unable to locate the given element based on the given selectors '{selectors}'");
+    }
+
+    public static Result<string> GetAttribute(this Result<IElement> resultOfInput, string name)
+    {
+        if (resultOfInput.IsFailed)
+        {
+            return resultOfInput
+                .ToResult<string>();
+        }
+
+        var input = resultOfInput.Value;
+
+        var attr = input.GetAttribute(name);
+
+        return attr is string s
+            ? Result.Ok(s)
+            : Result.Fail($"Attribute '{name}' doesn't exist on element {input.GetPath()}");
     }
 
     public static string GetAttributeOrThrow(this IElement input, string name)
