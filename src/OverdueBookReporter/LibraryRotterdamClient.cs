@@ -27,18 +27,23 @@ public class LibraryRotterdamClient
         _logger = logger;
     }
 
-    public async Task<BooksStatusReport> GetBooksStatusReportAsync(DateOnly today)
+    public async Task<Result<BooksStatusReport>> GetBooksStatusReportAsync(DateOnly today)
     {
         try
         {
-            var loanedBooks = await GetBookListingAsync();
-
-            // TODO: Revert the composition (Result -> BooksStatusReport, instead of BooksStatusReport -> Exception)
-            return new(today, loanedBooks.Value);
+            var loanedBooksResult = await GetBookListingAsync();
+            if (loanedBooksResult.IsSuccess)
+            {
+                return new BooksStatusReport(today, loanedBooksResult.Value);
+            }
+            else
+            {
+                return loanedBooksResult.ToResult();
+            }
         }
         catch (Exception ex)
         {
-            return new(ex);
+            return Result.Fail(new Error("Unable to retrieve book listing").CausedBy(ex));
         }
     }
 

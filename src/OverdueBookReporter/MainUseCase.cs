@@ -1,3 +1,5 @@
+using FluentResults;
+
 namespace Tiesmaster.OverdueBookReporter;
 
 public class MainUseCase : BackgroundService
@@ -24,11 +26,13 @@ public class MainUseCase : BackgroundService
         _logger.LogInformation("Retrieving book listing");
 
         var today = DateOnly.FromDateTime(DateTime.Today);
-        var statusReport = await _libraryRotterdamClient.GetBooksStatusReportAsync(today);
 
-        LogStatus(statusReport);
+        // TODO: Maybe lift up the exception handling from the client to here in the main use case
+        var statusReportResult = await _libraryRotterdamClient.GetBooksStatusReportAsync(today);
 
-        await _emailSender.SendEmailAsync(statusReport);
+        //LogStatus(statusReportResult);
+
+        await _emailSender.SendEmailAsync(statusReportResult.Value);
 
         _lifetime.StopApplication();
     }
@@ -36,7 +40,7 @@ public class MainUseCase : BackgroundService
     private void LogStatus(BooksStatusReport statusReport)
     {
         _logger.LogInformation("Received status report with status '{Status}', and {CountBooks} books", statusReport.Status, statusReport.BookListing?.Count());
-        if (statusReport.Status != BooksStatusReportStatus.Error)
+        if (statusReport.Status != default) // BooksStatusReportStatus.Error)
         {
             foreach (var bookTitle in statusReport.BookListing!)
             {

@@ -3,20 +3,6 @@ namespace Tiesmaster.OverdueBookReporter.UnitTests;
 public class BooksStatusReportTests
 {
     [Fact]
-    public void GivenFailure_WhenGettingStatus_ThenReportsFailure()
-    {
-        // arrange
-        var exceptionMessage = "Some failure";
-        var report = new BooksStatusReport(new Exception(exceptionMessage));
-
-        // act
-        var status = report.Status;
-
-        // assert
-        status.Should().Be(BooksStatusReportStatus.Error);
-    }
-
-    [Fact]
     public void GivenNoBooksInPossesion_WhenGettingStatus_ThenNotActive()
     {
         // arrange

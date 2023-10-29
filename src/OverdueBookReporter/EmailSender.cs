@@ -77,7 +77,7 @@ public static class BooksStatusReportEmailExtensions
             BooksStatusReportStatus.AlmostDue => $"{status}: {"day".ToQuantity(statusReport.CountDaysLeft)} left",
             BooksStatusReportStatus.DueToday => $"{status}: {"books".ToQuantity(statusReport.CountDueToday)} due today!!",
             BooksStatusReportStatus.Overdue => $"{status}: {"books".ToQuantity(statusReport.CountOverdue)} are overdue!!!",
-            BooksStatusReportStatus.Error => $"{status}: {statusReport.Exception.Message}",
+            //BooksStatusReportStatus.Error => $"{status}: {statusReport.Exception.Message}",
             _ => throw new NotImplementedException(),
         };
     }
@@ -86,7 +86,7 @@ public static class BooksStatusReportEmailExtensions
         return statusReport.Status switch
         {
             BooksStatusReportStatus.NotActive => "",
-            BooksStatusReportStatus.Error => statusReport.Exception.ToString(),
+            //BooksStatusReportStatus.Error => statusReport.Exception.ToString(),
             BooksStatusReportStatus.Ok or BooksStatusReportStatus.AlmostDue or BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue
                 => GetBookListingTable(statusReport.BookListing),
             _ => throw new NotImplementedException(),
