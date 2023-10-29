@@ -47,9 +47,10 @@ public class LibraryHtmlParserTests
         var html = GetEmbeddedResourceHtml("2-books-lend-out_tomorrow-due.html");
 
         // act
-        var booksListing = await LibraryHtmlParser.ParseBookListingAsync(html);
+        var booksListingResult = await LibraryHtmlParser.ParseBookListingAsync(html);
 
         // assert
+        var booksListing = booksListingResult.Should().BeSuccess().Subject.Value;
         booksListing.Should().HaveCount(2);
 
         var firstBook = booksListing.First();
@@ -68,9 +69,10 @@ public class LibraryHtmlParserTests
         var html = GetEmbeddedResourceHtml("no-books-in-posession.html");
 
         // act
-        var booksListing = await LibraryHtmlParser.ParseBookListingAsync(html);
+        var booksListingResult = await LibraryHtmlParser.ParseBookListingAsync(html);
 
         // assert
+        var booksListing = booksListingResult.Should().BeSuccess().Subject.Value;
         booksListing.Should().BeEmpty();
     }
 

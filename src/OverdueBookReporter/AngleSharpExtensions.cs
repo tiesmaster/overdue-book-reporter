@@ -52,13 +52,13 @@ public static class AngleSharpExtensions
             : Result.Fail($"Attribute '{name}' doesn't exist on element {input.GetPath()}");
     }
 
-    public static string GetAttributeOrThrow(this IElement input, string name)
+    public static Result<string> GetAttributeWithResult(this IElement input, string name)
     {
         var attr = input.GetAttribute(name);
 
         return attr is string s
-            ? s
-            : throw new ArgumentException($"Attribute '{name}' doesn't exist on element {input.GetPath()}");
+            ? Result.Ok(s)
+            : Result.Fail($"Attribute '{name}' doesn't exist on element {input.GetPath()}");
     }
 
     public static string GetPath(this IElement input)

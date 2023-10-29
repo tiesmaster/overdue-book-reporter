@@ -25,7 +25,13 @@ public static class LibraryHtmlParser
         }
 
         var securityTokens = securityTokensResult.Value;
-        var csrfToken = ParseCsrfToken(securityTokens);
+        var csrfTokenResult = ParseCsrfToken(securityTokens);
+        if (csrfTokenResult.IsFailed)
+        {
+            return ToFailureResult(csrfTokenResult);
+        }
+
+        var csrfToken = csrfTokenResult.Value;
 
         // a[href="https://example.org"]
         var returnTokenResult = securityTokens.QuerySelectorWithResult("""input[name="return"]""").GetAttribute("value");
@@ -34,23 +40,33 @@ public static class LibraryHtmlParser
             return ToFailureResult(returnTokenResult);
         }
 
-        return Result.Ok(new LoginPageSecurityTokens(csrfToken, returnTokenResult.Value));
+        return new LoginPageSecurityTokens(csrfToken, returnTokenResult.Value);
     }
 
-    public static async Task<IEnumerable<LoanedBook>> ParseBookListingAsync(string mainHtml)
+    public static async Task<Result<IEnumerable<LoanedBook>>> ParseBookListingAsync(string mainHtml)
     {
         var document = await ReadHtmlAsync(mainHtml);
 
         var allTitles = document.QuerySelector(".list_titels");
         if (allTitles is null)
         {
-            return Enumerable.Empty<LoanedBook>();
+            return Result.Ok(Enumerable.Empty<LoanedBook>());
         }
 
-        return allTitles.Children.Select(x => ParseTitle(x));
+        var parsedTitlesResuls = allTitles.Children.Select(x => ParseTitle(x));
+        if (parsedTitlesResuls.Any(x => x.IsFailed))
+        {
+            return Result
+                .Fail("")
+                .WithErrors(parsedTitlesResuls.Where(x => x.IsFailed).SelectMany(x => x.Errors));
+        }
+        else
+        {
+            return Result.Ok(parsedTitlesResuls.Select(x => x.Value));
+        }
     }
 
-    private static string ParseCsrfToken(IElement loginForm)
+    private static Result<string> ParseCsrfToken(IElement loginForm)
     {
         // We cannot query for the CSRF token field, as the name of it is random generated. However,
         // we do know all the other inputs, and exclude all of them to find the CSRF token field.
@@ -66,28 +82,39 @@ public static class LibraryHtmlParser
             "return"
         };
 
-        var csrfTokenQuery =
+        var csrfTokenResultQuery =
             from ie in inputElements
-            let nameAttribute = ie.GetAttributeOrThrow("name")
+            select ie.GetAttributeWithResult("name");
+
+        if (csrfTokenResultQuery.Any(x => x.IsFailed))
+        {
+            return Result
+                .Fail("Unable to retrieve any of the name attributes of the login form")
+                .WithErrors(csrfTokenResultQuery.Where(x => x.IsFailed).SelectMany(x => x.Errors));
+        }
+
+        var csrfTokenQuery =
+            from result in csrfTokenResultQuery
+            let nameAttribute = result.Value
             where !expectedInputs.Contains(nameAttribute)
             select nameAttribute;
 
         if (csrfTokenQuery.Count() != 1)
         {
-            throw new InvalidOperationException($"Unable to locate CSRF token in the login form, excpected 1 element. Got {csrfTokenQuery.Count()} elements");
+            return Result.Fail($"Unable to locate CSRF token in the login form, excpected 1 element. Got {csrfTokenQuery.Count()} elements");
         }
 
         return csrfTokenQuery.Single();
     }
 
-    private static LoanedBook ParseTitle(IElement titleHtml)
+    private static Result<LoanedBook> ParseTitle(IElement titleHtml)
     {
         var titleName = titleHtml.QuerySelectorOrThrow("a.title").InnerHtml;
 
         var loanInfoHtml = titleHtml.QuerySelectorOrThrow("span.vet:nth-child(2)");
         var dueDate = DateOnly.Parse(loanInfoHtml.InnerHtml, CultureInfo.GetCultureInfo("nl-NL"));
 
-        return new(
+        return new LoanedBook(
             Name: titleName,
             DueDay: dueDate
         );

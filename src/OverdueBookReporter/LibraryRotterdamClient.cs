@@ -32,7 +32,9 @@ public class LibraryRotterdamClient
         try
         {
             var loanedBooks = await GetBookListingAsync();
-            return new(today, loanedBooks);
+
+            // TODO: Revert the composition (Result -> BooksStatusReport, instead of BooksStatusReport -> Exception)
+            return new(today, loanedBooks.Value);
         }
         catch (Exception ex)
         {
@@ -40,12 +42,16 @@ public class LibraryRotterdamClient
         }
     }
 
-    public async Task<IEnumerable<LoanedBook>> GetBookListingAsync()
+    public async Task<Result<IEnumerable<LoanedBook>>> GetBookListingAsync()
     {
         if (_isLoggedIn is false)
         {
             _logger.LogDebug("Not logged in yet; starting log in process");
-            await LoginAsync();
+            var loginResult = await LoginAsync();
+            if (loginResult.IsFailed)
+            {
+                return loginResult.ToResult<IEnumerable<LoanedBook>>();
+            }
 
             _isLoggedIn = true;
         }
@@ -67,7 +73,7 @@ public class LibraryRotterdamClient
         var result = await StartSessionAsync();
         if (result.IsFailed)
         {
-            return result.ToResult();
+            return result.ToResult().WithError("Login failed");
         }
 
         var loginFormSecurityTokens = result.Value;
