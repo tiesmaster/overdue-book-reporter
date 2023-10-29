@@ -19,9 +19,13 @@ public class EmailSender
         _settings = emailOptions.Value;
     }
 
-    public async Task SendEmailAsync(BooksStatusReport statusReport)
+    public async Task SendEmailAsync(Result<BooksStatusReport> statusReportResult)
     {
-        var email = ComposeEmail(statusReport);
+        var (isSuccess, _, statusReport, errors) = statusReportResult;
+        var email = isSuccess
+            ? ComposeEmail(statusReport)
+            : ComposeFailureEmail(errors.Reverse<IError>());
+
         await SendAsync(email);
     }
 
@@ -33,6 +37,19 @@ public class EmailSender
         message.Body = new TextPart("plain")
         {
             Text = statusReport.GetBody(),
+        };
+
+        return message;
+    }
+
+    private MimeMessage ComposeFailureEmail(IEnumerable<IError> errors)
+    {
+        var message = EmailWithAddressing;
+
+        message.Subject = $"Error: {errors.First().Message}";
+        message.Body = new TextPart("plain")
+        {
+            Text = string.Join(Environment.NewLine, errors),
         };
 
         return message;
@@ -77,7 +94,6 @@ public static class BooksStatusReportEmailExtensions
             BooksStatusReportStatus.AlmostDue => $"{status}: {"day".ToQuantity(statusReport.CountDaysLeft)} left",
             BooksStatusReportStatus.DueToday => $"{status}: {"books".ToQuantity(statusReport.CountDueToday)} due today!!",
             BooksStatusReportStatus.Overdue => $"{status}: {"books".ToQuantity(statusReport.CountOverdue)} are overdue!!!",
-            //BooksStatusReportStatus.Error => $"{status}: {statusReport.Exception.Message}",
             _ => throw new NotImplementedException(),
         };
     }
@@ -86,7 +102,6 @@ public static class BooksStatusReportEmailExtensions
         return statusReport.Status switch
         {
             BooksStatusReportStatus.NotActive => "",
-            //BooksStatusReportStatus.Error => statusReport.Exception.ToString(),
             BooksStatusReportStatus.Ok or BooksStatusReportStatus.AlmostDue or BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue
                 => GetBookListingTable(statusReport.BookListing),
             _ => throw new NotImplementedException(),

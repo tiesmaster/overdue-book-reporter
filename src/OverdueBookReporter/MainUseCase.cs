@@ -35,7 +35,7 @@ public class MainUseCase : BackgroundService
             _logger.LogError("Failure retrieving book status report: {Errors}", statusReportResult.Errors.Reverse<IError>());
         }
 
-        await _emailSender.SendEmailAsync(statusReportResult.Value);
+        await _emailSender.SendEmailAsync(statusReportResult);
 
         _lifetime.StopApplication();
     }
