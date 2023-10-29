@@ -9,6 +9,39 @@ Simple tool to check any outstanding books at the library, and report if any are
 1. Use the [`.env.sample`](./.env.sample) as template to create a new `.env` file
 2. Set the appropriate environment variables
 
+
+## Enabling outgoing HTTP requests logging middleware
+
+Set this environment variable to enable the [outgoing request middleware](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-7.0#outgoing-request-middleware):
+
+```
+Logging__LogLevel__System.Net.Http.HttpClient.LibraryRotterdamClient=Trace
+```
+
+### Development
+
+_For during development, make use of the [`.env_`](./.env) file._
+
+
+### Enable this in Kubernetes
+
+Modify the `cronjob.yaml` deployment to add the environment variable to the Pod `spec:`
+
+```
+env:
+- name: Logging__LogLevel__System.Net.Http.HttpClient.LibraryRotterdamClient
+  value: Trace
+```
+
+Or via `kubectl`, like this: create a new job, based on the cronjob, and add environment variables using `jq` (resource: [SO](https://stackoverflow.com/a/65140499/471780)):
+
+```
+kubectl create job --from=cj/overdue-book-reporter-jurre --dry-run=client manual-jurre-run -o json \
+| jq ".spec.template.spec.containers[0].env += [{ \"name\": \"Logging__LogLevel__System.Net.Http.HttpClient.LibraryRotterdamClient\", value:\"Trace\" }]" \
+| kubectl apply -f -
+```
+
+
 ## Docker
 
 ### Pull
