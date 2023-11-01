@@ -96,7 +96,7 @@ public static class BooksStatusReportEmailExtensions
             BooksStatusReportStatus.Ok => $"{status}: all good",
             BooksStatusReportStatus.AlmostDue => $"{status}: {"day".ToQuantity(statusReport.CountDaysLeft)} left",
             BooksStatusReportStatus.DueToday => $"{status}: {"books".ToQuantity(statusReport.CountDueToday)} due today!!",
-            BooksStatusReportStatus.Overdue => $"{status}: {"books".ToQuantity(statusReport.CountOverdue)} are overdue!!!",
+            BooksStatusReportStatus.Overdue => $"{status}: {"books".ToQuantity(statusReport.CountOverdue)} {"is".ToQuantity(statusReport.CountOverdue, ShowQuantityAs.None)} overdue!!!",
             _ => throw new NotImplementedException(),
         };
     }
