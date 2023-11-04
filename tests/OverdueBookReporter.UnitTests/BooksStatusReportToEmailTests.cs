@@ -141,8 +141,8 @@ public class BooksStatusReportToEmailTests
         {
             // arrange
             var report = A.StatusReport
-                .WithBooks(
-                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"),
+                .AddDueTomorrowBook()
+                .AddBook(
                     A.LoanedBook.DueInFarFuture().WithName("DueInFarFuture"));
 
             // act
@@ -170,8 +170,8 @@ public class BooksStatusReportToEmailTests
                 .WithBooks(
                     A.LoanedBook.DueToday().WithName("Due today 1"),
                     A.LoanedBook.DueToday().WithName("Due today 2"),
-                    A.LoanedBook.DueToday().WithName("Due today 3"),
-                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
+                    A.LoanedBook.DueToday().WithName("Due today 3"))
+                .AddDueTomorrowBook();
 
             // act
             var emailBody = report.GetBody();
@@ -227,8 +227,8 @@ public class BooksStatusReportToEmailTests
                     A.LoanedBook.DueToday().WithName("Due today 2"),
                     A.LoanedBook.DueToday().WithName("Due today 3"),
                     A.LoanedBook.DueToday().WithName("Due today 4"),
-                    A.LoanedBook.DueToday().WithName("Due today 5"),
-                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
+                    A.LoanedBook.DueToday().WithName("Due today 5"))
+                .AddDueTomorrowBook();
 
             // act
             var emailBody = report.GetBody();
@@ -259,8 +259,8 @@ public class BooksStatusReportToEmailTests
                 .WithBooks(
                     A.LoanedBook.Overdue().WithName("Overdue 1"),
                     A.LoanedBook.Overdue().WithName("Overdue 2"),
-                    A.LoanedBook.Overdue().WithName("Overdue 3"),
-                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
+                    A.LoanedBook.Overdue().WithName("Overdue 3"))
+                .AddDueTomorrowBook();
 
             // act
             var emailBody = report.GetBody();
@@ -313,8 +313,8 @@ public class BooksStatusReportToEmailTests
                     A.LoanedBook.Overdue().WithName("Overdue 2"),
                     A.LoanedBook.Overdue().WithName("Overdue 3"),
                     A.LoanedBook.Overdue().WithName("Overdue 4"),
-                    A.LoanedBook.Overdue().WithName("Overdue 5"),
-                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
+                    A.LoanedBook.Overdue().WithName("Overdue 5"))
+                .AddDueTomorrowBook();
 
             // act
             var emailBody = report.GetBody();

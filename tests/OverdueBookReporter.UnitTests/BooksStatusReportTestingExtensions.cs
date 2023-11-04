@@ -16,6 +16,12 @@ public static class BooksStatusReportTestingExtensions
     public static BooksStatusReport WithoutBooks(this BooksStatusReport statusReport)
         => statusReport.WithBooks(ImmutableList<LoanedBook>.Empty);
 
+    public static BooksStatusReport AddBook(this BooksStatusReport statusReport, LoanedBook book)
+        => statusReport.WithBooks(statusReport.BookListing.Add(book));
+
+    public static BooksStatusReport AddDueTomorrowBook(this BooksStatusReport statusReport)
+        => statusReport.AddBook(A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
+
     public static BooksStatusReport WithBookDueInFarFuture(this BooksStatusReport statusReport)
         => statusReport.WithBooks(A.LoanedBook.DueInFarFuture());
 
