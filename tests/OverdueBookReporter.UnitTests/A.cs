@@ -9,7 +9,7 @@ public static class A
     public static LoanedBook LoanedBook => new(Name: "1984", DueDay: A.Today);
 
     public static BooksStatusReport StatusReport => new(
-        Today: A.Today,
+        ReportDay: A.Today,
         Username: string.Empty,
         BookListing: ImmutableHashSet<LoanedBook>.Empty);
 }

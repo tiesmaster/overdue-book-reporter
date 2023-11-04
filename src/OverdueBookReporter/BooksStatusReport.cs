@@ -11,7 +11,7 @@ public enum BooksStatusReportStatus
     Overdue,
 }
 
-public record BooksStatusReport(DateOnly Today, string Username, ImmutableHashSet<LoanedBook> BookListing)
+public record BooksStatusReport(DateOnly ReportDay, string Username, ImmutableHashSet<LoanedBook> BookListing)
 {
     public BooksStatusReportStatus Status => this switch
     {
@@ -19,14 +19,14 @@ public record BooksStatusReport(DateOnly Today, string Username, ImmutableHashSe
         _ => AggregateBooksStatus(BookListing),
     };
 
-    public int CountDueToday => BookListing.Count(x => x.GetStatus(Today) == BookLoanStatus.DueToday);
-    public int CountOverdue => BookListing.Count(x => x.GetStatus(Today) == BookLoanStatus.Overdue);
+    public int CountDueToday => BookListing.Count((Func<LoanedBook, bool>)(x => x.GetStatus(ReportDay) == BookLoanStatus.DueToday));
+    public int CountOverdue => BookListing.Count((Func<LoanedBook, bool>)(x => x.GetStatus(ReportDay) == BookLoanStatus.Overdue));
 
-    public int CountDaysLeft => (int)(BookListing.Min(x => x.DueDay).ToDateTime(default) - Today.ToDateTime(default)).TotalDays;
+    public int CountDaysLeft => (int)(BookListing.Min(x => x.DueDay).ToDateTime(default) - ReportDay.ToDateTime(default)).TotalDays;
 
     private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
     {
-        var allStatusses = books.Select(x => x.GetStatus(Today)).Distinct();
+        var allStatusses = books.Select(x => x.GetStatus(ReportDay)).Distinct();
         if (allStatusses.Contains(BookLoanStatus.Overdue))
         {
             return BooksStatusReportStatus.Overdue;
