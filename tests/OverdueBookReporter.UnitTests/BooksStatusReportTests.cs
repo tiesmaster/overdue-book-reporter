@@ -21,12 +21,7 @@ public class BooksStatusReportTests
     public void GivenBookDueInFarFuture_WhenGettingStatus_ThenOk()
     {
         // arrange
-        var reportDay = A.Day;
-        var bookDueInFarFuture = A.LoanedBook.WithDueDate(reportDay.AddDays(10));
-
-        var report = A.StatusReport
-            .WithReportDay(reportDay)
-            .WithBooks(bookDueInFarFuture);
+        var report = A.StatusReport.WithBookDueInFarFuture();
 
         // act
         var status = report.Status;
@@ -39,12 +34,7 @@ public class BooksStatusReportTests
     public void GivenBookDueTomorrow_WhenGettingStatus_ThenAlmostDue()
     {
         // arrange
-        var reportDay = A.Day;
-        var bookDueTomorrow = A.LoanedBook.WithDueDate(reportDay.AddDays(1));
-
-        var report = A.StatusReport
-            .WithReportDay(reportDay)
-            .WithBooks(bookDueTomorrow);
+        var report = A.StatusReport.WithBookDueTomorrow();
 
         // act
         var status = report.Status;
@@ -58,12 +48,7 @@ public class BooksStatusReportTests
     public void GivenBookDueToday_WhenGettingStatus_ThenDueToday()
     {
         // arrange
-        var reportDay = A.Day;
-        var bookDueToday = A.LoanedBook.WithDueDate(reportDay);
-
-        var report = A.StatusReport
-            .WithReportDay(reportDay)
-            .WithBooks(bookDueToday);
+        var report = A.StatusReport.WithBookDueToday();
 
         // act
         var status = report.Status;
@@ -76,12 +61,7 @@ public class BooksStatusReportTests
     public void GivenOverdueBooks_WhenGettingStatus_ThenOverdue()
     {
         // arrange
-        var reportDay = A.Day;
-        var overdueBook = A.LoanedBook.WithDueDate(reportDay.AddDays(-1));
-
-        var report = A.StatusReport
-            .WithReportDay(reportDay)
-            .WithBooks(overdueBook);
+        var report = A.StatusReport.WithOverdueBook();
 
         // act
         var status = report.Status;

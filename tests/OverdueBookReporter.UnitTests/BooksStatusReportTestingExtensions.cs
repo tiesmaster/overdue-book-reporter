@@ -14,5 +14,17 @@ public static class BooksStatusReportTestingExtensions
         => statusReport.WithBooks(books.ToImmutableHashSet());
 
     public static BooksStatusReport WithoutBooks(this BooksStatusReport statusReport)
-        => statusReport with { BookListing = ImmutableHashSet<LoanedBook>.Empty };
+        => statusReport.WithBooks(ImmutableHashSet<LoanedBook>.Empty);
+
+    public static BooksStatusReport WithBookDueInFarFuture(this BooksStatusReport statusReport)
+        => statusReport.WithBooks(A.LoanedBook.DueInFarFuture());
+
+    public static BooksStatusReport WithBookDueTomorrow(this BooksStatusReport statusReport)
+        => statusReport.WithBooks(A.LoanedBook.DueTomorrow());
+
+    public static BooksStatusReport WithBookDueToday(this BooksStatusReport statusReport)
+        => statusReport.WithBooks(A.LoanedBook.DueToday());
+
+    public static BooksStatusReport WithOverdueBook(this BooksStatusReport statusReport)
+        => statusReport.WithBooks(A.LoanedBook.Overdue());
 }

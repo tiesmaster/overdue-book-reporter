@@ -10,6 +10,6 @@ public static class A
 
     public static BooksStatusReport StatusReport => new(
         ReportDay: A.Day,
-        Username: string.Empty,
+        Username: "erwinleo",
         BookListing: ImmutableHashSet<LoanedBook>.Empty);
 }
