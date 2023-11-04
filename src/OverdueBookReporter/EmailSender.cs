@@ -170,7 +170,7 @@ public static class BooksStatusReportEmailExtensions
         var totalCountItems = books.Count();
 
         return totalCountItems > maxListedItems
-            ? string.Join(", ", books.Take(maxListedItems).Select(x => x.Name)) + $" (+ {totalCountItems - maxListedItems} more)"
+            ? string.Join(", ", books.Take(maxListedItems).Select(x => x.Name)) + $" [+ {totalCountItems - maxListedItems} more]"
             : string.Join(", ", books.Select(x => x.Name));
     }
 }

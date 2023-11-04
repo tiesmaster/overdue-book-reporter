@@ -210,7 +210,7 @@ public class BooksStatusReportToEmailTests
 
             // assert
             emailBody.Should().Be("""
-                Books due today: Due today 1, Due today 2, Due today 3 (+ 2 more)
+                Books due today: Due today 1, Due today 2, Due today 3 [+ 2 more]
 
                 Books in posession:
                     Due today 1 (Due date: 21-10-2023, today)
@@ -246,6 +246,35 @@ public class BooksStatusReportToEmailTests
                     Overdue 1 (Due date: 20-10-2023, yesterday)
                     Overdue 2 (Due date: 20-10-2023, yesterday)
                     Overdue 3 (Due date: 20-10-2023, yesterday)
+
+                """);
+        }
+
+        [Fact]
+        public void GivenMoreThanThreeBooksOverdue_ThenOnlyListsFirstThreeBooksAndShowsHowManyMore()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.Overdue().WithName("Overdue 1"),
+                    A.LoanedBook.Overdue().WithName("Overdue 2"),
+                    A.LoanedBook.Overdue().WithName("Overdue 3"),
+                    A.LoanedBook.Overdue().WithName("Overdue 4"),
+                    A.LoanedBook.Overdue().WithName("Overdue 5"));
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                Books overdue: Overdue 1, Overdue 2, Overdue 3 [+ 2 more] (1 day overdue)
+
+                Books in posession:
+                    Overdue 1 (Due date: 20-10-2023, yesterday)
+                    Overdue 2 (Due date: 20-10-2023, yesterday)
+                    Overdue 3 (Due date: 20-10-2023, yesterday)
+                    Overdue 4 (Due date: 20-10-2023, yesterday)
+                    Overdue 5 (Due date: 20-10-2023, yesterday)
 
                 """);
         }
