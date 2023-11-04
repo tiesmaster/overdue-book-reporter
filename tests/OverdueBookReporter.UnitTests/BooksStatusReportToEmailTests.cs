@@ -128,7 +128,7 @@ public class BooksStatusReportToEmailTests
 
             // assert
             emailBody.Should().Be("""
-                First book due: 10 days from now
+                ALL books due: 10 days from now
 
                 Books in posession:
                     1984 (Due date: 31-10-2023, 10 days from now)

@@ -138,7 +138,14 @@ public static class BooksStatusReportEmailExtensions
 
     private static void AppendFirstBookDueLine(StringBuilder builder, BooksStatusReport statusReport)
     {
-        builder.AppendLine($"First book due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
+        if (statusReport.FirstBooksDue.Count == statusReport.BookListing.Count)
+        {
+            builder.AppendLine($"ALL books due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
+        }
+        else
+        {
+            builder.AppendLine($"First book due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
+        }
     }
 
     private static void AppendBooksDueTodayLine(StringBuilder builder, BooksStatusReport statusReport)
