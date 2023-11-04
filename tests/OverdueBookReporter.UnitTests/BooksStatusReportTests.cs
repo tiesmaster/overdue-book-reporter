@@ -21,10 +21,12 @@ public class BooksStatusReportTests
     public void GivenBookDueInFarFuture_WhenGettingStatus_ThenOk()
     {
         // arrange
-        var today = A.Today;
-        var dueTomorrow = A.LoanedBook.WithDueDate(today.AddDays(10));
+        var reportDay = A.Day;
+        var bookDueInFarFuture = A.LoanedBook.WithDueDate(reportDay.AddDays(10));
 
-        var report = A.StatusReport.WithBooks(dueTomorrow);
+        var report = A.StatusReport
+            .WithReportDay(reportDay)
+            .WithBooks(bookDueInFarFuture);
 
         // act
         var status = report.Status;
@@ -37,10 +39,12 @@ public class BooksStatusReportTests
     public void GivenBookDueTomorrow_WhenGettingStatus_ThenAlmostDue()
     {
         // arrange
-        var today = A.Today;
-        var dueTomorrow = A.LoanedBook.WithDueDate(today.AddDays(1));
+        var reportDay = A.Day;
+        var bookDueTomorrow = A.LoanedBook.WithDueDate(reportDay.AddDays(1));
 
-        var report = CreateReport(today, new[] { dueTomorrow });
+        var report = A.StatusReport
+            .WithReportDay(reportDay)
+            .WithBooks(bookDueTomorrow);
 
         // act
         var status = report.Status;
@@ -54,10 +58,12 @@ public class BooksStatusReportTests
     public void GivenBookDueToday_WhenGettingStatus_ThenDueToday()
     {
         // arrange
-        var today = A.Today;
-        var dueTomorrow = A.LoanedBook.WithDueDate(today);
+        var reportDay = A.Day;
+        var bookDueToday = A.LoanedBook.WithDueDate(reportDay);
 
-        var report = CreateReport(today, new[] { dueTomorrow });
+        var report = A.StatusReport
+            .WithReportDay(reportDay)
+            .WithBooks(bookDueToday);
 
         // act
         var status = report.Status;
@@ -70,20 +76,17 @@ public class BooksStatusReportTests
     public void GivenOverdueBooks_WhenGettingStatus_ThenOverdue()
     {
         // arrange
-        var today = A.Today;
-        var dueTomorrow = A.LoanedBook.WithDueDate(today.AddDays(-1));
+        var reportDay = A.Day;
+        var overdueBook = A.LoanedBook.WithDueDate(reportDay.AddDays(-1));
 
-        var report = CreateReport(today, new[] { dueTomorrow });
+        var report = A.StatusReport
+            .WithReportDay(reportDay)
+            .WithBooks(overdueBook);
 
         // act
         var status = report.Status;
 
         // assert
         status.Should().Be(BooksStatusReportStatus.Overdue);
-    }
-
-    private static BooksStatusReport CreateReport(DateOnly today, IEnumerable<LoanedBook> loanedBooks)
-    {
-        return new BooksStatusReport(today, Username: string.Empty, loanedBooks.ToImmutableHashSet());
     }
 }

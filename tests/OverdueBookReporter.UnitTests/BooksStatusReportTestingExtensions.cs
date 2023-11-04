@@ -4,6 +4,9 @@ namespace Tiesmaster.OverdueBookReporter.UnitTests;
 
 public static class BooksStatusReportTestingExtensions
 {
+    public static BooksStatusReport WithReportDay(this BooksStatusReport statusReport, DateOnly reportDay)
+        => statusReport with { ReportDay = reportDay };
+
     public static BooksStatusReport WithBooks(this BooksStatusReport statusReport, ImmutableHashSet<LoanedBook> books)
         => statusReport with { BookListing = books };
 
