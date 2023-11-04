@@ -24,6 +24,11 @@ public record BooksStatusReport(DateOnly ReportDay, string Username, ImmutableLi
 
     public int CountDaysLeft => (int)(BookListing.Min(x => x.DueDay).ToDateTime(default) - ReportDay.ToDateTime(default)).TotalDays;
 
+    public DateOnly FirstDueDay => BookListing.OrderBy(x => x.DueDay).First().DueDay;
+
+    public ImmutableList<LoanedBook> FirstBooksDue
+        => BookListing.Where(x => x.DueDay == FirstDueDay).ToImmutableList();
+
     private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
     {
         var allStatusses = books.Select(x => x.GetStatus(ReportDay)).Distinct();

@@ -114,9 +114,6 @@ public class BooksStatusReportToEmailTests
             emailBody.Should().BeEmpty();
         }
 
-        // Ok:
-        //   First book due: tomorrow
-
         // AlmostDue:
         //   First book due: tomorrow
 
@@ -132,22 +129,77 @@ public class BooksStatusReportToEmailTests
         // Overdue:
         //   Books overdue: ..., ..., ... (3 days overdue)
 
+        // ------------------
+
         [Fact]
-        public void GivenSingleBookInPossessionDueTomorrow_ThenHumanizedToTomorrow()
+        public void GivenSingleBookInPossessionDueInFarFuture_ThenStatesDueIn10Days()
         {
             // arrange
-            var report = A.StatusReport.WithBookDueTomorrow();
+            var report = A.StatusReport.WithBookDueInFarFuture();
 
             // act
             var emailBody = report.GetBody();
 
             // assert
             emailBody.Should().Be("""
+                First book due: 10 days from now
+
                 Books in posession:
-                    1984 (Due date: 22-10-2023, tomorrow)
+                    1984 (Due date: 31-10-2023, 10 days from now)
 
                 """);
         }
+
+        [Fact]
+        public void GivenMultipleBooksDueInFutureWithFirstOneDueTomorrow_ThenStatesDueTomorrow()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"),
+                    A.LoanedBook.DueInFarFuture().WithName("DueInFarFuture"));
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                First book due: tomorrow
+
+                Books in posession:
+                    DueTomorrow (Due date: 22-10-2023, tomorrow)
+                    DueInFarFuture (Due date: 31-10-2023, 10 days from now)
+
+                """);
+        }
+
+        [Fact]
+        public void GivenMultipleBooksDueToday_ThenListsThoseBooks()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.DueToday().WithName("Due today 1"),
+                    A.LoanedBook.DueToday().WithName("Due today 2"),
+                    A.LoanedBook.DueToday().WithName("Due today 3"));
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                Books due today: Due today 1, Due today 2, Due today 3
+
+                Books in posession:
+                    Due today 1 (Due date: 21-10-2023, today)
+                    Due today 2 (Due date: 21-10-2023, today)
+                    Due today 3 (Due date: 21-10-2023, today)
+
+                """);
+        }
+
+        // DueToday:
+        //   Book due today: ..., ..., ...
 
         [Fact]
         public void GivenDifferentDueDates_ThenHumanizedDueDateIsDescriptive()

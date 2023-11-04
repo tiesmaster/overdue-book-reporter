@@ -106,23 +106,65 @@ public static class BooksStatusReportEmailExtensions
         return statusReport.Status switch
         {
             BooksStatusReportStatus.NotActive => "",
-            BooksStatusReportStatus.Ok or BooksStatusReportStatus.AlmostDue or BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue
-                => GetBookListingTable(statusReport.ReportDay, statusReport.BookListing),
+            BooksStatusReportStatus.Ok => GetBodyForOk(statusReport),
+            BooksStatusReportStatus.AlmostDue => GetBodyForAlmostDue(statusReport),
+            BooksStatusReportStatus.DueToday => GetBodyForDueToday(statusReport),
+            BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue
+                => GetBookListingTable(statusReport),
             _ => throw new NotImplementedException(),
         };
     }
 
-    private static string GetBookListingTable(DateOnly reportDay, IEnumerable<LoanedBook> bookListing)
+    private static string GetBodyForOk(BooksStatusReport statusReport)
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine("Books in posession:");
-        foreach (var book in bookListing)
-        {
-            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateHumanizedDueText(reportDay, book.DueDay)})");
-        }
+        sb.AppendLine($"First book due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
+        sb.AppendLine();
+
+        AppendBookListingTable(sb, statusReport);
 
         return sb.ToString();
+    }
+
+    private static string GetBodyForAlmostDue(BooksStatusReport statusReport)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"First book due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
+        sb.AppendLine();
+
+        AppendBookListingTable(sb, statusReport);
+
+        return sb.ToString();
+    }
+
+    private static string GetBodyForDueToday(BooksStatusReport statusReport)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"Books due today: {string.Join(", ", statusReport.FirstBooksDue.Select(x => x.Name))}");
+        sb.AppendLine();
+
+        AppendBookListingTable(sb, statusReport);
+
+        return sb.ToString();
+    }
+
+    private static string GetBookListingTable(BooksStatusReport statusReport)
+    {
+        var sb = new StringBuilder();
+        AppendBookListingTable(sb, statusReport);
+        return sb.ToString();
+    }
+
+    private static void AppendBookListingTable(StringBuilder builder, BooksStatusReport statusReport)
+    {
+        builder.AppendLine("Books in posession:");
+        foreach (var book in statusReport.BookListing)
+        {
+            builder.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateHumanizedDueText(statusReport.ReportDay, book.DueDay)})");
+        }
     }
 
     private static string CalculateHumanizedDueText(DateOnly reportDay, DateOnly dueDay)
