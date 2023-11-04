@@ -162,9 +162,6 @@ public class BooksStatusReportToEmailTests
         // DueToday:
         //   Book due today: ..., ..., ...
 
-        // DueToday (more than 3 books due today):
-        //   Book due today: ..., ..., ... + 2 books
-
         // DueToday (all books):
         //   Book due today: <<ALL BOOKS>>
 
@@ -189,6 +186,38 @@ public class BooksStatusReportToEmailTests
                     Due today 1 (Due date: 21-10-2023, today)
                     Due today 2 (Due date: 21-10-2023, today)
                     Due today 3 (Due date: 21-10-2023, today)
+
+                """);
+        }
+
+        // DueToday (more than 3 books due today):
+        //   Book due today: ..., ..., ... + 2 books
+
+        [Fact]
+        public void GivenMoreThanThreeBooksDueToday_ThenOnlyListsFirstThreeBooksAndShowsHowManyMore()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.DueToday().WithName("Due today 1"),
+                    A.LoanedBook.DueToday().WithName("Due today 2"),
+                    A.LoanedBook.DueToday().WithName("Due today 3"),
+                    A.LoanedBook.DueToday().WithName("Due today 4"),
+                    A.LoanedBook.DueToday().WithName("Due today 5"));
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                Books due today: Due today 1, Due today 2, Due today 3 (+ 2 more)
+
+                Books in posession:
+                    Due today 1 (Due date: 21-10-2023, today)
+                    Due today 2 (Due date: 21-10-2023, today)
+                    Due today 3 (Due date: 21-10-2023, today)
+                    Due today 4 (Due date: 21-10-2023, today)
+                    Due today 5 (Due date: 21-10-2023, today)
 
                 """);
         }
