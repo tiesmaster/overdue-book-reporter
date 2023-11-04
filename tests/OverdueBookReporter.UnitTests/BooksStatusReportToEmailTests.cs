@@ -30,10 +30,8 @@ public class BooksStatusReportToEmailTests
             subjectLine.Should().Be("Ok: all good [erwinleo]");
         }
 
-        // TODO: Also test for x days left
-
         [Fact]
-        public void GivenBookDueTomorrow_Then1DayLeft()
+        public void GivenBookDueTomorrow_ThenOneDayLeft()
         {
             // arrange
             var report = A.StatusReport.WithBookDueTomorrow();
@@ -45,10 +43,21 @@ public class BooksStatusReportToEmailTests
             subjectLine.Should().Be("AlmostDue: 1 day left [erwinleo]");
         }
 
-        // TODO: Also test for plural
+        [Fact]
+        public void GivenBookDueDayAfterTomorrow_ThenTwoDaysLeft()
+        {
+            // arrange
+            var report = A.StatusReport.WithBooks(A.LoanedBook.DayAfterTomorrow());
+
+            // act
+            var subjectLine = report.GetSubjectLine();
+
+            // assert
+            subjectLine.Should().Be("AlmostDue: 2 days left [erwinleo]");
+        }
 
         [Fact]
-        public void GivenBookDueToday_ThenDueToday()
+        public void GivenOneBookDueToday_ThenDueTodaySingular()
         {
             // arrange
             var report = A.StatusReport.WithBookDueToday();
@@ -58,6 +67,22 @@ public class BooksStatusReportToEmailTests
 
             // assert
             subjectLine.Should().Be("DueToday: 1 book due today!! [erwinleo]");
+        }
+
+        [Fact]
+        public void GivenTwoBooksDueToday_ThenDueTodayPlural()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.DueToday(),
+                    A.LoanedBook.DueToday().WithDifferentName());
+
+            // act
+            var subjectLine = report.GetSubjectLine();
+
+            // assert
+            subjectLine.Should().Be("DueToday: 2 books due today!! [erwinleo]");
         }
 
         [Fact]
