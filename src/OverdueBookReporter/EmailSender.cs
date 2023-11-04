@@ -119,15 +119,17 @@ public static class BooksStatusReportEmailExtensions
         sb.AppendLine("Books in posession:");
         foreach (var book in bookListing)
         {
-            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateDaysLeft(book.DueDay)} left)");
+            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateHumanizedDueText(book.DueDay)})");
         }
 
         return sb.ToString();
     }
 
-    private static string CalculateDaysLeft(DateOnly dueDay)
+    private static string CalculateHumanizedDueText(DateOnly dueDay)
     {
         var timeLeft = dueDay.ToDateTime(TimeOnly.MinValue) - DateTime.Now;
-        return timeLeft.Humanize(maxUnit: TimeUnit.Day);
+        return timeLeft.Ticks > 0
+            ? $"{timeLeft.Humanize(maxUnit: TimeUnit.Day)} left"
+            : $"{timeLeft.Humanize(maxUnit: TimeUnit.Day)} ago";
     }
 }
