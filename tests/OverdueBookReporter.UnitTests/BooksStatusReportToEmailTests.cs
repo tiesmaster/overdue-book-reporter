@@ -211,7 +211,7 @@ public class BooksStatusReportToEmailTests
 
             // assert
             emailBody.Should().Be("""
-                Books overdue: Overdue 1, Overdue 2, Overdue 3
+                Books overdue: Overdue 1, Overdue 2, Overdue 3 (1 day overdue)
 
                 Books in posession:
                     Overdue 1 (Due date: 20-10-2023, yesterday)
@@ -238,7 +238,7 @@ public class BooksStatusReportToEmailTests
 
             // assert
             emailBody.Should().Be("""
-                Books overdue: WayOverdue, Overdue
+                Books overdue: WayOverdue, Overdue (10 days overdue)
 
                 Books in posession:
                     WayOverdue (Due date: 11-10-2023, 10 days ago)

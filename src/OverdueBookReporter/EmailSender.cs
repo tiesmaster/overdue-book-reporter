@@ -148,7 +148,7 @@ public static class BooksStatusReportEmailExtensions
 
     private static void AppendOverdueBooksLine(StringBuilder builder, BooksStatusReport statusReport)
     {
-        builder.AppendLine($"Books overdue: {statusReport.OverdueBooks.Humanize()}");
+        builder.AppendLine($"Books overdue: {statusReport.OverdueBooks.Humanize()} ({"day".ToQuantity(statusReport.CountDaysOverdue)} overdue)");
     }
 
     private static void AppendBookListingTable(StringBuilder builder, BooksStatusReport statusReport)

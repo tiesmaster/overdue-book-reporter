@@ -23,6 +23,7 @@ public record BooksStatusReport(DateOnly ReportDay, string Username, ImmutableLi
     public int CountOverdue => BookListing.Count((Func<LoanedBook, bool>)(x => x.GetStatus(ReportDay) == BookLoanStatus.Overdue));
 
     public int CountDaysLeft => (int)(BookListing.Min(x => x.DueDay).ToDateTime(default) - ReportDay.ToDateTime(default)).TotalDays;
+    public int CountDaysOverdue => -CountDaysLeft;
 
     public DateOnly FirstDueDay => BookListing.OrderBy(x => x.DueDay).First().DueDay;
 
