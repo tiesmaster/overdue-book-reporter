@@ -103,63 +103,52 @@ public static class BooksStatusReportEmailExtensions
     }
     public static string GetBody(this BooksStatusReport statusReport)
     {
-        return statusReport.Status switch
+        if (statusReport.Status == BooksStatusReportStatus.NotActive)
         {
-            BooksStatusReportStatus.NotActive => "",
-            BooksStatusReportStatus.Ok => GetBodyForOk(statusReport),
-            BooksStatusReportStatus.AlmostDue => GetBodyForAlmostDue(statusReport),
-            BooksStatusReportStatus.DueToday => GetBodyForDueToday(statusReport),
-            BooksStatusReportStatus.Overdue => GetBodyForOverdue(statusReport),
-            _ => throw new NotImplementedException(),
-        };
-    }
+            return string.Empty;
+        }
 
-    private static string GetBodyForOk(BooksStatusReport statusReport)
-    {
         var sb = new StringBuilder();
 
-        sb.AppendLine($"First book due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
-        sb.AppendLine();
-
+        AppendManagementSummaryLine(sb, statusReport);
         AppendBookListingTable(sb, statusReport);
 
         return sb.ToString();
     }
 
-    private static string GetBodyForAlmostDue(BooksStatusReport statusReport)
+    private static void AppendManagementSummaryLine(StringBuilder builder, BooksStatusReport statusReport)
     {
-        var sb = new StringBuilder();
+        if (statusReport.Status is BooksStatusReportStatus.Ok or BooksStatusReportStatus.AlmostDue)
+        {
+            AppendFirstBookDueLine(builder, statusReport);
+        }
 
-        sb.AppendLine($"First book due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
-        sb.AppendLine();
+        if (statusReport.Status is BooksStatusReportStatus.DueToday)
+        {
+            AppendBooksDueTodayLine(builder, statusReport);
+        }
 
-        AppendBookListingTable(sb, statusReport);
+        if (statusReport.Status is BooksStatusReportStatus.Overdue)
+        {
+            AppendOverdueBooksLine(builder, statusReport);
+        }
 
-        return sb.ToString();
+        builder.AppendLine();
     }
 
-    private static string GetBodyForDueToday(BooksStatusReport statusReport)
+    private static void AppendFirstBookDueLine(StringBuilder builder, BooksStatusReport statusReport)
     {
-        var sb = new StringBuilder();
-
-        sb.AppendLine($"Books due today: {statusReport.FirstBooksDue.Humanize()}");
-        sb.AppendLine();
-
-        AppendBookListingTable(sb, statusReport);
-
-        return sb.ToString();
+        builder.AppendLine($"First book due: {statusReport.FirstDueDay.Humanize(statusReport.ReportDay)}");
     }
 
-    private static string GetBodyForOverdue(BooksStatusReport statusReport)
+    private static void AppendBooksDueTodayLine(StringBuilder builder, BooksStatusReport statusReport)
     {
-        var sb = new StringBuilder();
+        builder.AppendLine($"Books due today: {statusReport.FirstBooksDue.Humanize()}");
+    }
 
-        sb.AppendLine($"Books overdue: {statusReport.OverdueBooks.Humanize()}");
-        sb.AppendLine();
-
-        AppendBookListingTable(sb, statusReport);
-
-        return sb.ToString();
+    private static void AppendOverdueBooksLine(StringBuilder builder, BooksStatusReport statusReport)
+    {
+        builder.AppendLine($"Books overdue: {statusReport.OverdueBooks.Humanize()}");
     }
 
     private static void AppendBookListingTable(StringBuilder builder, BooksStatusReport statusReport)
@@ -176,8 +165,12 @@ public static class BooksStatusReportEmailExtensions
             ? "today"
             : dueDay.Humanize(reportDay);
 
-    private static string Humanize(this IEnumerable<LoanedBook> books)
+    private static string Humanize(this IEnumerable<LoanedBook> books, int maxListedItems = 3)
     {
-        return string.Join(", ", books.Select(x => x.Name));
+        var totalCountItems = books.Count();
+
+        return totalCountItems > maxListedItems
+            ? string.Join(", ", books.Take(maxListedItems).Select(x => x.Name)) + $" + {totalCountItems - maxListedItems} more"
+            : string.Join(", ", books.Select(x => x.Name));
     }
 }
