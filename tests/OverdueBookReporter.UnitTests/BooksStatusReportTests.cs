@@ -8,8 +8,7 @@ public class BooksStatusReportTests
     public void GivenNoBooksInPossesion_WhenGettingStatus_ThenNotActive()
     {
         // arrange
-        var today = DateOnly.FromDateTime(DateTime.Today);
-        var report = CreateReport(today, Enumerable.Empty<LoanedBook>());
+        var report = A.StatusReport.WithoutBooks();
 
         // act
         var status = report.Status;
@@ -25,7 +24,7 @@ public class BooksStatusReportTests
         var today = A.Today;
         var dueTomorrow = A.LoanedBook.WithDueDate(today.AddDays(10));
 
-        var report = CreateReport(today, new[] { dueTomorrow });
+        var report = A.StatusReport.WithBooks(dueTomorrow);
 
         // act
         var status = report.Status;
