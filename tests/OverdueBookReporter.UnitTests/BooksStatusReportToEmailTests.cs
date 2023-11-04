@@ -162,9 +162,6 @@ public class BooksStatusReportToEmailTests
         // DueToday:
         //   Book due today: ..., ..., ...
 
-        // DueToday (all books):
-        //   Book due today: <<ALL BOOKS>>
-
         [Fact]
         public void GivenMultipleBooksDueToday_ThenSummaryListsThoseBooks()
         {
@@ -173,7 +170,8 @@ public class BooksStatusReportToEmailTests
                 .WithBooks(
                     A.LoanedBook.DueToday().WithName("Due today 1"),
                     A.LoanedBook.DueToday().WithName("Due today 2"),
-                    A.LoanedBook.DueToday().WithName("Due today 3"));
+                    A.LoanedBook.DueToday().WithName("Due today 3"),
+                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
 
             // act
             var emailBody = report.GetBody();
@@ -186,6 +184,7 @@ public class BooksStatusReportToEmailTests
                     Due today 1 (Due date: 21-10-2023, today)
                     Due today 2 (Due date: 21-10-2023, today)
                     Due today 3 (Due date: 21-10-2023, today)
+                    DueTomorrow (Due date: 22-10-2023, tomorrow)
 
                 """);
         }
@@ -228,7 +227,8 @@ public class BooksStatusReportToEmailTests
                     A.LoanedBook.DueToday().WithName("Due today 2"),
                     A.LoanedBook.DueToday().WithName("Due today 3"),
                     A.LoanedBook.DueToday().WithName("Due today 4"),
-                    A.LoanedBook.DueToday().WithName("Due today 5"));
+                    A.LoanedBook.DueToday().WithName("Due today 5"),
+                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
 
             // act
             var emailBody = report.GetBody();
@@ -243,7 +243,8 @@ public class BooksStatusReportToEmailTests
                     Due today 3 (Due date: 21-10-2023, today)
                     Due today 4 (Due date: 21-10-2023, today)
                     Due today 5 (Due date: 21-10-2023, today)
-
+                    DueTomorrow (Due date: 22-10-2023, tomorrow)
+                
                 """);
         }
 
@@ -258,7 +259,8 @@ public class BooksStatusReportToEmailTests
                 .WithBooks(
                     A.LoanedBook.Overdue().WithName("Overdue 1"),
                     A.LoanedBook.Overdue().WithName("Overdue 2"),
-                    A.LoanedBook.Overdue().WithName("Overdue 3"));
+                    A.LoanedBook.Overdue().WithName("Overdue 3"),
+                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
 
             // act
             var emailBody = report.GetBody();
@@ -271,7 +273,33 @@ public class BooksStatusReportToEmailTests
                     Overdue 1 (Due date: 20-10-2023, yesterday)
                     Overdue 2 (Due date: 20-10-2023, yesterday)
                     Overdue 3 (Due date: 20-10-2023, yesterday)
+                    DueTomorrow (Due date: 22-10-2023, tomorrow)
+                
+                """);
+        }
 
+        [Fact]
+        public void GivenAllBooksBooksOverdue_ThenSummaryIndicatesAllBooks()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.Overdue().WithName("Overdue 1"),
+                    A.LoanedBook.Overdue().WithName("Overdue 2"),
+                    A.LoanedBook.Overdue().WithName("Overdue 3"));
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                Books overdue: <<ALL BOOKS>> (1 day overdue)
+
+                Books in posession:
+                    Overdue 1 (Due date: 20-10-2023, yesterday)
+                    Overdue 2 (Due date: 20-10-2023, yesterday)
+                    Overdue 3 (Due date: 20-10-2023, yesterday)
+                
                 """);
         }
 
@@ -285,7 +313,8 @@ public class BooksStatusReportToEmailTests
                     A.LoanedBook.Overdue().WithName("Overdue 2"),
                     A.LoanedBook.Overdue().WithName("Overdue 3"),
                     A.LoanedBook.Overdue().WithName("Overdue 4"),
-                    A.LoanedBook.Overdue().WithName("Overdue 5"));
+                    A.LoanedBook.Overdue().WithName("Overdue 5"),
+                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"));
 
             // act
             var emailBody = report.GetBody();
@@ -300,7 +329,8 @@ public class BooksStatusReportToEmailTests
                     Overdue 3 (Due date: 20-10-2023, yesterday)
                     Overdue 4 (Due date: 20-10-2023, yesterday)
                     Overdue 5 (Due date: 20-10-2023, yesterday)
-
+                    DueTomorrow (Due date: 22-10-2023, tomorrow)
+                
                 """);
         }
 

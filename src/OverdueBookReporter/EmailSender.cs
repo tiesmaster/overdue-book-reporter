@@ -143,12 +143,15 @@ public static class BooksStatusReportEmailExtensions
 
     private static void AppendBooksDueTodayLine(StringBuilder builder, BooksStatusReport statusReport)
     {
-        builder.AppendLine($"Books due today: {statusReport.FirstBooksDue.Humanize()}");
+        builder.AppendLine(
+            $"Books due today: {statusReport.FirstBooksDue.Humanize(totalBookCount: statusReport.BookListing.Count)}");
     }
 
     private static void AppendOverdueBooksLine(StringBuilder builder, BooksStatusReport statusReport)
     {
-        builder.AppendLine($"Books overdue: {statusReport.OverdueBooks.Humanize()} ({"day".ToQuantity(statusReport.CountDaysOverdue)} overdue)");
+        builder.AppendLine(
+            $"Books overdue: {statusReport.OverdueBooks.Humanize(totalBookCount: statusReport.BookListing.Count)} " +
+            $"({"day".ToQuantity(statusReport.CountDaysOverdue)} overdue)");
     }
 
     private static void AppendBookListingTable(StringBuilder builder, BooksStatusReport statusReport)
@@ -156,7 +159,8 @@ public static class BooksStatusReportEmailExtensions
         builder.AppendLine("Books in posession:");
         foreach (var book in statusReport.BookListing)
         {
-            builder.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateHumanizedDueText(statusReport.ReportDay, book.DueDay)})");
+            builder.AppendLine($"    {book.Name} (Due date: {book.DueDay}, " +
+                $"{CalculateHumanizedDueText(statusReport.ReportDay, book.DueDay)})");
         }
     }
 
@@ -165,12 +169,16 @@ public static class BooksStatusReportEmailExtensions
             ? "today"
             : dueDay.Humanize(reportDay);
 
-    private static string Humanize(this IEnumerable<LoanedBook> books, int maxListedItems = 3)
+    private static string Humanize(this IEnumerable<LoanedBook> books, int totalBookCount, int maxListedItems = 3)
     {
-        var totalCountItems = books.Count();
+        var itemCount = books.Count();
+        if (itemCount == totalBookCount)
+        {
+            return "<<ALL BOOKS>>";
+        }
 
-        return totalCountItems > maxListedItems
-            ? string.Join(", ", books.Take(maxListedItems).Select(x => x.Name)) + $" [+ {totalCountItems - maxListedItems} more]"
+        return itemCount > maxListedItems
+            ? string.Join(", ", books.Take(maxListedItems).Select(x => x.Name)) + $" [+ {itemCount - maxListedItems} more]"
             : string.Join(", ", books.Select(x => x.Name));
     }
 }
