@@ -20,8 +20,8 @@ public class BooksStatusReportTests
     public void GivenBookDueInFarFuture_WhenGettingStatus_ThenOk()
     {
         // arrange
-        var today = DateOnly.Parse("2023-10-21");
-        var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today.AddDays(10));
+        var today = A.Today;
+        var dueTomorrow = A.LoanedBook.WithDueDate(today.AddDays(10));
 
         var report = CreateReport(today, new[] { dueTomorrow });
 
@@ -36,8 +36,8 @@ public class BooksStatusReportTests
     public void GivenBookDueTomorrow_WhenGettingStatus_ThenAlmostDue()
     {
         // arrange
-        var today = DateOnly.Parse("2023-10-21");
-        var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today.AddDays(1));
+        var today = A.Today;
+        var dueTomorrow = A.LoanedBook.WithDueDate(today.AddDays(1));
 
         var report = CreateReport(today, new[] { dueTomorrow });
 
@@ -53,8 +53,8 @@ public class BooksStatusReportTests
     public void GivenBookDueToday_WhenGettingStatus_ThenDueToday()
     {
         // arrange
-        var today = DateOnly.Parse("2023-10-21");
-        var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today);
+        var today = A.Today;
+        var dueTomorrow = A.LoanedBook.WithDueDate(today);
 
         var report = CreateReport(today, new[] { dueTomorrow });
 
@@ -69,8 +69,8 @@ public class BooksStatusReportTests
     public void GivenOverdueBooks_WhenGettingStatus_ThenOverdue()
     {
         // arrange
-        var today = DateOnly.Parse("2023-10-21");
-        var dueTomorrow = new LoanedBook(Name: "1984", DueDay: today.AddDays(-1));
+        var today = A.Today;
+        var dueTomorrow = A.LoanedBook.WithDueDate(today.AddDays(-1));
 
         var report = CreateReport(today, new[] { dueTomorrow });
 
