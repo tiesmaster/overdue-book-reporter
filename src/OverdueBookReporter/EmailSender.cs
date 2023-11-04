@@ -1,6 +1,7 @@
 using System.Text;
 
 using Humanizer;
+using Humanizer.Localisation;
 
 using MailKit.Net.Smtp;
 
@@ -118,9 +119,15 @@ public static class BooksStatusReportEmailExtensions
         sb.AppendLine("Books in posession:");
         foreach (var book in bookListing)
         {
-            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay})");
+            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateDaysLeft(book.DueDay)} left)");
         }
 
         return sb.ToString();
+    }
+
+    private static string CalculateDaysLeft(DateOnly dueDay)
+    {
+        var timeLeft = dueDay.ToDateTime(TimeOnly.MinValue) - DateTime.Now;
+        return timeLeft.Humanize(maxUnit: TimeUnit.Day);
     }
 }
