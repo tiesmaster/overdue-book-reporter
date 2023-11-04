@@ -109,8 +109,7 @@ public static class BooksStatusReportEmailExtensions
             BooksStatusReportStatus.Ok => GetBodyForOk(statusReport),
             BooksStatusReportStatus.AlmostDue => GetBodyForAlmostDue(statusReport),
             BooksStatusReportStatus.DueToday => GetBodyForDueToday(statusReport),
-            BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue
-                => GetBookListingTable(statusReport),
+            BooksStatusReportStatus.Overdue => GetBodyForOverdue(statusReport),
             _ => throw new NotImplementedException(),
         };
     }
@@ -143,7 +142,7 @@ public static class BooksStatusReportEmailExtensions
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine($"Books due today: {string.Join(", ", statusReport.FirstBooksDue.Select(x => x.Name))}");
+        sb.AppendLine($"Books due today: {statusReport.FirstBooksDue.Humanize()}");
         sb.AppendLine();
 
         AppendBookListingTable(sb, statusReport);
@@ -151,10 +150,15 @@ public static class BooksStatusReportEmailExtensions
         return sb.ToString();
     }
 
-    private static string GetBookListingTable(BooksStatusReport statusReport)
+    private static string GetBodyForOverdue(BooksStatusReport statusReport)
     {
         var sb = new StringBuilder();
+
+        sb.AppendLine($"Books overdue: {statusReport.OverdueBooks.Humanize()}");
+        sb.AppendLine();
+
         AppendBookListingTable(sb, statusReport);
+
         return sb.ToString();
     }
 
@@ -171,4 +175,9 @@ public static class BooksStatusReportEmailExtensions
         => reportDay == dueDay
             ? "today"
             : dueDay.Humanize(reportDay);
+
+    private static string Humanize(this IEnumerable<LoanedBook> books)
+    {
+        return string.Join(", ", books.Select(x => x.Name));
+    }
 }

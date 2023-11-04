@@ -29,6 +29,9 @@ public record BooksStatusReport(DateOnly ReportDay, string Username, ImmutableLi
     public ImmutableList<LoanedBook> FirstBooksDue
         => BookListing.Where(x => x.DueDay == FirstDueDay).ToImmutableList();
 
+    public ImmutableList<LoanedBook> OverdueBooks
+        => BookListing.Where(x => x.DueDay < ReportDay).ToImmutableList();
+
     private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
     {
         var allStatusses = books.Select(x => x.GetStatus(ReportDay)).Distinct();

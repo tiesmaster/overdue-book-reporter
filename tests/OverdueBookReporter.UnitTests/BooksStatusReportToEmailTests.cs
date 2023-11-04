@@ -114,22 +114,8 @@ public class BooksStatusReportToEmailTests
             emailBody.Should().BeEmpty();
         }
 
-        // AlmostDue:
+        // Ok/AlmostDue:
         //   First book due: tomorrow
-
-        // DueToday:
-        //   Book due today: ..., ..., ...
-
-        // DueToday (more than 3 books due today):
-        //   Book due today: ..., ..., ... + 2 books
-
-        // DueToday (all books):
-        //   Book due today: <<ALL BOOKS>>
-
-        // Overdue:
-        //   Books overdue: ..., ..., ... (3 days overdue)
-
-        // ------------------
 
         [Fact]
         public void GivenSingleBookInPossessionDueInFarFuture_ThenStatesDueIn10Days()
@@ -173,6 +159,15 @@ public class BooksStatusReportToEmailTests
                 """);
         }
 
+        // DueToday:
+        //   Book due today: ..., ..., ...
+
+        // DueToday (more than 3 books due today):
+        //   Book due today: ..., ..., ... + 2 books
+
+        // DueToday (all books):
+        //   Book due today: <<ALL BOOKS>>
+
         [Fact]
         public void GivenMultipleBooksDueToday_ThenListsThoseBooks()
         {
@@ -198,8 +193,33 @@ public class BooksStatusReportToEmailTests
                 """);
         }
 
-        // DueToday:
-        //   Book due today: ..., ..., ...
+        // Overdue:
+        //   Books overdue: ..., ..., ... (3 days overdue)
+
+        [Fact]
+        public void GivenMultipleBooksOverdue_ThenListsThoseBooks()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.Overdue().WithName("Overdue 1"),
+                    A.LoanedBook.Overdue().WithName("Overdue 2"),
+                    A.LoanedBook.Overdue().WithName("Overdue 3"));
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                Books overdue: Overdue 1, Overdue 2, Overdue 3
+
+                Books in posession:
+                    Overdue 1 (Due date: 20-10-2023, yesterday)
+                    Overdue 2 (Due date: 20-10-2023, yesterday)
+                    Overdue 3 (Due date: 20-10-2023, yesterday)
+
+                """);
+        }
 
         [Fact]
         public void GivenDifferentDueDates_ThenHumanizedDueDateIsDescriptive()
@@ -218,6 +238,8 @@ public class BooksStatusReportToEmailTests
 
             // assert
             emailBody.Should().Be("""
+                Books overdue: WayOverdue, Overdue
+
                 Books in posession:
                     WayOverdue (Due date: 11-10-2023, 10 days ago)
                     Overdue (Due date: 20-10-2023, yesterday)
