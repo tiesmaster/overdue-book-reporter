@@ -31,7 +31,7 @@ public class LibraryRotterdamClient
         var loanedBooksResult = await GetBookListingAsync();
         if (loanedBooksResult.IsSuccess)
         {
-            return new BooksStatusReport(today, _credentials.Username, loanedBooksResult.Value.ToImmutableHashSet());
+            return new BooksStatusReport(today, _credentials.Username, loanedBooksResult.Value.ToImmutableList());
         }
         else
         {

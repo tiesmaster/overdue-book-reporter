@@ -98,4 +98,64 @@ public class BooksStatusReportToEmailTests
             subjectLine.Should().Be("Overdue: 1 book is overdue!!! [erwinleo]");
         }
     }
+
+    public class WhenGettingEmailBody
+    {
+        [Fact]
+        public void GivenNoBooksInPossesion_ThenNoBooksInPosession()
+        {
+            // arrange
+            var report = A.StatusReport.WithoutBooks();
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void GivenSingleBookInPossessionDueTomorrow_ThenHumanizedToTomorrow()
+        {
+            // arrange
+            var report = A.StatusReport.WithBookDueTomorrow();
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                Books in posession:
+                    1984 (Due date: 22-10-2023, tomorrow)
+
+                """);
+        }
+
+        [Fact]
+        public void GivenDifferentDueDates_ThenHumanizedDueDateIsDescriptive()
+        {
+            // arrange
+            var report = A.StatusReport
+                .WithBooks(
+                    A.LoanedBook.WithDueDate(A.Day.AddDays(-10)).WithName("WayOverdue"),
+                    A.LoanedBook.Overdue().WithName("Overdue"),
+                    A.LoanedBook.DueToday().WithName("DueToday"),
+                    A.LoanedBook.DueTomorrow().WithName("DueTomorrow"),
+                    A.LoanedBook.DueInFarFuture().WithName("DueInFarFuture"));
+
+            // act
+            var emailBody = report.GetBody();
+
+            // assert
+            emailBody.Should().Be("""
+                Books in posession:
+                    WayOverdue (Due date: 11-10-2023, 10 days ago)
+                    Overdue (Due date: 20-10-2023, yesterday)
+                    DueToday (Due date: 21-10-2023, today)
+                    DueTomorrow (Due date: 22-10-2023, tomorrow)
+                    DueInFarFuture (Due date: 31-10-2023, 10 days from now)
+
+                """);
+        }
+    }
 }

@@ -107,29 +107,26 @@ public static class BooksStatusReportEmailExtensions
         {
             BooksStatusReportStatus.NotActive => "",
             BooksStatusReportStatus.Ok or BooksStatusReportStatus.AlmostDue or BooksStatusReportStatus.DueToday or BooksStatusReportStatus.Overdue
-                => GetBookListingTable(statusReport.BookListing),
+                => GetBookListingTable(statusReport.ReportDay, statusReport.BookListing),
             _ => throw new NotImplementedException(),
         };
     }
 
-    private static string GetBookListingTable(IEnumerable<LoanedBook> bookListing)
+    private static string GetBookListingTable(DateOnly reportDay, IEnumerable<LoanedBook> bookListing)
     {
         var sb = new StringBuilder();
 
         sb.AppendLine("Books in posession:");
         foreach (var book in bookListing)
         {
-            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateHumanizedDueText(book.DueDay)})");
+            sb.AppendLine($"    {book.Name} (Due date: {book.DueDay}, {CalculateHumanizedDueText(reportDay, book.DueDay)})");
         }
 
         return sb.ToString();
     }
 
-    private static string CalculateHumanizedDueText(DateOnly dueDay)
-    {
-        var timeLeft = dueDay.ToDateTime(TimeOnly.MinValue) - DateTime.Now;
-        return timeLeft.Ticks > 0
-            ? $"{timeLeft.Humanize(maxUnit: TimeUnit.Day)} left"
-            : $"{timeLeft.Humanize(maxUnit: TimeUnit.Day)} ago";
-    }
+    private static string CalculateHumanizedDueText(DateOnly reportDay, DateOnly dueDay)
+        => reportDay == dueDay
+            ? "today"
+            : dueDay.Humanize(reportDay);
 }

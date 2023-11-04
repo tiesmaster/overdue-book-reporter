@@ -11,5 +11,5 @@ public static class A
     public static BooksStatusReport StatusReport => new(
         ReportDay: A.Day,
         Username: "erwinleo",
-        BookListing: ImmutableHashSet<LoanedBook>.Empty);
+        BookListing: ImmutableList<LoanedBook>.Empty);
 }

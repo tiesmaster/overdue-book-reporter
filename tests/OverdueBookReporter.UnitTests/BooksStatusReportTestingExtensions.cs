@@ -7,14 +7,14 @@ public static class BooksStatusReportTestingExtensions
     public static BooksStatusReport WithReportDay(this BooksStatusReport statusReport, DateOnly reportDay)
         => statusReport with { ReportDay = reportDay };
 
-    public static BooksStatusReport WithBooks(this BooksStatusReport statusReport, ImmutableHashSet<LoanedBook> books)
+    public static BooksStatusReport WithBooks(this BooksStatusReport statusReport, ImmutableList<LoanedBook> books)
         => statusReport with { BookListing = books };
 
     public static BooksStatusReport WithBooks(this BooksStatusReport statusReport, params LoanedBook[] books)
-        => statusReport.WithBooks(books.ToImmutableHashSet());
+        => statusReport.WithBooks(books.ToImmutableList());
 
     public static BooksStatusReport WithoutBooks(this BooksStatusReport statusReport)
-        => statusReport.WithBooks(ImmutableHashSet<LoanedBook>.Empty);
+        => statusReport.WithBooks(ImmutableList<LoanedBook>.Empty);
 
     public static BooksStatusReport WithBookDueInFarFuture(this BooksStatusReport statusReport)
         => statusReport.WithBooks(A.LoanedBook.DueInFarFuture());

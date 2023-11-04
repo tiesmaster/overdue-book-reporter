@@ -11,7 +11,7 @@ public enum BooksStatusReportStatus
     Overdue,
 }
 
-public record BooksStatusReport(DateOnly ReportDay, string Username, ImmutableHashSet<LoanedBook> BookListing)
+public record BooksStatusReport(DateOnly ReportDay, string Username, ImmutableList<LoanedBook> BookListing)
 {
     public BooksStatusReportStatus Status => this switch
     {
