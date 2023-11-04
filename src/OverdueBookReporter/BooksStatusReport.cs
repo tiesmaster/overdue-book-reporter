@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Tiesmaster.OverdueBookReporter;
 
 public enum BooksStatusReportStatus
@@ -9,36 +11,22 @@ public enum BooksStatusReportStatus
     Overdue,
 }
 
-public class BooksStatusReport
+public record BooksStatusReport(DateOnly Today, string Username, ImmutableHashSet<LoanedBook> BookListing)
 {
-    private readonly DateOnly _today;
-    private readonly List<LoanedBook> _books;
-
-    public IEnumerable<LoanedBook> BookListing => _books;
-
-    public BooksStatusReport(DateOnly today, string username, IEnumerable<LoanedBook> books)
-    {
-        _today = today;
-        Username = username;
-        _books = books.ToList();
-    }
-
     public BooksStatusReportStatus Status => this switch
     {
-        { _books.Count: 0 } => BooksStatusReportStatus.NotActive,
-        _ => AggregateBooksStatus(_books),
+        { BookListing.Count: 0 } => BooksStatusReportStatus.NotActive,
+        _ => AggregateBooksStatus(BookListing),
     };
 
-    public int CountDueToday => _books.Count(x => x.GetStatus(_today) == BookLoanStatus.DueToday);
-    public int CountOverdue => _books.Count(x => x.GetStatus(_today) == BookLoanStatus.Overdue);
+    public int CountDueToday => BookListing.Count(x => x.GetStatus(Today) == BookLoanStatus.DueToday);
+    public int CountOverdue => BookListing.Count(x => x.GetStatus(Today) == BookLoanStatus.Overdue);
 
-    public int CountDaysLeft => (int)(_books.Min(x => x.DueDay).ToDateTime(default) - _today.ToDateTime(default)).TotalDays;
-
-    public string Username { get; }
+    public int CountDaysLeft => (int)(BookListing.Min(x => x.DueDay).ToDateTime(default) - Today.ToDateTime(default)).TotalDays;
 
     private BooksStatusReportStatus AggregateBooksStatus(IEnumerable<LoanedBook> books)
     {
-        var allStatusses = books.Select(x => x.GetStatus(_today)).Distinct();
+        var allStatusses = books.Select(x => x.GetStatus(Today)).Distinct();
         if (allStatusses.Contains(BookLoanStatus.Overdue))
         {
             return BooksStatusReportStatus.Overdue;

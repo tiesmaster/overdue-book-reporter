@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 
 using Microsoft.Extensions.Options;
@@ -30,7 +31,7 @@ public class LibraryRotterdamClient
         var loanedBooksResult = await GetBookListingAsync();
         if (loanedBooksResult.IsSuccess)
         {
-            return new BooksStatusReport(today, _credentials.Username, loanedBooksResult.Value);
+            return new BooksStatusReport(today, _credentials.Username, loanedBooksResult.Value.ToImmutableHashSet());
         }
         else
         {

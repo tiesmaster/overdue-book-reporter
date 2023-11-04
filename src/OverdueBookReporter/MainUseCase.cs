@@ -57,7 +57,7 @@ public class MainUseCase : BackgroundService
 
     private void LogSuccessStatus(BooksStatusReport statusReport)
     {
-        _logger.LogInformation("Received status report with status '{Status}', and {CountBooks} books", statusReport.Status, statusReport.BookListing?.Count());
+        _logger.LogInformation("Received status report with status '{Status}', and {CountBooks} books", statusReport.Status, statusReport.BookListing.Count);
         foreach (var bookTitle in statusReport.BookListing!)
         {
             _logger.LogDebug("Book in posession: {Book}", bookTitle);

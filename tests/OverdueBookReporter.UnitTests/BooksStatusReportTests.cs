@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace Tiesmaster.OverdueBookReporter.UnitTests;
 
 public class BooksStatusReportTests
@@ -83,6 +85,6 @@ public class BooksStatusReportTests
 
     private static BooksStatusReport CreateReport(DateOnly today, IEnumerable<LoanedBook> loanedBooks)
     {
-        return new BooksStatusReport(today, username: string.Empty, loanedBooks);
+        return new BooksStatusReport(today, Username: string.Empty, loanedBooks.ToImmutableHashSet());
     }
 }
