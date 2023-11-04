@@ -114,6 +114,24 @@ public class BooksStatusReportToEmailTests
             emailBody.Should().BeEmpty();
         }
 
+        // Ok:
+        //   First book due: tomorrow
+
+        // AlmostDue:
+        //   First book due: tomorrow
+
+        // DueToday:
+        //   Book due today: ..., ..., ...
+
+        // DueToday (more than 3 books due today):
+        //   Book due today: ..., ..., ... + 2 books
+
+        // DueToday (all books):
+        //   Book due today: <<ALL BOOKS>>
+
+        // Overdue:
+        //   Books overdue: ..., ..., ... (3 days overdue)
+
         [Fact]
         public void GivenSingleBookInPossessionDueTomorrow_ThenHumanizedToTomorrow()
         {
