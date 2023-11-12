@@ -1,18 +1,23 @@
 
-libraryLoginCredentials: {}
-  # username: AzureDiamond
-  # password: hunter2
+# The config block contains the configuration of the application. See
+# [.env.sample](https://github.com/tiesmaster/overdue-book-reporter/blob/main/.env.sample)
+# for all supported configuration settings.
 
-emailSettings:
-  from: {}
-    # name: OverdueBookReporter
-    # address: john@gmail.com
-  to: {}
-    # name: John
-    # address: john@gmail.com
-  mailServer: {}
-    # host: smtp.gmail.com
-    # port: 465
-    # useSsl: true
-    # username:
-    # password:
+config:
+  libraryLoginCredentials: {}
+    # username: AzureDiamond
+    # password: hunter2
+
+  emailSettings:
+    from: {}
+      # name: OverdueBookReporter
+      # address: john@gmail.com
+    to: {}
+      # name: John
+      # address: john@gmail.com
+    mailServer: {}
+      # host: smtp.gmail.com
+      # port: 465
+      # useSsl: true
+      # username:
+      # password:
