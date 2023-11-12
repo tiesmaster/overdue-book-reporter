@@ -1,0 +1,18 @@
+
+libraryLoginCredentials: {}
+  # username: AzureDiamond
+  # password: hunter2
+
+emailSettings:
+  from: {}
+    # name: OverdueBookReporter
+    # address: john@gmail.com
+  to: {}
+    # name: John
+    # address: john@gmail.com
+  mailServer: {}
+    # host: smtp.gmail.com
+    # port: 465
+    # useSsl: true
+    # username:
+    # password:
