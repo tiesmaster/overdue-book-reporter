@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ include "ping_exporter.fullname" . }}
+  name: {{ include "overdue-book-reporter.fullname" . }}
 spec:
   schedule: "0 1 * * *"
   successfulJobsHistoryLimit: 7
@@ -21,6 +21,6 @@ spec:
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             envFrom:
             - configMapRef:
-                name: {{ include "ping_exporter.fullname" . }}
+                name: {{ include "overdue-book-reporter.fullname" . }}
             - secretRef:
-                name: {{ include "ping_exporter.fullname" . }}
+                name: {{ include "overdue-book-reporter.fullname" . }}
