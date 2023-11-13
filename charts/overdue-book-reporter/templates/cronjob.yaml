@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "ping_exporter.fullname" . }}
+spec:
+  schedule: "0 1 * * *"
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 30
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: overdue-book-reporter
+            instance: jurre
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: overdue-book-reporter
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (print "v" .Chart.AppVersion) }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            envFrom:
+            - configMapRef:
+                name: {{ include "ping_exporter.fullname" . }}
+            - secretRef:
+                name: {{ include "ping_exporter.fullname" . }}

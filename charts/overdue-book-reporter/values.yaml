@@ -1,3 +1,11 @@
+image:
+  repository: ghcr.io/tiesmaster/overdue-book-reporter
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+nameOverride: ""
+fullnameOverride: ""
 
 # The config block contains the configuration of the application. See
 # [.env.sample](https://github.com/tiesmaster/overdue-book-reporter/blob/main/.env.sample)
