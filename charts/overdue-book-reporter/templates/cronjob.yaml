@@ -3,9 +3,9 @@ kind: CronJob
 metadata:
   name: {{ include "overdue-book-reporter.fullname" . }}
 spec:
-  schedule: "0 1 * * *"
-  successfulJobsHistoryLimit: 7
-  failedJobsHistoryLimit: 30
+  {{- with .Values.cronSpec }}
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "overdue-book-reporter.selectorLabels" . | nindent 6 }}
