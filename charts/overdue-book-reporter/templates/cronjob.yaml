@@ -23,9 +23,17 @@ spec:
               {{- toYaml . | nindent 12 }}
             {{- end }}
         spec:
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
           restartPolicy: Never
           containers:
           - name: overdue-book-reporter
+            securityContext:
+              {{- toYaml .Values.securityContext | nindent 14 }}
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default (print "v" .Chart.AppVersion) }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             envFrom:
@@ -33,3 +41,17 @@ spec:
                 name: {{ include "overdue-book-reporter.fullname" . }}
             - secretRef:
                 name: {{ include "overdue-book-reporter.fullname" . }}
+            resources:
+              {{- toYaml .Values.resources | nindent 14 }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
