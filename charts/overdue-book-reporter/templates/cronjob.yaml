@@ -6,13 +6,22 @@ spec:
   schedule: "0 1 * * *"
   successfulJobsHistoryLimit: 7
   failedJobsHistoryLimit: 30
+  selector:
+    matchLabels:
+      {{- include "overdue-book-reporter.selectorLabels" . | nindent 6 }}
   jobTemplate:
     spec:
       template:
         metadata:
+          {{- with .Values.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           labels:
-            app: overdue-book-reporter
-            instance: jurre
+            {{- include "overdue-book-reporter.labels" . | nindent 12 }}
+            {{- with .Values.podLabels }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
         spec:
           restartPolicy: Never
           containers:
