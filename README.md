@@ -13,7 +13,7 @@ helm repo add overdue-book-reporter https://raw.githubusercontent.com/tiesmaster
 helm install john overdue-book-reporter/overdue-book-reporter
 ```
 
-These [values](./charts/overdue-book-reporter/values.yaml) are available.
+[These values](./charts/overdue-book-reporter/values.yaml) are available.
 
 ## Via `.env` file
 
