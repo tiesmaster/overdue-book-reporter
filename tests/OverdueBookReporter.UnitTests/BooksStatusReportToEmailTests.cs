@@ -130,7 +130,6 @@ public class BooksStatusReportToEmailTests
 
             // assert
             CultureInfo.CurrentCulture.Should().Be(CultureInfo.GetCultureInfo("nl-NL"));
-
             emailBody.Should().Be("""
                 ALL books due: 10 days from now
 
