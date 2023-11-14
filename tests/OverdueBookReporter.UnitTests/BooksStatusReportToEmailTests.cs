@@ -99,6 +99,7 @@ public class BooksStatusReportToEmailTests
         }
     }
 
+    [UseCulture("en-US")]
     public class WhenGettingEmailBody
     {
         [Fact]

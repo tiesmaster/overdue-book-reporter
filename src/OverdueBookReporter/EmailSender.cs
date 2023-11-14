@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 using Humanizer;
@@ -85,6 +86,8 @@ public class EmailSender
 
 public static class BooksStatusReportEmailExtensions
 {
+    private static readonly CultureInfo _dutchCulture = CultureInfo.GetCultureInfo("nl-NL");
+
     public static string GetSubjectLine(this BooksStatusReport statusReport)
         => $"{statusReport.DescribeStatus()} [{statusReport.Username}]";
 
@@ -166,7 +169,8 @@ public static class BooksStatusReportEmailExtensions
         builder.AppendLine("Books in posession:");
         foreach (var book in statusReport.BookListing)
         {
-            builder.AppendLine($"    {book.Name} (Due date: {book.DueDay}, " +
+            var dutchDueDateText = book.DueDay.ToString(_dutchCulture);
+            builder.AppendLine($"    {book.Name} (Due date: {dutchDueDateText}, " +
                 $"{CalculateHumanizedDueText(statusReport.ReportDay, book.DueDay)})");
         }
     }
