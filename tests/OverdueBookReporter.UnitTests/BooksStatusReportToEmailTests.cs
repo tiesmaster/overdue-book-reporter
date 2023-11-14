@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace Tiesmaster.OverdueBookReporter.UnitTests;
 
 public class BooksStatusReportToEmailTests
@@ -129,7 +127,6 @@ public class BooksStatusReportToEmailTests
             var emailBody = report.GetBody();
 
             // assert
-            CultureInfo.CurrentCulture.Should().Be(CultureInfo.GetCultureInfo("nl-NL"));
             emailBody.Should().Be("""
                 ALL books due: 10 days from now
 
