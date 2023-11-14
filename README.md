@@ -4,6 +4,17 @@ Simple tool to check any outstanding books at the library, and report if any are
 
 # Usage
 
+## Helm Chart
+
+Add this repo as 'helm repo', and install using `overdue-book-reporter/overdue-book-reporter`:
+
+```
+helm repo add overdue-book-reporter https://raw.githubusercontent.com/tiesmaster/overdue-book-reporter/main/charts
+helm install john overdue-book-reporter/overdue-book-reporter
+```
+
+[These values](./charts/overdue-book-reporter/values.yaml) are available.
+
 ## Via `.env` file
 
 1. Use the [`.env.sample`](./.env.sample) as template to create a new `.env` file
