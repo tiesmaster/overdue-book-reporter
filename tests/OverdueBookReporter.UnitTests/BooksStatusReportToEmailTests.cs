@@ -127,17 +127,13 @@ public class BooksStatusReportToEmailTests
             var emailBody = report.GetBody();
 
             // assert
-            emailBody.Should().NotContain("\r\n");
-            var expectedBody = """
+            emailBody.Should().Be("""
                 ALL books due: 10 days from now
 
                 Books in posession:
                     1984 (Due date: 31-10-2023, 10 days from now)
 
-                """;
-            expectedBody.Should().NotContain("\r\n");
-            emailBody.Should().Be(expectedBody);
-
+                """);
         }
 
         [Fact]
