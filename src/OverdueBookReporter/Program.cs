@@ -7,7 +7,7 @@ using Tiesmaster.OverdueBookReporter;
 
 LoadDotEnv();
 PrintVersionInfo();
-SetCurrentCultureUSEnglish();
+SetCurrentCultureToUSEnglish();
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) => Bootstrapper.Bootstrap(services, context.Configuration))
@@ -29,7 +29,7 @@ static void PrintVersionInfo()
     Console.WriteLine($"overdue-book-reporter: version {versionInfo.InformationalVersion}");
 }
 
-static void SetCurrentCultureUSEnglish()
+static void SetCurrentCultureToUSEnglish()
 {
     var usEnglish = CultureInfo.GetCultureInfo("en-US");
     CultureInfo.CurrentCulture = usEnglish;
