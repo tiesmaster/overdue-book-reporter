@@ -13,4 +13,7 @@ data:
   EMAILSETTINGS__MAILSERVER__PORT: {{ .emailSettings.mailServer.port | quote }}
   EMAILSETTINGS__MAILSERVER__USESSL: {{ .emailSettings.mailServer.useSsl | quote }}
   EMAILSETTINGS__MAILSERVER__USERNAME: {{ .emailSettings.mailServer.username | quote }}
+  {{- with .enableDetailedHttpLogging }}
+  Logging__LogLevel__System.Net.Http.HttpClient.LibraryRotterdamClient: Trace
+  {{- end }}
 {{- end }}

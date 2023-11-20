@@ -25,6 +25,7 @@ config:
       # useSsl: true
       # username:
       # password:
+    # enableDetailedHttpLogging: true
 
 image:
   repository: ghcr.io/tiesmaster/overdue-book-reporter
