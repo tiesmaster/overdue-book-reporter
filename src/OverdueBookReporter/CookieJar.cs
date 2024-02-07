@@ -4,15 +4,10 @@ using AngleSharp.Io;
 
 namespace Tiesmaster.OverdueBookReporter;
 
-public class CookieJar
+public class CookieJar(ILogger<CookieJar> logger)
 {
-    private readonly Dictionary<string, string> _cookies = new();
-    private readonly ILogger<CookieJar> _logger;
-
-    public CookieJar(ILogger<CookieJar> logger)
-    {
-        _logger = logger;
-    }
+    private readonly Dictionary<string, string> _cookies = [];
+    private readonly ILogger<CookieJar> _logger = logger;
 
     public void ReadCookieValues(HttpResponseMessage response)
         => ReadCookieValues(response.Headers.GetValues(HeaderNames.SetCookie));
