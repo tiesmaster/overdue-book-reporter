@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class Bootstrapper
@@ -14,7 +16,16 @@ public static class Bootstrapper
         services.AddTransient<EmailSender>();
 
         services
-            .AddHttpClient<LibraryRotterdamClient>()
+            .AddHttpClient<LibraryRotterdamClient>((services, client) =>
+            {
+                var libraryClientOptions = services.GetRequiredService<IOptions<LibraryLoginCredentials>>();
+
+                // TODO: Push this to the helm chart, or chart install script/values
+                // "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
+
+                // TODO: Get header name from HeaderNames.UserAgent
+                client.DefaultRequestHeaders.Add("User-Agent", libraryClientOptions.Value.UserAgent);
+            })
             .ConfigurePrimaryHttpMessageHandler(_ =>
             {
                 return new HttpClientHandler

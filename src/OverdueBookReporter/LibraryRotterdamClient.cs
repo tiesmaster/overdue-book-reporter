@@ -135,10 +135,13 @@ public class LibraryRotterdamClient
     }
 }
 
+// TODO: Rename to LibraryClientOptions
 public class LibraryLoginCredentials
 {
     public const string SectionName = "LibraryLoginCredentials";
 
+    // TODO: Nest this
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
+    public string UserAgent { get; set; } = null!;
 }
