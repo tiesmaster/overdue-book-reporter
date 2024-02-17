@@ -7,6 +7,8 @@ namespace Tiesmaster.OverdueBookReporter;
 
 public class LibraryRotterdamClient
 {
+    private const string UserAgentHeaderName = "User-Agent";
+
     private readonly LibraryRotterdamClientOptions _clientOptions;
     private readonly HttpClient _httpClient;
     private readonly CookieJar _cookieJar;
@@ -24,6 +26,11 @@ public class LibraryRotterdamClient
         _httpClient = httpClient;
         _cookieJar = cookieJar;
         _logger = logger;
+
+        if (_clientOptions.UserAgent is string ua)
+        {
+            _httpClient.DefaultRequestHeaders.Add(UserAgentHeaderName, ua);
+        }
     }
 
     public async Task<Result<BooksStatusReport>> GetBooksStatusReportAsync(DateOnly today)
@@ -142,6 +149,7 @@ public class LibraryRotterdamClientOptions
     public const string SectionName = "LibraryRotterdamClient";
 
     public LibraryRotterdamClientCredentials Login { get; set; } = null!;
+    public string? UserAgent { get; set; }
 }
 
 public class LibraryRotterdamClientCredentials
