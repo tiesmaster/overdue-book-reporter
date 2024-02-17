@@ -4,7 +4,7 @@ metadata:
   name: {{ include "overdue-book-reporter.fullname" . }}
 {{- with .Values.config }}
 data:
-  LIBRARYROTTERDAMCLIENT__USERNAME: {{ .libraryRotterdamClient.username | quote }}
+  LIBRARYROTTERDAMCLIENT__LOGIN__USERNAME: {{ .libraryRotterdamClient.login.username | quote }}
   EMAILSETTINGS__FROM__NAME: {{ .emailSettings.from.name | quote }}
   EMAILSETTINGS__FROM__ADDRESS: {{ .emailSettings.from.address | quote }}
   EMAILSETTINGS__TO__NAME: {{ .emailSettings.to.name | quote }}

@@ -9,8 +9,9 @@ cronSpec:
 
 config:
   libraryRotterdamClient: {}
-    # username: AzureDiamond
-    # password: hunter2
+    # login:
+    #   username: AzureDiamond
+    #   password: hunter2
 
   emailSettings:
     from: {}

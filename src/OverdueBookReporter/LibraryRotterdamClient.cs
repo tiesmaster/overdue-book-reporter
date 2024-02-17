@@ -31,7 +31,7 @@ public class LibraryRotterdamClient
         var loanedBooksResult = await GetBookListingAsync();
         if (loanedBooksResult.IsSuccess)
         {
-            return new BooksStatusReport(today, _clientOptions.Username, loanedBooksResult.Value.ToImmutableList());
+            return new BooksStatusReport(today, _clientOptions.Login.Username, loanedBooksResult.Value.ToImmutableList());
         }
         else
         {
@@ -76,10 +76,12 @@ public class LibraryRotterdamClient
         var loginFormSecurityTokens = result.Value;
 
         _logger.LogDebug("Logging in");
+        var credentials = _clientOptions.Login;
+
         var dict = new Dictionary<string, string>
         {
-            { "username", _clientOptions.Username },
-            { "password", _clientOptions.Password },
+            { "username", credentials.Username },
+            { "password", credentials.Password },
             { "return", loginFormSecurityTokens!.ReturnToken },
             { loginFormSecurityTokens!.CsrfToken, "1" },
         };
@@ -139,6 +141,11 @@ public class LibraryRotterdamClientOptions
 {
     public const string SectionName = "LibraryRotterdamClient";
 
+    public LibraryRotterdamClientCredentials Login { get; set; } = null!;
+}
+
+public class LibraryRotterdamClientCredentials
+{
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
 }
