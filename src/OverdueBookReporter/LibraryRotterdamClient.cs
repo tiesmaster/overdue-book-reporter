@@ -27,7 +27,7 @@ public class LibraryRotterdamClient
         _cookieJar = cookieJar;
         _logger = logger;
 
-        if (_clientOptions.UserAgent is string ua)
+        if (_clientOptions.UserAgent is string ua && ua is { Length: > 0 })
         {
             _httpClient.DefaultRequestHeaders.Add(UserAgentHeaderName, ua);
         }
