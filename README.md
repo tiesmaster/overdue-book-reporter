@@ -63,8 +63,8 @@ docker pull ghcr.io/tiesmaster/overdue-book-reporter
 ### Run
 ```bash
 docker run --rm \
-    -e LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond \
-    -e LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2 \
+    -e LIBRARYROTTERDAMCLIENT__USERNAME=AzureDiamond \
+    -e LIBRARYROTTERDAMCLIENT__PASSWORD=hunter2 \
     -e EMAILSETTINGS__FROM__NAME=OverdueBookReporter \
     -e EMAILSETTINGS__FROM__ADDRESS=john@gmail.com \
     -e EMAILSETTINGS__TO__NAME=John \
@@ -92,14 +92,14 @@ dotnet run --project src/OverdueBookReporter --librarylogincredentials:username 
 Via ENV:
 
 ```bash
-LIBRARYLOGINCREDENTIALS__USERNAME=AzureDiamond LIBRARYLOGINCREDENTIALS__PASSWORD=hunter2 dotnet run --project src/OverdueBookReporter
+LIBRARYROTTERDAMCLIENT__USERNAME=AzureDiamond LIBRARYROTTERDAMCLIENT__PASSWORD=hunter2 dotnet run --project src/OverdueBookReporter
 ```
 
 Or set as user secret:
 
 ```bash
-dotnet user-secrets set 'LibraryLoginCredentials:Username' 'AzureDiamond'
-dotnet user-secrets set 'LibraryLoginCredentials:Password' 'hunter2'
+dotnet user-secrets set 'LibraryRotterdamClient:Username' 'AzureDiamond'
+dotnet user-secrets set 'LibraryRotterdamClient:Password' 'hunter2'
 
 # And then just do dotnet run
 dotnet run

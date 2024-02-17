@@ -8,7 +8,7 @@ cronSpec:
 # for all supported configuration settings.
 
 config:
-  libraryLoginCredentials: {}
+  libraryRotterdamClient: {}
     # username: AzureDiamond
     # password: hunter2
 

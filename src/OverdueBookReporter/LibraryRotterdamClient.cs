@@ -7,7 +7,7 @@ namespace Tiesmaster.OverdueBookReporter;
 
 public class LibraryRotterdamClient
 {
-    private readonly LibraryLoginCredentials _credentials;
+    private readonly LibraryRotterdamClientOptions _clientOptions;
     private readonly HttpClient _httpClient;
     private readonly CookieJar _cookieJar;
     private readonly ILogger<LibraryRotterdamClient> _logger;
@@ -17,10 +17,10 @@ public class LibraryRotterdamClient
     public LibraryRotterdamClient(
         HttpClient httpClient,
         CookieJar cookieJar,
-        IOptions<LibraryLoginCredentials> credentials,
+        IOptions<LibraryRotterdamClientOptions> clientOptions,
         ILogger<LibraryRotterdamClient> logger)
     {
-        _credentials = credentials.Value;
+        _clientOptions = clientOptions.Value;
         _httpClient = httpClient;
         _cookieJar = cookieJar;
         _logger = logger;
@@ -31,7 +31,7 @@ public class LibraryRotterdamClient
         var loanedBooksResult = await GetBookListingAsync();
         if (loanedBooksResult.IsSuccess)
         {
-            return new BooksStatusReport(today, _credentials.Username, loanedBooksResult.Value.ToImmutableList());
+            return new BooksStatusReport(today, _clientOptions.Username, loanedBooksResult.Value.ToImmutableList());
         }
         else
         {
@@ -78,8 +78,8 @@ public class LibraryRotterdamClient
         _logger.LogDebug("Logging in");
         var dict = new Dictionary<string, string>
         {
-            { "username", _credentials.Username },
-            { "password", _credentials.Password },
+            { "username", _clientOptions.Username },
+            { "password", _clientOptions.Password },
             { "return", loginFormSecurityTokens!.ReturnToken },
             { loginFormSecurityTokens!.CsrfToken, "1" },
         };
@@ -135,9 +135,9 @@ public class LibraryRotterdamClient
     }
 }
 
-public class LibraryLoginCredentials
+public class LibraryRotterdamClientOptions
 {
-    public const string SectionName = "LibraryLoginCredentials";
+    public const string SectionName = "LibraryRotterdamClient";
 
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
