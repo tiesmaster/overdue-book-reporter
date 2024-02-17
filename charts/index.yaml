@@ -3,7 +3,18 @@ entries:
   overdue-book-reporter:
   - apiVersion: v2
     appVersion: 0.10.1
-    created: "2024-02-17T16:16:41.6963256+01:00"
+    created: "2024-02-17T16:48:23.7427366+01:00"
+    description: Simple tool to check any outstanding books at the library, and report
+      if any are overdue
+    digest: 42cddf3e985eced5337627fd51b5caed740cf43aed7462a3146fee32b1312fa2
+    name: overdue-book-reporter
+    type: application
+    urls:
+    - overdue-book-reporter-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: 0.10.1
+    created: "2024-02-17T16:48:23.7421925+01:00"
     description: Simple tool to check any outstanding books at the library, and report
       if any are overdue
     digest: ed858054ece3e460fe76e40df4109fc1731994c0b6c260fa1204ab21d8ae9ec8
@@ -14,7 +25,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 0.8.2
-    created: "2024-02-17T16:16:41.6951464+01:00"
+    created: "2024-02-17T16:48:23.7409413+01:00"
     description: Simple tool to check any outstanding books at the library, and report
       if any are overdue
     digest: 8553a3a7483ea2350e45ac0dac5dfb6adced3751f5ff9bb964513d00021a7946
@@ -25,7 +36,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 0.8.2
-    created: "2024-02-17T16:16:41.6920189+01:00"
+    created: "2024-02-17T16:48:23.7404329+01:00"
     description: Simple tool to check any outstanding books at the library, and report
       if any are overdue
     digest: b9098de667a23e6bd51e5f61588c3bd63813f736200b8a5aebf7d31287178ac3
@@ -34,4 +45,4 @@ entries:
     urls:
     - overdue-book-reporter-0.1.0.tgz
     version: 0.1.0
-generated: "2024-02-17T16:16:41.6897036+01:00"
+generated: "2024-02-17T16:48:23.7398152+01:00"
