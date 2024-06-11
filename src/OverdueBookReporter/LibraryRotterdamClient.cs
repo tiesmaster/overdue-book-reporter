@@ -62,7 +62,7 @@ public class LibraryRotterdamClient
 
         _logger.LogDebug("Retrieving book listing");
         var response = await _httpClient.GetAsync(
-            $"https://wise-web.bibliotheek.rotterdam.nl//cgi-bin/bx.pl?event=invent;var=frame;" +
+            $"https://rotterdam.hostedwise.nl//cgi-bin/bx.pl?event=invent;var=frame;" +
             $"ssoid={_cookieJar.SsoId}&ssokey=joomla&sid={_cookieJar.BicatSid}");
 
         var content = await response.Content.ReadAsStringAsync();
