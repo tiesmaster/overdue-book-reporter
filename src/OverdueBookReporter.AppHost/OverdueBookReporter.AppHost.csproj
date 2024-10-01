@@ -14,4 +14,8 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OverdueBookReporter\OverdueBookReporter.csproj" />
+  </ItemGroup>
+
 </Project>
