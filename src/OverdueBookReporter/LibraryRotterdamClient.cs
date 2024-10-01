@@ -122,20 +122,23 @@ public class LibraryRotterdamClient
             return Result.Fail(response.StatusCode.ToString());
         }
 
+        // fire up cookies for wise.oclc.org/realms/rotterdam
         var response2 = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=external-login-wise-cms-i010&scope=openid%20patron-actions%20registration&response_type=code&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Findex.php%3Foption%3Dcom_oclcwise%26task%3Dopenauth.login");
 
+        // do the actual authorization start, and receive the code
         var response3 = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account&response_mode=fragment&response_type=code&scope=openid%20patron-actions%20registration&prompt=none");
 
         var thingContainingCode = response3.RequestMessage.RequestUri.Fragment;
         var code = thingContainingCode[(thingContainingCode.IndexOf("code=") + 5)..];
 
-        // POST https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/token
+        // chip in the code
         var tokenPost = new StringContent($"code={code}&grant_type=authorization_code&client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account");
         tokenPost.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
         var tokenResponse = await _httpClient.PostAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/token", tokenPost);
         var accessToken = (await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>())!.AccessToken;
 
+        // get the session
         var sessionRequestMessage = new HttpRequestMessage
         {
             Method = HttpMethod.Get,
