@@ -10,7 +10,6 @@ public static class Bootstrapper
         services.AddHostedService<MainUseCase>();
 
         services.AddTransient<LibraryRotterdamClient>();
-        services.AddTransient<CookieJar>();
         services.AddTransient<EmailSender>();
 
         services
@@ -19,7 +18,8 @@ public static class Bootstrapper
             {
                 return new HttpClientHandler
                 {
-                    AllowAutoRedirect = false,
+                    AllowAutoRedirect = true,
+                    UseCookies = true,
                 };
             });
     }

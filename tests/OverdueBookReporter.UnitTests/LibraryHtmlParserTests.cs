@@ -7,40 +7,6 @@ namespace Tiesmaster.OverdueBookReporter.UnitTests;
 public class LibraryHtmlParserTests
 {
     [Fact]
-    public async Task ParseLoginPageAsync_WithCouplePages_ReturnsCsrfToken()
-    {
-        // arrange
-        var expectedCsrfToken = "f14501b9585db15e368c694fe66b079a";
-        var expectedReturnToken = "MjQ2";
-
-        var testFileName = "loginpage.html";
-        var html = GetEmbeddedResourceHtml(testFileName);
-
-        // act
-        var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
-
-        // assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.CsrfToken.Should().Be(expectedCsrfToken);
-        result.Value.ReturnToken.Should().Be(expectedReturnToken);
-    }
-
-    [Fact]
-    public async Task ParseLoginPageAsync_WithInvalidHtml_ReturnsError()
-    {
-        // arrange
-        var html = string.Empty;
-
-        // act
-        var result = await LibraryHtmlParser.ParseLoginPageAsync(html);
-
-        // assert
-        result.Should().BeFailure();
-        result.Should().HaveReason("Unable to locate login page security tokens (the 'CSRF' token, or 'return' token)");
-        result.Should().HaveReason("selectors", (actualMessage, expectedMessage) => actualMessage.Contains(expectedMessage));
-    }
-
-    [Fact]
     public async Task ParseBookListingAsync_WithBooksLendOutAndTomorrowDue_ReturnsThoseBooks()
     {
         // arrange
