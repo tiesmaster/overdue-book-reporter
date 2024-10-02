@@ -1,10 +1,11 @@
 using System.Collections.Immutable;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json.Serialization;
 
 using Microsoft.Extensions.Options;
+
+using static Tiesmaster.OverdueBookReporter.LibraryRotterdamClient;
 
 namespace Tiesmaster.OverdueBookReporter;
 
@@ -62,7 +63,6 @@ public class LibraryRotterdamClient
         }
 
         _logger.LogDebug("Retrieving book listing");
-        // https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=invent;prt=INTERNET;var=opac;taal=nl_NL;vestnr=1012;sid=3f9fd82f-26d1-4ffd-9cc3-b72064a49581
         var response = await _httpClient.GetAsync(
             $"https://rotterdam.hostedwise.nl//cgi-bin/bx.pl?event=invent;prt=INTERNET;var=opac;taal=nl_NL;vestnr=1012;" +
             $"sid={_sid}");
@@ -72,28 +72,6 @@ public class LibraryRotterdamClient
         _logger.LogTrace("Received HTML: {Html}", content);
 
         return await LibraryHtmlParser.ParseBookListingAsync(content);
-    }
-
-    private class KbLoginBody
-    {
-        public KbLoginBody(string userName, string password)
-        {
-            Definition = new()
-            {
-                Username = userName,
-                Password = password,
-            };
-        }
-
-        public string Module => "UsernameAndPassword";
-        public KbLoginDefinition Definition { get; }
-    }
-
-    public class KbLoginDefinition
-    {
-        public bool RememberMe => false;
-        public string Username { get; set; }
-        public string Password { get; set; }
     }
 
     public class Session
@@ -114,12 +92,11 @@ public class LibraryRotterdamClient
 
         var response = await _httpClient.PostAsJsonAsync(
             "https://login.kb.nl/si/login/api/authenticate/",
-            new KbLoginBody(credentials.Username, credentials.Password));
+            KbLibraryAuthenticationRequest.From(credentials));
 
         if (!response.IsSuccessStatusCode)
         {
-            // TODO: Improve!
-            return Result.Fail(response.StatusCode.ToString());
+            return Result.Fail($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
         }
 
         // fire up cookies for wise.oclc.org/realms/rotterdam
@@ -189,6 +166,14 @@ public class LibraryRotterdamClient
             kvp.Key,
             string.Join(" ", kvp.Value))));
     }
+
+    private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
+    {
+        public static KbLibraryAuthenticationRequest From(LibraryRotterdamClientCredentials credentials)
+            => new(new KbLibraryAuthenticationCredentials(credentials.Username, credentials.Password + "123"));
+    }
+
+    private record KbLibraryAuthenticationCredentials(string Username, string Password, bool RememberMe = false);
 }
 
 public class LibraryRotterdamClientOptions
