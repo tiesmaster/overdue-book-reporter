@@ -1,0 +1,44 @@
+@name = kb-authenticate
+
+POST https://login.kb.nl/si/login/api/authenticate/
+Content-Type: application/json
+
+{
+    "module": "UsernameAndPassword",
+    "definition": {
+        "rememberMe": false,
+        "username": "{{$dotenv LIBRARYROTTERDAMCLIENT__LOGIN__USERNAME}}",
+        "password": "{{$dotenv LIBRARYROTTERDAMCLIENT__LOGIN__PASSWORD}}"
+    }
+}
+
+###
+
+@name = oclc-invoke-auth-endpoint
+
+# @no-redirect
+
+GET https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account&response_mode=fragment&response_type=code&scope=openid%20patron-actions%20registration&prompt=none
+
+###
+
+@name = oclc-chip-in-code-for-access-token
+
+POST https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/token
+Content-type: application/x-www-form-urlencoded
+
+code=...&grant_type=authorization_code&client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account
+
+###
+
+@name = bibrott-initiate-session
+
+GET https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=syncses;prt=INTERNET
+Authorization: Bearer ...
+
+###
+
+@name = bibrott-get-book-listing
+
+GET https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=invent;prt=INTERNET;var=opac;taal=nl_NL;vestnr=1012;sid=3f9fd82f-26d1-4ffd-9cc3-b72064a49581
+Accept: application/json
