@@ -36,10 +36,9 @@ public static class Bootstrapper
             {
                 tracing
                     .AddHttpClientInstrumentation()
-                    .AddConsoleExporter()
+                    .AddSource(ActivitySourceWrapper.SourceName)
                     .AddOtlpExporter();
             });
-
     }
 }
 

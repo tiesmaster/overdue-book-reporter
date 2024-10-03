@@ -10,6 +10,7 @@ public class MainUseCase(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        using var _ = ActivitySourceWrapper.StartMainUseCase();
         logger.LogInformation("Retrieving book listing");
 
         var today = DateOnly.FromDateTime(DateTime.Today);
@@ -32,6 +33,7 @@ public class MainUseCase(
 
     private async Task<Result<BooksStatusReport>> GetBooksStatusReportSafeAsync(DateOnly today)
     {
+        using var _ = ActivitySourceWrapper.StartGetBookStatus();
         try
         {
             return await libraryRotterdamClient.GetBooksStatusReportAsync(today);
