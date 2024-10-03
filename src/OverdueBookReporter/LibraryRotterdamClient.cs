@@ -172,11 +172,11 @@ public class LibraryRotterdamClient
                 prompt: OidcConstants.PromptModes.None,
                 responseMode: OidcConstants.ResponseModes.Fragment);
 
-        var authorizeResponse = await _httpClient.GetAsync(authorizationUrl);
+        var authorizeRequestResponse = await _httpClient.GetAsync(authorizationUrl);
 
-        if (!authorizeResponse.IsSuccessStatusCode)
+        if (!authorizeRequestResponse.IsSuccessStatusCode)
         {
-            return await authorizeResponse.ToFailedResult("Failed actual Authorize Request");
+            return await authorizeRequestResponse.ToFailedResult("Failed actual Authorize Request");
         }
 
         var redirectErrorResult = GetRedirectError(_redirectsObserver.PopObservedRedirects());
@@ -185,14 +185,18 @@ public class LibraryRotterdamClient
             return redirectErrorResult;
         }
 
-        var code = ParseCodeFromUrl(authorizeResponse.RequestMessage!.RequestUri);
+        var authorizeResponse = new AuthorizeResponse(authorizeRequestResponse.RequestMessage!.RequestUri!.OriginalString);
+        if (authorizeResponse.IsError)
+        {
+            return authorizeResponse.ToFailedResult();
+        }
 
         // Hit the token endpoint, and do the Access Token Request
         var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
         {
             Address = "https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/token",
             ClientId = clientId,
-            Code = code,
+            Code = authorizeResponse.Code!,
             RedirectUri = redirectUri,
         });
 
@@ -242,15 +246,6 @@ public class LibraryRotterdamClient
 
         return Result.Ok();
     }
-
-    private static string ParseCodeFromUrl(Uri uri)
-        => ReadKeyValues(uri!.Fragment[1..])[OidcConstants.AuthorizeResponse.Code];
-
-    private static Dictionary<string, string> ReadKeyValues(string keysAndValues)
-        => keysAndValues
-            .Split('&')
-            .Select(kv => kv.Split('='))
-            .ToDictionary(arr => arr[0], arr => arr[1]);
 
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
     {
