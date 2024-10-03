@@ -2,8 +2,6 @@ using IdentityModel.Client;
 
 using Tiesmaster.OverdueBookReporter.Errors;
 
-//using static IdentityModel.OidcConstants;
-
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class ResultExtensions
@@ -16,4 +14,7 @@ public static class ResultExtensions
 
     public static Result ToFailedResult(this TokenResponse tokenResponse, string description)
         => new TokenResponseError(description, tokenResponse);
+
+    public static Result ToFailedResult(this AuthorizeResponse authorizeResponse)
+        => new AuthorizeResponseError(authorizeResponse);
 }

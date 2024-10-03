@@ -17,6 +17,7 @@ public class LibraryRotterdamClient
     private readonly LibraryRotterdamClientOptions _clientOptions;
     private readonly HttpClient _httpClient;
     private readonly ILogger<LibraryRotterdamClient> _logger;
+    private readonly HttpClientRedirectsObserver _redirectsObserver = new();
 
     private string? _sid;
 
@@ -147,6 +148,12 @@ public class LibraryRotterdamClient
             return await dummyResponse.ToFailedResult("Failed dummy Authorize Request");
         }
 
+        var redirectErrorResult = GetRedirectError(_redirectsObserver.PopObservedRedirects());
+        if (redirectErrorResult.IsFailed)
+        {
+            return redirectErrorResult;
+        }
+
         return Result.Ok();
     }
 
@@ -170,6 +177,12 @@ public class LibraryRotterdamClient
         if (!authorizeResponse.IsSuccessStatusCode)
         {
             return await authorizeResponse.ToFailedResult("Failed actual Authorize Request");
+        }
+
+        var redirectErrorResult = GetRedirectError(_redirectsObserver.PopObservedRedirects());
+        if (redirectErrorResult.IsFailed)
+        {
+            return redirectErrorResult;
         }
 
         var code = ParseCodeFromUrl(authorizeResponse.RequestMessage!.RequestUri);
@@ -205,6 +218,29 @@ public class LibraryRotterdamClient
         var session = await sessionResponse.Content.ReadFromJsonAsync<Session>();
 
         return Result.Ok(session!.SessionId);
+    }
+
+    private static Result GetRedirectError(IEnumerable<string> observedRedirects)
+    {
+        foreach (var redirect in observedRedirects)
+        {
+            try
+            {
+                var response = new AuthorizeResponse(redirect);
+                if (response.IsError)
+                {
+                    return response.ToFailedResult();
+                }
+            }
+            catch (InvalidOperationException ex) when(ex.Message == "Malformed callback URL.")
+            {
+                // Ignore, some URLs cannot be parsed by IdentityModel, which doesn't mark an
+                // error, but rather a non-authorize URL (such as
+                // https://www.bibliotheek.rotterdam.nl/).
+            }
+        }
+
+        return Result.Ok();
     }
 
     private static string ParseCodeFromUrl(Uri uri)
