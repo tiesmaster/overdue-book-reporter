@@ -161,7 +161,7 @@ public class LibraryRotterdamClient
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
     {
         public static KbLibraryAuthenticationRequest From(LibraryRotterdamClientCredentials credentials)
-            => new(new KbLibraryAuthenticationCredentials(credentials.Username, credentials.Password + "123"));
+            => new(new KbLibraryAuthenticationCredentials(credentials.Username, credentials.Password));
     }
 
     private record KbLibraryAuthenticationCredentials(string Username, string Password, bool RememberMe = false);
