@@ -3,8 +3,6 @@
 using System.Collections.Immutable;
 using System.Net.Http.Json;
 
-using AngleSharp.Io;
-
 using IdentityModel;
 using IdentityModel.Client;
 
@@ -187,11 +185,7 @@ public class LibraryRotterdamClient
 
         if (tokenResponse.IsError)
         {
-            var tokenError = TokenResponseToFailureResult(
-                operationName: "Access Token Request",
-                tokenResponse);
-
-            return Result.Fail(tokenError);
+            return tokenResponse.ToFailedResult("Failed Access Token Request");
         }
 
         return Result.Ok(tokenResponse.AccessToken!);
@@ -220,21 +214,10 @@ public class LibraryRotterdamClient
         return code;
     }
 
-    private static Error TokenResponseToFailureResult(string operationName, TokenResponse tokenResponse)
-    {
-        var tokenError = new Error($"{operationName} failure: {tokenResponse.ErrorType}: {tokenResponse.Error}: {tokenResponse.ErrorDescription}");
-        if (tokenResponse.Exception is Exception ex)
-        {
-            tokenError.CausedBy(ex);
-        }
-
-        return tokenError;
-    }
-
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
     {
         public static KbLibraryAuthenticationRequest From(LibraryRotterdamClientCredentials credentials)
-            => new(new KbLibraryAuthenticationCredentials(credentials.Username, credentials.Password + "123"));
+            => new(new KbLibraryAuthenticationCredentials(credentials.Username, credentials.Password));
     }
 
     private record KbLibraryAuthenticationCredentials(string Username, string Password, bool RememberMe = false);
