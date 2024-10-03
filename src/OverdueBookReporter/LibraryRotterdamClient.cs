@@ -123,7 +123,9 @@ public class LibraryRotterdamClient
 
         if (!kbLoginResponse.IsSuccessStatusCode)
         {
-            return Result.Fail($"KB login failure: {kbLoginResponse.StatusCode}: {await kbLoginResponse.Content.ReadAsStringAsync()}");
+            return await HttpResponseToFailureResult(
+                operationName: "KB login",
+                kbLoginResponse);
         }
 
         return Result.Ok();
@@ -144,7 +146,9 @@ public class LibraryRotterdamClient
 
         if (!dummyResponse.IsSuccessStatusCode)
         {
-            return Result.Fail($"Dummy Authorize Request (dummy) failure: {dummyResponse.StatusCode}: {await dummyResponse.Content.ReadAsStringAsync()}");
+            return await HttpResponseToFailureResult(
+                operationName: "Authorize Request (dummy)",
+                dummyResponse);
         }
 
         return Result.Ok();
@@ -169,7 +173,9 @@ public class LibraryRotterdamClient
 
         if (!authorizeResponse.IsSuccessStatusCode)
         {
-            return Result.Fail($"Authorize Request (actual) failure: {authorizeResponse.StatusCode}: {await authorizeResponse.Content.ReadAsStringAsync()}");
+            return await HttpResponseToFailureResult(
+                operationName: "Authorize Request (actual)",
+                authorizeResponse);
         }
 
         var code = ParseCodeFromUrl(authorizeResponse);
@@ -185,11 +191,9 @@ public class LibraryRotterdamClient
 
         if (tokenResponse.IsError)
         {
-            var tokenError = new Error($"Access Token Request failure: {tokenResponse.ErrorType}: {tokenResponse.Error}: {tokenResponse.ErrorDescription}");
-            if (tokenResponse.Exception is Exception ex)
-            {
-                tokenError.CausedBy(ex);
-            }
+            var tokenError = TokenResponseToFailureResult(
+                operationName: "Access Token Request",
+                tokenResponse);
 
             return Result.Fail(tokenError);
         }
@@ -205,7 +209,9 @@ public class LibraryRotterdamClient
         var sessionResponse = await _httpClient.GetAsync("https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=syncses;prt=INTERNET");
         if (!sessionResponse.IsSuccessStatusCode)
         {
-            return Result.Fail($"Start session failure: {sessionResponse.StatusCode}: {await sessionResponse.Content.ReadAsStringAsync()}");
+            return await HttpResponseToFailureResult(
+                operationName: "Start session",
+                sessionResponse);
         }
 
         var session = await sessionResponse.Content.ReadFromJsonAsync<Session>();
@@ -218,6 +224,22 @@ public class LibraryRotterdamClient
         var thingContainingCode = authorizeResponse.RequestMessage!.RequestUri!.Fragment;
         var code = thingContainingCode[(thingContainingCode.IndexOf("code=") + 5)..];
         return code;
+    }
+
+    private static async Task<Result> HttpResponseToFailureResult(string operationName, HttpResponseMessage response)
+    {
+        return Result.Fail($"{operationName} failure: {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+    }
+
+    private static Error TokenResponseToFailureResult(string operationName, TokenResponse tokenResponse)
+    {
+        var tokenError = new Error($"{operationName} failure: {tokenResponse.ErrorType}: {tokenResponse.Error}: {tokenResponse.ErrorDescription}");
+        if (tokenResponse.Exception is Exception ex)
+        {
+            tokenError.CausedBy(ex);
+        }
+
+        return tokenError;
     }
 
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
