@@ -1,7 +1,6 @@
 // Ignore Spelling: Bootstrapper ssl username
 
 using OpenTelemetry.Trace;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 
 namespace Tiesmaster.OverdueBookReporter;
@@ -35,8 +34,11 @@ public static class Bootstrapper
             .WithTracing(tracing =>
             {
                 tracing
-                    .AddHttpClientInstrumentation()
-                    .AddSource(ActivitySourceWrapper.SourceName)
+                    .AddHttpClientInstrumentation(options => options.EnrichWithHttpRequestMessage = (activity, request) =>
+                    {
+                        activity.DisplayName = $"{request.Method}: {request.RequestUri}";
+                    })
+                    .AddSource(Telemetry.ActivitySourceName)
                     .AddOtlpExporter();
             });
     }

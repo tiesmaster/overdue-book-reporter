@@ -18,7 +18,7 @@ public class EmailSender(IOptions<EmailSettings> emailOptions)
 
     public async Task SendEmailAsync(Result<BooksStatusReport> statusReportResult)
     {
-        using var _ = ActivitySourceWrapper.StartSendEmail();
+        using var _ = Telemetry.StartSendEmail();
         var (isSuccess, _, statusReport, errors) = statusReportResult;
         var email = isSuccess
             ? ComposeEmail(statusReport)
