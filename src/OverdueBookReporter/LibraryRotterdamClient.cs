@@ -18,7 +18,6 @@ public class LibraryRotterdamClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<LibraryRotterdamClient> _logger;
 
-    private bool _isLoggedIn;
     private string? _sid;
 
     public LibraryRotterdamClient(
@@ -51,7 +50,7 @@ public class LibraryRotterdamClient
 
     public async Task<Result<IEnumerable<LoanedBook>>> GetBookListingAsync()
     {
-        if (!_isLoggedIn)
+        if (_sid is null)
         {
             _logger.LogDebug("Not logged in yet; starting log in process");
             var loginResult = await LoginAsync();
@@ -60,7 +59,7 @@ public class LibraryRotterdamClient
                 return loginResult.ToResult<IEnumerable<LoanedBook>>();
             }
 
-            _isLoggedIn = true;
+            _sid = loginResult.Value;
         }
 
         _logger.LogDebug("Retrieving book listing");
@@ -75,7 +74,7 @@ public class LibraryRotterdamClient
         return await LibraryHtmlParser.ParseBookListingAsync(content);
     }
 
-    private async Task<Result> LoginAsync()
+    private async Task<Result<string>> LoginAsync()
     {
         // The login process consists of logging into 2 separate authorization servers: the kb.nl
         // one, and the oclc.org one. The former is the upstream one for the latter. The flow is
@@ -102,20 +101,16 @@ public class LibraryRotterdamClient
         var accessTokenResult = await GetAccessTokenAsync();
         if (accessTokenResult.IsFailed)
         {
-            return accessTokenResult.ToResult();
+            return accessTokenResult;
         }
 
-        var accessToken = accessTokenResult.Value;
-
-        var sessionResult = await StartSessionAsync(accessToken);
+        var sessionResult = await StartSessionAsync(accessTokenResult.Value);
         if (sessionResult.IsFailed)
         {
-            return sessionResult.ToResult();
+            return sessionResult;
         }
 
-        _sid = sessionResult.Value;
-
-        return Result.Ok();
+        return sessionResult.Value;
     }
 
     private async Task<Result> LoginToKbAsync()
