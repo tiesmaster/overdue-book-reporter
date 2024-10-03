@@ -1,4 +1,4 @@
-// Ignore Spelling: Username prt opac taal vestnr sid html bibrott www https apps urlencoded
+// Ignore Spelling: Username prt opac taal vestnr sid html bibrott www openid idp
 
 using System.Collections.Immutable;
 using System.Net.Http.Headers;
@@ -77,17 +77,6 @@ public class LibraryRotterdamClient
         return await LibraryHtmlParser.ParseBookListingAsync(content);
     }
 
-    public class Session
-    {
-        public required string SessionId { get; set; }
-    }
-
-    public class TokenResponse
-    {
-        [JsonPropertyName("access_token")]
-        public required string AccessToken { get; set; }
-    }
-
     private async Task<Result> LoginAsync()
     {
         // The login process consists of logging into 2 separate authorization servers: the kb.nl
@@ -129,12 +118,15 @@ public class LibraryRotterdamClient
         }
 
         // Do the actual Authorization Request, and receive the Authorization Code
+        var clientId = "opac-via-external-idp";
+        var redirectUri = "https://www.bibliotheek.rotterdam.nl/wise-apps/opac/1099/my-account";
+
         var authorizationUrl = new RequestUrl("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth")
             .CreateAuthorizeUrl(
-                clientId: "opac-via-external-idp",
+                clientId: clientId,
                 responseType: OidcConstants.ResponseTypes.Code,
                 scope: "openid patron-actions registration",
-                redirectUri: "https://www.bibliotheek.rotterdam.nl/wise-apps/opac/1099/my-account",
+                redirectUri: redirectUri,
                 prompt: OidcConstants.PromptModes.None,
                 responseMode: OidcConstants.ResponseModes.Fragment);
 
@@ -145,21 +137,29 @@ public class LibraryRotterdamClient
             return Result.Fail($"Authorize Request (actual) failure: {authorizeResponse.StatusCode}: {await authorizeResponse.Content.ReadAsStringAsync()}");
         }
 
-        var thingContainingCode = authorizeResponse.RequestMessage!.RequestUri!.Fragment;
-        var code = thingContainingCode[(thingContainingCode.IndexOf("code=") + 5)..];
+        var code = ParseCodeFromUrl(authorizeResponse);
 
         // Hit the token endpoint, and do the Access Token Request
-        var tokenPost = new StringContent($"code={code}&grant_type=authorization_code&client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account");
-        tokenPost.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-
-        var tokenResponse = await _httpClient.PostAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/token", tokenPost);
-
-        if (!tokenResponse.IsSuccessStatusCode)
+        var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
         {
-            return Result.Fail($"Access Token Request failure: {tokenResponse.StatusCode}: {await tokenResponse.Content.ReadAsStringAsync()}");
+            Address = "https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/token",
+            ClientId = clientId,
+            Code = code,
+            RedirectUri = redirectUri,
+        });
+
+        if (tokenResponse.IsError)
+        {
+            var tokenError = new Error($"Access Token Request failure: {tokenResponse.ErrorType}: {tokenResponse.Error}: {tokenResponse.ErrorDescription}");
+            if (tokenResponse.Exception is Exception ex)
+            {
+                tokenError.CausedBy(ex);
+            }
+
+            return Result.Fail(tokenError);
         }
 
-        var accessToken = (await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>())!.AccessToken;
+        var accessToken = tokenResponse.AccessToken;
 
         // Start a new session with the access token
         var sessionRequestMessage = new HttpRequestMessage
@@ -176,6 +176,13 @@ public class LibraryRotterdamClient
         return Result.Ok();
     }
 
+    private static string ParseCodeFromUrl(HttpResponseMessage authorizeResponse)
+    {
+        var thingContainingCode = authorizeResponse.RequestMessage!.RequestUri!.Fragment;
+        var code = thingContainingCode[(thingContainingCode.IndexOf("code=") + 5)..];
+        return code;
+    }
+
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
     {
         public static KbLibraryAuthenticationRequest From(LibraryRotterdamClientCredentials credentials)
@@ -183,6 +190,11 @@ public class LibraryRotterdamClient
     }
 
     private record KbLibraryAuthenticationCredentials(string Username, string Password, bool RememberMe = false);
+
+    private class Session
+    {
+        public required string SessionId { get; set; }
+    }
 }
 
 public class LibraryRotterdamClientOptions
