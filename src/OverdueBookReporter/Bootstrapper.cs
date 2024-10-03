@@ -1,5 +1,9 @@
 // Ignore Spelling: Bootstrapper ssl username
 
+using OpenTelemetry.Trace;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Resources;
+
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class Bootstrapper
@@ -24,6 +28,18 @@ public static class Bootstrapper
                     UseCookies = true,
                 };
             });
+
+        services
+            .AddOpenTelemetry()
+            .ConfigureResource(resource => resource.AddService("OverdueBookReporter"))
+            .WithTracing(tracing =>
+            {
+                tracing
+                    .AddHttpClientInstrumentation()
+                    .AddConsoleExporter()
+                    .AddOtlpExporter();
+            });
+
     }
 }
 
