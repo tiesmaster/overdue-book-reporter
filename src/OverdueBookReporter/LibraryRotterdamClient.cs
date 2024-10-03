@@ -5,9 +5,10 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 
-using Microsoft.Extensions.Options;
+using IdentityModel;
+using IdentityModel.Client;
 
-using static Tiesmaster.OverdueBookReporter.LibraryRotterdamClient;
+using Microsoft.Extensions.Options;
 
 namespace Tiesmaster.OverdueBookReporter;
 
@@ -111,8 +112,16 @@ public class LibraryRotterdamClient
             return Result.Fail($"KB login failure: {kbLoginResponse.StatusCode}: {await kbLoginResponse.Content.ReadAsStringAsync()}");
         }
 
-        // Invoke dummy Authorization Request that initiates the authorize process normally. Needed, as that sets the authorization session cookies by KeyCloak
-        var dummyResponse = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=external-login-wise-cms-i010&scope=openid%20patron-actions%20registration&response_type=code&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Findex.php%3Foption%3Dcom_oclcwise%26task%3Dopenauth.login");
+        // Invoke dummy Authorization Request that initiates the authorize process normally.
+        // Needed, as that sets the authorization session cookies by KeyCloak
+        var dummyAuthorizationUrl = new RequestUrl("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth")
+            .CreateAuthorizeUrl(
+                clientId: "external-login-wise-cms-i010",
+                responseType: OidcConstants.ResponseTypes.Code,
+                scope: "openid patron-actions registration",
+                redirectUri: "https://www.bibliotheek.rotterdam.nl/index.php?option=com_oclcwise&task=openauth.login");
+
+        var dummyResponse = await _httpClient.GetAsync(dummyAuthorizationUrl);
 
         if (!dummyResponse.IsSuccessStatusCode)
         {
@@ -120,7 +129,16 @@ public class LibraryRotterdamClient
         }
 
         // Do the actual Authorization Request, and receive the Authorization Code
-        var authorizeResponse = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account&response_mode=fragment&response_type=code&scope=openid%20patron-actions%20registration&prompt=none");
+        var authorizationUrl = new RequestUrl("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth")
+            .CreateAuthorizeUrl(
+                clientId: "opac-via-external-idp",
+                responseType: OidcConstants.ResponseTypes.Code,
+                scope: "openid patron-actions registration",
+                redirectUri: "https://www.bibliotheek.rotterdam.nl/wise-apps/opac/1099/my-account",
+                prompt: OidcConstants.PromptModes.None,
+                responseMode: OidcConstants.ResponseModes.Fragment);
+
+        var authorizeResponse = await _httpClient.GetAsync(authorizationUrl);
 
         if (!authorizeResponse.IsSuccessStatusCode)
         {
