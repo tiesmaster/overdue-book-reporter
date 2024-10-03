@@ -162,14 +162,13 @@ public class LibraryRotterdamClient
         var accessToken = tokenResponse.AccessToken;
 
         // Start a new session with the access token
-        var sessionRequestMessage = new HttpRequestMessage
+        _httpClient.SetBearerToken(accessToken!);
+        var sessionResponse = await _httpClient.GetAsync("https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=syncses;prt=INTERNET");
+        if (!sessionResponse.IsSuccessStatusCode)
         {
-            Method = HttpMethod.Get,
-            RequestUri = new Uri("https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=syncses;prt=INTERNET"),
-        };
+            return Result.Fail($"Start session failure: {sessionResponse.StatusCode}: {await sessionResponse.Content.ReadAsStringAsync()}");
+        }
 
-        sessionRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        var sessionResponse = await _httpClient.SendAsync(sessionRequestMessage);
         var session = await sessionResponse.Content.ReadFromJsonAsync<Session>();
         _sid = session!.SessionId;
 
