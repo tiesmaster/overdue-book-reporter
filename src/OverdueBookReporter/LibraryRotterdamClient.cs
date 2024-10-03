@@ -1,3 +1,5 @@
+// Ignore Spelling: Username prt opac taal vestnr sid html bibrott www https apps urlencoded
+
 using System.Collections.Immutable;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -50,7 +52,7 @@ public class LibraryRotterdamClient
 
     public async Task<Result<IEnumerable<LoanedBook>>> GetBookListingAsync()
     {
-        if (_isLoggedIn is false)
+        if (!_isLoggedIn)
         {
             _logger.LogDebug("Not logged in yet; starting log in process");
             var loginResult = await LoginAsync();
@@ -64,7 +66,7 @@ public class LibraryRotterdamClient
 
         _logger.LogDebug("Retrieving book listing");
         var response = await _httpClient.GetAsync(
-            $"https://rotterdam.hostedwise.nl//cgi-bin/bx.pl?event=invent;prt=INTERNET;var=opac;taal=nl_NL;vestnr=1012;" +
+            "https://rotterdam.hostedwise.nl//cgi-bin/bx.pl?event=invent;prt=INTERNET;var=opac;taal=nl_NL;vestnr=1012;" +
             $"sid={_sid}");
 
         var content = await response.Content.ReadAsStringAsync();
@@ -82,40 +84,66 @@ public class LibraryRotterdamClient
     public class TokenResponse
     {
         [JsonPropertyName("access_token")]
-        public string AccessToken { get; set; }
+        public required string AccessToken { get; set; }
     }
 
     private async Task<Result> LoginAsync()
     {
+        // The login process consists of logging into 2 separate authorization servers: the kb.nl
+        // one, and the oclc.org one. The former is the upstream one for the latter. The flow is
+        // like this: bibrott [resource owner] -> oclc.org [downstream AS] -> kb.nl [upstream AS]
+        // We need access to the RO bibrott, but for that to get access, we need to do the
+        // authorization code flow to oclc.org, but that forwards up to kb.nl.
+
+        // So to get access, we first login to kb.nl with a JSON API. Next, we start the
+        // authorization code flow to oclc.org, and that returns a proper token, that we can chip
+        // in for an access token.
+
         _logger.LogDebug("Logging into kb.nl");
         var credentials = _clientOptions.Login;
 
-        var response = await _httpClient.PostAsJsonAsync(
+        var kbLoginResponse = await _httpClient.PostAsJsonAsync(
             "https://login.kb.nl/si/login/api/authenticate/",
             KbLibraryAuthenticationRequest.From(credentials));
 
-        if (!response.IsSuccessStatusCode)
+        if (!kbLoginResponse.IsSuccessStatusCode)
         {
-            return Result.Fail($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+            return Result.Fail($"KB login failure: {kbLoginResponse.StatusCode}: {await kbLoginResponse.Content.ReadAsStringAsync()}");
         }
 
-        // fire up cookies for wise.oclc.org/realms/rotterdam
-        var response2 = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=external-login-wise-cms-i010&scope=openid%20patron-actions%20registration&response_type=code&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Findex.php%3Foption%3Dcom_oclcwise%26task%3Dopenauth.login");
+        // Invoke dummy Authorization Request that initiates the authorize process normally. Needed, as that sets the authorization session cookies by KeyCloak
+        var dummyResponse = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=external-login-wise-cms-i010&scope=openid%20patron-actions%20registration&response_type=code&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Findex.php%3Foption%3Dcom_oclcwise%26task%3Dopenauth.login");
 
-        // do the actual authorization start, and receive the code
-        var response3 = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account&response_mode=fragment&response_type=code&scope=openid%20patron-actions%20registration&prompt=none");
+        if (!dummyResponse.IsSuccessStatusCode)
+        {
+            return Result.Fail($"Dummy Authorize Request (dummy) failure: {dummyResponse.StatusCode}: {await dummyResponse.Content.ReadAsStringAsync()}");
+        }
 
-        var thingContainingCode = response3.RequestMessage.RequestUri.Fragment;
+        // Do the actual Authorization Request, and receive the Authorization Code
+        var authorizeResponse = await _httpClient.GetAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth?client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account&response_mode=fragment&response_type=code&scope=openid%20patron-actions%20registration&prompt=none");
+
+        if (!authorizeResponse.IsSuccessStatusCode)
+        {
+            return Result.Fail($"Authorize Request (actual) failure: {authorizeResponse.StatusCode}: {await authorizeResponse.Content.ReadAsStringAsync()}");
+        }
+
+        var thingContainingCode = authorizeResponse.RequestMessage!.RequestUri!.Fragment;
         var code = thingContainingCode[(thingContainingCode.IndexOf("code=") + 5)..];
 
-        // chip in the code
+        // Hit the token endpoint, and do the Access Token Request
         var tokenPost = new StringContent($"code={code}&grant_type=authorization_code&client_id=opac-via-external-idp&redirect_uri=https%3A%2F%2Fwww.bibliotheek.rotterdam.nl%2Fwise-apps%2Fopac%2F1099%2Fmy-account");
         tokenPost.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
         var tokenResponse = await _httpClient.PostAsync("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/token", tokenPost);
+
+        if (!tokenResponse.IsSuccessStatusCode)
+        {
+            return Result.Fail($"Access Token Request failure: {tokenResponse.StatusCode}: {await tokenResponse.Content.ReadAsStringAsync()}");
+        }
+
         var accessToken = (await tokenResponse.Content.ReadFromJsonAsync<TokenResponse>())!.AccessToken;
 
-        // get the session
+        // Start a new session with the access token
         var sessionRequestMessage = new HttpRequestMessage
         {
             Method = HttpMethod.Get,
@@ -125,46 +153,9 @@ public class LibraryRotterdamClient
         sessionRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         var sessionResponse = await _httpClient.SendAsync(sessionRequestMessage);
         var session = await sessionResponse.Content.ReadFromJsonAsync<Session>();
-        _sid = session.SessionId;
-
-        //var dict = new Dictionary<string, string>
-        //{
-        //    { "username", credentials.Username },
-        //    { "password", credentials.Password },
-        //    { "return", loginFormSecurityTokens!.ReturnToken },
-        //    { loginFormSecurityTokens!.CsrfToken, "1" },
-        //};
-
-        //var body = new FormUrlEncodedContent(dict);
-        //var ms = new MemoryStream();
-        //await body.CopyToAsync(ms);
-        //_cookieJar.AddCookies(body.Headers);
-
-        //_logger.LogTrace("Form content: {FormContent}", Encoding.UTF8.GetString(ms.ToArray()));
-
-        //var loginResponse = await _httpClient.PostAsync("https://www.bibliotheek.rotterdam.nl/login?task=user.login", body);
-
-        //_logger.LogTrace("Received status code: {StatusCode}", loginResponse.StatusCode);
-        //_logger.LogTrace("Received HTML: {Html}", await loginResponse.Content.ReadAsStringAsync());
-
-        //_logger.LogTrace("Response headers: {ResponseHeaders}", FlattenHeaderValues(loginResponse.Headers));
-        //_logger.LogTrace("Content headers: {ContentHeaders}", FlattenHeaderValues(loginResponse.Content.Headers));
-
-        //_cookieJar.ReadCookieValues(loginResponse);
-        //_cookieJar.AddCookies(_httpClient.DefaultRequestHeaders);
-
-        //var redirectResponse = await _httpClient.GetAsync(loginResponse.Headers.Location);
-        //_cookieJar.ReadCookieValues(redirectResponse);
+        _sid = session!.SessionId;
 
         return Result.Ok();
-    }
-
-    private static Dictionary<string, string> FlattenHeaderValues(
-        IEnumerable<KeyValuePair<string, IEnumerable<string>>> headers)
-    {
-        return new(headers.Select(kvp => new KeyValuePair<string, string>(
-            kvp.Key,
-            string.Join(" ", kvp.Value))));
     }
 
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
@@ -180,12 +171,12 @@ public class LibraryRotterdamClientOptions
 {
     public const string SectionName = "LibraryRotterdamClient";
 
-    public LibraryRotterdamClientCredentials Login { get; set; } = null!;
+    public required LibraryRotterdamClientCredentials Login { get; set; }
     public string? UserAgent { get; set; }
 }
 
 public class LibraryRotterdamClientCredentials
 {
-    public string Username { get; set; } = null!;
-    public string Password { get; set; } = null!;
+    public required string Username { get; set; }
+    public required string Password { get; set; }
 }
