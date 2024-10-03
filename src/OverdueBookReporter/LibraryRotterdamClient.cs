@@ -172,7 +172,7 @@ public class LibraryRotterdamClient
             return await authorizeResponse.ToFailedResult("Failed actual Authorize Request");
         }
 
-        var code = ParseCodeFromUrl(authorizeResponse);
+        var code = ParseCodeFromUrl(authorizeResponse.RequestMessage!.RequestUri);
 
         // Hit the token endpoint, and do the Access Token Request
         var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest
@@ -207,12 +207,14 @@ public class LibraryRotterdamClient
         return Result.Ok(session!.SessionId);
     }
 
-    private static string ParseCodeFromUrl(HttpResponseMessage authorizeResponse)
-    {
-        var thingContainingCode = authorizeResponse.RequestMessage!.RequestUri!.Fragment;
-        var code = thingContainingCode[(thingContainingCode.IndexOf("code=") + 5)..];
-        return code;
-    }
+    private static string ParseCodeFromUrl(Uri uri)
+        => ReadKeyValues(uri!.Fragment[1..])[OidcConstants.AuthorizeResponse.Code];
+
+    private static Dictionary<string, string> ReadKeyValues(string keysAndValues)
+        => keysAndValues
+            .Split('&')
+            .Select(kv => kv.Split('='))
+            .ToDictionary(arr => arr[0], arr => arr[1]);
 
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
     {
