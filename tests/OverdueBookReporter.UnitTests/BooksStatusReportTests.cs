@@ -5,7 +5,7 @@ namespace Tiesmaster.OverdueBookReporter.UnitTests;
 public class BooksStatusReportTests
 {
     [Fact]
-    public void GivenNoBooksInPossesion_WhenGettingStatus_ThenNotActive()
+    public void GivenNoBooksInPossession_WhenGettingStatus_ThenNotActive()
     {
         // arrange
         var report = A.StatusReport.WithoutBooks();

@@ -5,7 +5,7 @@ public class BooksStatusReportToEmailTests
     public class WhenGettingSubjectLine
     {
         [Fact]
-        public void GivenNoBooksInPossesion_ThenNoBooksInPosession()
+        public void GivenNoBooksInPossession_ThenNoBooksInPossession()
         {
             // arrange
             var report = A.StatusReport.WithoutBooks();
@@ -103,7 +103,7 @@ public class BooksStatusReportToEmailTests
     public class WhenGettingEmailBody
     {
         [Fact]
-        public void GivenNoBooksInPossesion_ThenEmailBodyIsCompletelyEmpty()
+        public void GivenNoBooksInPossession_ThenEmailBodyIsCompletelyEmpty()
         {
             // arrange
             var report = A.StatusReport.WithoutBooks();

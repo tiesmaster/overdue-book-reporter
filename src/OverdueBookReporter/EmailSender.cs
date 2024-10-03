@@ -12,14 +12,9 @@ using MimeKit;
 
 namespace Tiesmaster.OverdueBookReporter;
 
-public class EmailSender
+public class EmailSender(IOptions<EmailSettings> emailOptions)
 {
-    private readonly EmailSettings _settings;
-
-    public EmailSender(IOptions<EmailSettings> emailOptions)
-    {
-        _settings = emailOptions.Value;
-    }
+    private readonly EmailSettings _settings = emailOptions.Value;
 
     public async Task SendEmailAsync(Result<BooksStatusReport> statusReportResult)
     {

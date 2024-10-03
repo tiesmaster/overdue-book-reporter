@@ -29,7 +29,7 @@ public class LibraryHtmlParserTests
     }
 
     [Fact]
-    public async Task ParseBookListingAsync_WithoutBooksInPosession_ReturnsEmptyList()
+    public async Task ParseBookListingAsync_WithoutBooksInPossession_ReturnsEmptyList()
     {
         // arrange
         var html = GetEmbeddedResourceHtml("no-books-in-posession.html");

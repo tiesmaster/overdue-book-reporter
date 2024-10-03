@@ -3,28 +3,24 @@ using System.Reflection;
 
 using Xunit.Sdk;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Xunit;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 // Inspired by: https://github.com/xunit/samples.xunit/blob/main/UseCulture/UseCultureAttribute.cs
 // Courtesy to the xunit authors
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-public class UseCultureAttribute : BeforeAfterTestAttribute
+public class UseCultureAttribute(string culture, string uiCulture) : BeforeAfterTestAttribute
 {
-    private readonly Lazy<CultureInfo> _culture;
-    private readonly Lazy<CultureInfo> _uiCulture;
+    private readonly Lazy<CultureInfo> _culture = new(() => new CultureInfo(culture, false));
+    private readonly Lazy<CultureInfo> _uiCulture = new(() => new CultureInfo(uiCulture, false));
 
     private CultureInfo _originalCulture = default!;
     private CultureInfo _originalUICulture = default!;
 
     public UseCultureAttribute(string culture) : this(culture, culture)
     {
-    }
-
-    public UseCultureAttribute(string culture, string uiCulture)
-    {
-        _culture = new Lazy<CultureInfo>(() => new CultureInfo(culture, false));
-        _uiCulture = new Lazy<CultureInfo>(() => new CultureInfo(uiCulture, false));
     }
 
     public CultureInfo Culture => _culture.Value;

@@ -1,3 +1,5 @@
+// Ignore Spelling: Bootstrapper ssl username
+
 namespace Tiesmaster.OverdueBookReporter;
 
 public static class Bootstrapper

@@ -28,10 +28,10 @@ public class LoanedBookTests
     [Theory]
     [InlineData("2023-06-09")]
     [InlineData("2023-06-13")]
-    public void GetStatus_WithBookAlmostDue_ReturnsOkStatus(string todaText)
+    public void GetStatus_WithBookAlmostDue_ReturnsOkStatus(string todayText)
     {
         // arrange
-        var today = DateOnly.Parse(todaText);
+        var today = DateOnly.Parse(todayText);
         var sut = new LoanedBook(Name: "1984", DueDay: DateOnly.Parse("2023-06-14"));
 
         // act
