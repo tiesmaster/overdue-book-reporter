@@ -3,6 +3,8 @@
 using System.Collections.Immutable;
 using System.Net.Http.Json;
 
+using AngleSharp.Io;
+
 using IdentityModel;
 using IdentityModel.Client;
 
@@ -123,9 +125,7 @@ public class LibraryRotterdamClient
 
         if (!kbLoginResponse.IsSuccessStatusCode)
         {
-            return await HttpResponseToFailureResult(
-                operationName: "KB login",
-                kbLoginResponse);
+            return await kbLoginResponse.ToFailedResult("Failed KB login");
         }
 
         return Result.Ok();
@@ -146,9 +146,7 @@ public class LibraryRotterdamClient
 
         if (!dummyResponse.IsSuccessStatusCode)
         {
-            return await HttpResponseToFailureResult(
-                operationName: "Authorize Request (dummy)",
-                dummyResponse);
+            return await dummyResponse.ToFailedResult("Failed dummy Authorize Request");
         }
 
         return Result.Ok();
@@ -173,9 +171,7 @@ public class LibraryRotterdamClient
 
         if (!authorizeResponse.IsSuccessStatusCode)
         {
-            return await HttpResponseToFailureResult(
-                operationName: "Authorize Request (actual)",
-                authorizeResponse);
+            return await authorizeResponse.ToFailedResult("Failed actual Authorize Request");
         }
 
         var code = ParseCodeFromUrl(authorizeResponse);
@@ -209,9 +205,7 @@ public class LibraryRotterdamClient
         var sessionResponse = await _httpClient.GetAsync("https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=syncses;prt=INTERNET");
         if (!sessionResponse.IsSuccessStatusCode)
         {
-            return await HttpResponseToFailureResult(
-                operationName: "Start session",
-                sessionResponse);
+            return await sessionResponse.ToFailedResult("Failed start session");
         }
 
         var session = await sessionResponse.Content.ReadFromJsonAsync<Session>();
@@ -224,11 +218,6 @@ public class LibraryRotterdamClient
         var thingContainingCode = authorizeResponse.RequestMessage!.RequestUri!.Fragment;
         var code = thingContainingCode[(thingContainingCode.IndexOf("code=") + 5)..];
         return code;
-    }
-
-    private static async Task<Result> HttpResponseToFailureResult(string operationName, HttpResponseMessage response)
-    {
-        return Result.Fail($"{operationName} failure: {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
     }
 
     private static Error TokenResponseToFailureResult(string operationName, TokenResponse tokenResponse)
@@ -245,7 +234,7 @@ public class LibraryRotterdamClient
     private record KbLibraryAuthenticationRequest(KbLibraryAuthenticationCredentials Definition, string Module = "UsernameAndPassword")
     {
         public static KbLibraryAuthenticationRequest From(LibraryRotterdamClientCredentials credentials)
-            => new(new KbLibraryAuthenticationCredentials(credentials.Username, credentials.Password));
+            => new(new KbLibraryAuthenticationCredentials(credentials.Username, credentials.Password + "123"));
     }
 
     private record KbLibraryAuthenticationCredentials(string Username, string Password, bool RememberMe = false);
