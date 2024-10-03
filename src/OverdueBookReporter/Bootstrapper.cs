@@ -39,6 +39,7 @@ public static class Bootstrapper
                         activity.DisplayName = $"{request.Method}: {request.RequestUri}";
                     })
                     .AddSource(Telemetry.ActivitySourceName)
+                    .AddSource(MailKit.Telemetry.SmtpClient.ActivitySourceName)
                     .AddOtlpExporter();
             });
     }
