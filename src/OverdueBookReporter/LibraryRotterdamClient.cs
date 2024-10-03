@@ -1,9 +1,7 @@
 // Ignore Spelling: Username prt opac taal vestnr sid html bibrott www openid idp
 
 using System.Collections.Immutable;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 
 using IdentityModel;
 using IdentityModel.Client;
@@ -89,7 +87,39 @@ public class LibraryRotterdamClient
         // authorization code flow to oclc.org, and that returns a proper token, that we can chip
         // in for an access token.
 
-        _logger.LogDebug("Logging into kb.nl");
+        var result = await LoginToKbAsync();
+        if (result.IsFailed)
+        {
+            return result;
+        }
+
+        result = await DoDummyAuthorizeRequestCallAsync();
+        if (result.IsFailed)
+        {
+            return result;
+        }
+
+        var accessTokenResult = await GetAccessTokenAsync();
+        if (accessTokenResult.IsFailed)
+        {
+            return accessTokenResult.ToResult();
+        }
+
+        var accessToken = accessTokenResult.Value;
+
+        var sessionResult = await StartSessionAsync(accessToken);
+        if (sessionResult.IsFailed)
+        {
+            return sessionResult.ToResult();
+        }
+
+        _sid = sessionResult.Value;
+
+        return Result.Ok();
+    }
+
+    private async Task<Result> LoginToKbAsync()
+    {
         var credentials = _clientOptions.Login;
 
         var kbLoginResponse = await _httpClient.PostAsJsonAsync(
@@ -101,6 +131,11 @@ public class LibraryRotterdamClient
             return Result.Fail($"KB login failure: {kbLoginResponse.StatusCode}: {await kbLoginResponse.Content.ReadAsStringAsync()}");
         }
 
+        return Result.Ok();
+    }
+
+    private async Task<Result> DoDummyAuthorizeRequestCallAsync()
+    {
         // Invoke dummy Authorization Request that initiates the authorize process normally.
         // Needed, as that sets the authorization session cookies by KeyCloak
         var dummyAuthorizationUrl = new RequestUrl("https://iam-emea.wise.oclc.org/realms/rotterdam/protocol/openid-connect/auth")
@@ -117,6 +152,11 @@ public class LibraryRotterdamClient
             return Result.Fail($"Dummy Authorize Request (dummy) failure: {dummyResponse.StatusCode}: {await dummyResponse.Content.ReadAsStringAsync()}");
         }
 
+        return Result.Ok();
+    }
+
+    private async Task<Result<string>> GetAccessTokenAsync()
+    {
         // Do the actual Authorization Request, and receive the Authorization Code
         var clientId = "opac-via-external-idp";
         var redirectUri = "https://www.bibliotheek.rotterdam.nl/wise-apps/opac/1099/my-account";
@@ -159,10 +199,14 @@ public class LibraryRotterdamClient
             return Result.Fail(tokenError);
         }
 
-        var accessToken = tokenResponse.AccessToken;
+        return Result.Ok(tokenResponse.AccessToken!);
+    }
 
+    private async Task<Result<string>> StartSessionAsync(string accessToken)
+    {
         // Start a new session with the access token
-        _httpClient.SetBearerToken(accessToken!);
+        _httpClient.SetBearerToken(accessToken);
+
         var sessionResponse = await _httpClient.GetAsync("https://rotterdam.hostedwise.nl/cgi-bin/bx.pl?event=syncses;prt=INTERNET");
         if (!sessionResponse.IsSuccessStatusCode)
         {
@@ -170,9 +214,8 @@ public class LibraryRotterdamClient
         }
 
         var session = await sessionResponse.Content.ReadFromJsonAsync<Session>();
-        _sid = session!.SessionId;
 
-        return Result.Ok();
+        return Result.Ok(session!.SessionId);
     }
 
     private static string ParseCodeFromUrl(HttpResponseMessage authorizeResponse)
