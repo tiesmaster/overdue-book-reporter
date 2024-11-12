@@ -11,7 +11,7 @@ RUN dotnet restore -a $TARGETARCH
 RUN dotnet publish -a $TARGETARCH src/OverdueBookReporter -c Release -o /build
 
 # Build runtime image
-FROM base as final
+FROM base AS final
 WORKDIR /app
 COPY --from=build /build .
 ENTRYPOINT ["dotnet", "OverdueBookReporter.dll"]
