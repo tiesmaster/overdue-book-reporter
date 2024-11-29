@@ -7,6 +7,24 @@ namespace Tiesmaster.OverdueBookReporter.UnitTests;
 public class LibraryHtmlParserTests
 {
     [Fact]
+    public async Task ParseBookListingAsync_WithOneBookLendOutFirstDay_ReturnsThatBook()
+    {
+        // arrange
+        var html = GetEmbeddedResourceHtml("1-book-lend-out_first-day.html");
+
+        // act
+        var booksListingResult = await LibraryHtmlParser.ParseBookListingAsync(html);
+
+        // assert
+        var booksListing = booksListingResult.Should().BeSuccess().Subject.Value;
+        booksListing.Should().HaveCount(1);
+
+        var book = booksListing.First();
+        book.Name.Should().Be("Hoop");
+        book.DueDay.Should().Be(DateOnly.Parse("2023-07-07"));
+    }
+
+    [Fact]
     public async Task ParseBookListingAsync_WithBooksLendOutAndTomorrowDue_ReturnsThoseBooks()
     {
         // arrange
