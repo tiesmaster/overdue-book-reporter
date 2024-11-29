@@ -85,7 +85,12 @@ public static class BooksStatusReportEmailExtensions
     private static readonly CultureInfo _dutchCulture = CultureInfo.GetCultureInfo("nl-NL");
 
     public static string GetSubjectLine(this BooksStatusReport statusReport)
-        => $"{statusReport.DescribeStatus()} [{statusReport.Username}]";
+    {
+        var statusLine = $"{statusReport.DescribeStatus()} [{statusReport.Username}]";
+        return statusReport.IsMaxDueDateReachedOfAnyBook
+            ? $"{statusLine} (MAX DUE DATE REACHED)"
+            : statusLine;
+    }
 
     public static string DescribeStatus(this BooksStatusReport statusReport)
     {

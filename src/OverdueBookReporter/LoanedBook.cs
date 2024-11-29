@@ -1,6 +1,6 @@
 namespace Tiesmaster.OverdueBookReporter;
 
-public record LoanedBook(string Name, DateOnly DueDay)
+public record LoanedBook(string Name, DateOnly DueDay, bool IsMaxDueDateReached = false)
 {
     public BookLoanStatus GetStatus(DateOnly currentDay)
     {

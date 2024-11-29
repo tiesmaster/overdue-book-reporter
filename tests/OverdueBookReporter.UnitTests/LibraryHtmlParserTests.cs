@@ -22,6 +22,7 @@ public class LibraryHtmlParserTests
         var book = booksListing.First();
         book.Name.Should().Be("Hoop");
         book.DueDay.Should().Be(DateOnly.Parse("2023-07-07"));
+        book.IsMaxDueDateReached.Should().BeFalse();
     }
 
     [Fact]
@@ -40,10 +41,12 @@ public class LibraryHtmlParserTests
         var firstBook = booksListing.First();
         firstBook.Name.Should().Be("Ik kan alleen wormen tekenen");
         firstBook.DueDay.Should().Be(DateOnly.Parse("2023-06-15"));
+        firstBook.IsMaxDueDateReached.Should().Be(true);
 
         var otherBook = booksListing.Last();
         otherBook.Name.Should().Be("Olivier en het Brulmonster");
         otherBook.DueDay.Should().Be(DateOnly.Parse("2023-06-15"));
+        otherBook.IsMaxDueDateReached.Should().BeTrue();
     }
 
     [Fact]

@@ -19,6 +19,8 @@ public record BooksStatusReport(DateOnly ReportDay, string Username, ImmutableLi
         _ => AggregateBooksStatus(BookListing),
     };
 
+    public bool IsMaxDueDateReachedOfAnyBook => BookListing.Any(b => b.IsMaxDueDateReached);
+
     public int CountDueToday => BookListing.Count((Func<LoanedBook, bool>)(x => x.GetStatus(ReportDay) == BookLoanStatus.DueToday));
     public int CountOverdue => BookListing.Count((Func<LoanedBook, bool>)(x => x.GetStatus(ReportDay) == BookLoanStatus.Overdue));
 

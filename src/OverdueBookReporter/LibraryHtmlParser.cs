@@ -45,13 +45,15 @@ public static class LibraryHtmlParser
         }
 
         var loanInfoHtml = loanInfoHtmlResult.Value;
-        var dueDate = DateOnly.Parse(loanInfoHtml.InnerHtml, CultureInfo.GetCultureInfo("nl-NL"));
 
         var titleName = titleNameResult.Value.InnerHtml;
+        var dueDate = DateOnly.Parse(loanInfoHtml.InnerHtml, CultureInfo.GetCultureInfo("nl-NL"));
+        var isMaxDueDateReached = titleHtml.TextContent.Contains("Kan niet worden verlengd");
 
         return new LoanedBook(
             Name: titleName,
-            DueDay: dueDate
+            DueDay: dueDate,
+            IsMaxDueDateReached: isMaxDueDateReached
         );
     }
 
